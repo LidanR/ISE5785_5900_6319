@@ -1,8 +1,17 @@
 package geometries;
 
+/**
+ * The `RadialGeometry` class is an abstract base class for all radial geometric objects.
+ * It extends the `Geometry` class and includes a radius attribute.
+ */
 public abstract class RadialGeometry extends Geometry {
     private final double radius;
 
+    /**
+     * Constructs a new `RadialGeometry` with the specified radius.
+     *
+     * @param radius the radius of the radial geometry
+     */
     public RadialGeometry(double radius) {
         this.radius = radius;
     }
