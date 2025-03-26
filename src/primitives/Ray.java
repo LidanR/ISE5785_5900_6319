@@ -20,6 +20,22 @@ package primitives;
         }
 
         /**
+         * Returns the starting point of the ray.
+         * @return the starting point of the ray
+         */
+        public Point getPoint() {
+            return head;
+        }
+
+        /**
+         *
+         * @return the direction vector of the ray
+         */
+        public Vector getDir() {
+            return direction;
+        }
+
+        /**
          * Returns a string representation of the ray.
          *
          * @return a string representation of the ray

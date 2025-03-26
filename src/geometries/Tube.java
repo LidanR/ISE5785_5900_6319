@@ -30,6 +30,8 @@ package geometries;
          * @return the normal vector to the tube at the given point
          */
         public Vector getNormal(Point point) {
-            return null;
+            double t=axis.getDir().dotProduct(point.subtract(axis.getPoint()));
+            Point O=axis.getPoint().add(axis.getDir().scale(t));
+            return point.subtract(O).normalize();
         }
     }

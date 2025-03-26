@@ -28,6 +28,8 @@ package geometries;
          * @return the normal vector to the triangle at the given point
          */
         public Vector getNormal(Point point) {
-            return null;
+            Vector vector1 = vertices.get(1).subtract(vertices.get(0));
+            Vector vector2 = vertices.get(2).subtract(vertices.get(0));
+            return vector1.crossProduct(vector2).normalize();
         }
     }
