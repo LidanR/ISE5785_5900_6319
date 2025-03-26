@@ -24,11 +24,11 @@ class VectorTests {
     void testAdd() {
         // ============ Equivalence Partitions Tests ==================
         // TC01: Simple test for add
-        assertEquals(new Point(3, 4, 5), v1.add(v2), "Simple test for add");
+        assertEquals(new Point(3, 5, 7), v1.add(v2), "Simple test for add");
 
         // ============ Boundary Value Tests ==================
         //TC02: Boundary test for add
-        assertEquals(new Vector(2, 3, 6), v1.add(v1), "Boundary test for add");
+        assertEquals(new Vector(2, 4, 6), v1.add(v1), "Boundary test for add");
 
         //TC03: Boundary test for add
         Vector v4 = new Vector(-1, -2, -3);
@@ -39,14 +39,14 @@ class VectorTests {
     void testLengthSquared() {
         // ============ Equivalence Partitions Tests ==================
         // TC01: Simple test for lengthSquared
-        assertEquals(3, v1.lengthSquared(), "Simple test for lengthSquared");
+        assertEquals(14, v1.lengthSquared(), "Simple test for lengthSquared");
     }
 
     @Test
     void testLength() {
         // ============ Equivalence Partitions Tests ==================
         // TC01: Simple test for length
-        assertEquals(Math.sqrt(3), v1.length(), "Simple test for length");
+        assertEquals(Math.sqrt(14), v1.length(), "Simple test for length");
     }
 
     @Test
@@ -57,42 +57,56 @@ class VectorTests {
 
         // ============ Boundary Value Tests ==================
         // TC02: BVA test for scale
-        assertThrows(IllegalArgumentException.class, () -> v1.scale(0), "BVA test for scale");
+        assertThrows(IllegalArgumentException.class, ()-> v1.scale(0), "BVA test for scale");
     }
 
     @Test
     void testDotProduct() {
-        Vector v3 = new Vector(1, 0, 0);
-        Vector v4 = new Vector(1, 1, 0);
         // ============ Equivalence Partitions Tests ==================
         // TC03: Simple test for dotProduct
-        assertEquals(1, v3.dotProduct(v4), "0-90 degree test for dotProduct");
+        Vector v1 = new Vector(1, 1, 0);
+        Vector v2 = new Vector(2, 0, 0);
+        assertEquals(2, v1.dotProduct(v2), "0-90 degree test for dotProduct");
 
-        Vector v5 = new Vector(1, 0, 0);
-        Vector v6 = new Vector(-1, 1, 0);
         // ============ Equivalence Partitions Tests ==================
         // TC04: Simple test for dotProduct
-        assertEquals(-1, v5.dotProduct(v6), "90-180 degree test for dotProduct");
+        Vector v3 = new Vector(-2, 0, 0);
+        assertEquals(-2, v2.dotProduct(v3), "90-180 degree test for dotProduct");
 
-        Vector v7 = new Vector(1, 0, 0);
-        Vector v8 = new Vector(0, 1, 0);
-        // ============ Equivalence Partitions Tests ==================
+        // ============ BVA Value Tests ==================
         // TC05: BVA test for dotProduct
-        assertEquals(0, v7.dotProduct(v8), "BVA test for dotProduct");
+        Vector v4 = new Vector(2, 0, 0);
+        Vector v5 = new Vector(0, 2, 0);
+        assertEquals(0, v4.dotProduct(v5), "BVA test for dotProduct - orthogonal vectors");
+
+        // ============ BVA Value Tests ==================
+        // TC06: BVA test for dotProduct
+        Vector v6 = new Vector(1, 0, 0);
+        assertEquals(1, v1.dotProduct(v6), "BVA for dotProduct - unit vector");
     }
 
     @Test
     void testCrossProduct() {
         // ============ Equivalence Partitions Tests ==================
         // TC01: Simple test for crossProduct
-        Vector v1 = new Vector(1, 2, 3);
-        Vector v2 = new Vector(2, 3, 4);
-        assertEquals(new Vector(-1, 2, -1), v1.crossProduct(v2), "Simple test for crossProduct");
+        Vector v1 = new Vector(1, 1, 0);
+        Vector v2 = new Vector(1, 0, 0);
+        assertEquals(new Vector(0, 0, -1), v1.crossProduct(v2), "Simple test for crossProduct");
 
-        // ============ Equivalence Partitions Tests ==================
+        // ============ BVA value Tests ==================
         //TC02: BVA test for crossProduct
-        Vector v3 = new Vector(2, 4, 6);
-        assertEquals(new Vector(0,0,0), v1.crossProduct(v3), "BVA test for crossProduct");
+        Vector v3 = new Vector(2, 2, 0);
+        assertThrows(IllegalArgumentException.class, ()-> v1.crossProduct(v3), "BVA test for crossProduct - same direction");
+
+        // ============ BVA value Tests ==================
+        //TC03: BVA test for crossProduct
+        Vector v4 = new Vector(-1, -1, 0);
+        assertThrows(IllegalArgumentException.class, ()-> v1.crossProduct(v4), "BVA test for crossProduct - opposite direction, same length");
+
+        // ============ BVA value Tests ==================
+        //TC04: BVA test for crossProduct
+        Vector v5 = new Vector(-2, -2, 0);
+        assertThrows(IllegalArgumentException.class, ()-> v1.crossProduct(v5), "BVA test for crossProduct - opposite direction, different length");
     }
 
     @Test
