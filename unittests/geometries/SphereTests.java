@@ -7,7 +7,9 @@ import primitives.Vector;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SphereTests {
-
+    /**
+     * Test method for {@link geometries.Sphere#getNormal(Point)}.
+     */
     @Test
     void testGetNormal() {
         // ============ Equivalence Partitions Tests ==================

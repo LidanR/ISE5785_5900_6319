@@ -6,12 +6,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import primitives.*;
 
 class PlaneTests {
-
+    /**
+     * Test method for {@link geometries.Plane#getNormal()}.
+     */
     @Test
     void testGetNormal() {
-
         // ============ Equivalence Partitions Tests ==============
-
         // TC01: Test that the normal is orthogonal to at least two different vectors and its length is 1
         Plane plane = new Plane(new Point(0, 0, 0), new Point(1, 0, 0), new Point(0, 1, 0));
         Vector normal = plane.getNormal();
@@ -20,7 +20,6 @@ class PlaneTests {
         assertEquals(0, normal.dotProduct(new Vector(0, 1, 0)), "Plane's normal is not orthogonal to the second vector");
 
         // =============== Boundary Values Tests ==================
-
         // TC10: First and second points are the same
         assertThrows(IllegalArgumentException.class, //
                 () -> new Plane(new Point(0, 0, 0), new Point(0, 0, 0), new Point(0, 1, 0)),

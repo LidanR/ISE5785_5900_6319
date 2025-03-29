@@ -7,7 +7,9 @@ import primitives.Vector;
 
 import static org.junit.jupiter.api.Assertions.*;
 class TubeTests {
-
+    /**
+     * Test method for {@link geometries.Tube#getNormal(Point)}.
+     */
     @Test
     void testGetNormal() {
         // ============ Equivalence Partitions Tests ==================

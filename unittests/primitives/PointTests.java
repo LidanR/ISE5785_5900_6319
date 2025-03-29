@@ -10,6 +10,9 @@ class PointTests {
     Vector v1 = new Vector(1, 1, 1);
     Vector v2 = new Vector(-1, -2, -3);
 
+    /**
+     * Test method for {@link primitives.Point#Point(double, double, double)}.
+     */
     @Test
     void testAdd() {
         // ============ Equivalence Partitions Tests ==================
@@ -21,6 +24,9 @@ class PointTests {
         assertEquals(Point.ZERO, p1.add(v2), "Simple test for add");
     }
 
+    /**
+     * Test method for {@link primitives.Point#subtract(Point)}.
+     */
     @Test
     void testSubtract() {
         // ============ Equivalence Partitions Tests ==================
@@ -32,6 +38,9 @@ class PointTests {
         assertThrows(IllegalArgumentException.class, () -> p1.subtract(p1), "Boundary test for subtract");
     }
 
+    /**
+     * Test method for {@link primitives.Point#distanceSquared(Point)}.
+     */
     @Test
     void testDistanceSquared() {
         // ============ Equivalence Partitions Tests ==================
@@ -40,10 +49,13 @@ class PointTests {
         assertEquals(3, d, "Simple test for distanceSquared");
 
         // ============ Boundary Value Tests ==================
-        // TC02: BVA test for distanceSquared
+        // TC02: BVA test for distanceSquared - distance between the same point should be 0
         assertEquals(0, p1.distanceSquared(p1), "Squared distance between the same point should be 0");
     }
 
+    /**
+     * Test method for {@link primitives.Point#distance(Point)}.
+     */
     @Test
     void testDistance() {
         // ============ Equivalence Partitions Tests ==================
