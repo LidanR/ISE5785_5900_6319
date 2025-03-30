@@ -102,7 +102,7 @@ class VectorTests {
         // ============ Equivalence Partitions Tests ==================
         // TC04: Simple test for dotProduct
         Vector v3 = new Vector(-2, 0, 0);
-        assertEquals(-2, v2.dotProduct(v3), "90-180 degree test for dotProduct");
+        assertEquals(-2, v1.dotProduct(v3), "90-180 degree test for dotProduct");
 
         // ============ BVA Value Tests ==================
         // TC05: BVA test for dotProduct - orthogonal vectors
