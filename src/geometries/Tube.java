@@ -4,7 +4,9 @@ package geometries;
     import primitives.Ray;
     import primitives.Vector;
 
-    /**
+    import java.util.List;
+
+/**
      * The Tube class represents a tube in 3D space.
      * It extends the RadialGeometry class and is defined by a radius and an axis ray.
      */
@@ -34,4 +36,13 @@ package geometries;
             Point O=axis.getPoint().add(axis.getDir().scale(t));
             return point.subtract(O).normalize();
         }
+
+    /**
+     * @param ray the ray to intersect with the object
+     * @return
+     */
+    @Override
+    public List<Point> findIntsersections(Ray ray) {
+        return List.of();
     }
+}

@@ -1,6 +1,7 @@
 package geometries;
 
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
 
 import java.util.List;
@@ -81,4 +82,12 @@ public class Polygon extends Geometry {
    @Override
    public Vector getNormal(Point point) { return plane.getNormal(point); }
 
+   /**
+    * @param ray the ray to intersect with the object
+    * @return
+    */
+   @Override
+   public List<Point> findIntsersections(Ray ray) {
+      return List.of();
+   }
 }
