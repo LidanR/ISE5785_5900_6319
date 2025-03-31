@@ -35,6 +35,9 @@ public class Cylinder extends Tube {
     public Vector getNormal(Point point) {
         // The cylinder's axis
         Ray axisRay = super.axis;
+
+        if(axisRay.getPoint().equals(point)) return axisRay.getDir().scale(-1);
+
         Point p0 = axisRay.getPoint(); // The starting point of the axis
         Vector dir = axisRay.getDir(); // The direction of the axis
 
