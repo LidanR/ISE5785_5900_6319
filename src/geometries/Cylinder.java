@@ -4,6 +4,8 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
+import java.util.List;
+
 /**
  * The `Cylinder` class represents a finite cylinder in 3D space.
  * It extends the `Tube` class by adding a height attribute.
@@ -52,5 +54,9 @@ public class Cylinder extends Tube {
 
         // If the point is on the lateral surface, return the normal to the surface
         return point.subtract(o).normalize();
+    }
+    @Override
+    public List<Point> findIntersections(Ray ray) {
+        return null;
     }
 }

@@ -87,7 +87,7 @@ public class Polygon extends Geometry {
     * @return
     */
    @Override
-   public List<Point> findIntsersections(Ray ray) {
-      return List.of();
+   public List<Point> findIntersections(Ray ray) {
+        return null;
    }
 }

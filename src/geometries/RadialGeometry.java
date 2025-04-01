@@ -16,4 +16,12 @@ public abstract class RadialGeometry extends Geometry {
         if(radius <= 0) throw new IllegalArgumentException("Radius must be positive");
         this.radius = radius;
     }
+    /**
+     * Returns the radius of the radial geometry.
+     *
+     * @return the radius of the radial geometry
+     */
+    public double getRadius() {
+        return radius;
+    }
 }

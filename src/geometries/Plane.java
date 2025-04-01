@@ -5,7 +5,7 @@ import primitives.Ray;
 import primitives.Vector;
 
 import java.util.List;
-
+import static primitives.Util.*;
 /**
  * The `Plane` class represents a plane in 3D space.
  * It extends the `Geometry` class and includes a point on the plane and the normal vector to the plane.
@@ -65,7 +65,12 @@ public class Plane extends Geometry {
      * @return
      */
     @Override
-    public List<Point> findIntsersections(Ray ray) {
-        return List.of();
+    public List<Point> findIntersections(Ray ray) {
+        if(point.equals(ray.getPoint())) return null;
+        double nv = normal.dotProduct(ray.getDir());
+        if(isZero(nv)) return null;
+        double t =alignZero(normal.dotProduct(point.subtract(ray.getPoint())) / nv);
+        if (t <= 0) return null;
+        return List.of(ray.getPoint().add(ray.getDir().scale(t)));
     }
 }

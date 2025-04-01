@@ -125,4 +125,11 @@ class CylinderTests {
         Point p7 = p0.add(dir.scale(7.1)).add(radiusDir);
         assertEquals(expectedNormal3, cylinder.getNormal(p7), "TC07: Failed - Top base edge");
     }
+    @Test
+    void testFindIntersections() {
+        // ============ Equivalence Partitions Tests ==================
+
+        //========== Boundary Value Tests  ==================
+
+    }
 }

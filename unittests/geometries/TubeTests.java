@@ -26,5 +26,12 @@ class TubeTests {
                 () -> t.getNormal(new Point(0, 0, 2)),
                 "Boundary test for getNormal");
     }
+    @Test
+    void testFindIntersections() {
+        // ============ Equivalence Partitions Tests ==================
+
+        //========== Boundary Value Tests  ==================
+
+    }
 
 }

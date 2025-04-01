@@ -5,6 +5,7 @@ import primitives.Ray;
 import primitives.Vector;
 
 import java.util.List;
+import static primitives.Util.*;
 
 /**
  * The `Sphere` class represents a sphere in 3D space.
@@ -40,7 +41,22 @@ public class Sphere extends RadialGeometry {
      * @return
      */
     @Override
-    public List<Point> findIntsersections(Ray ray) {
-        return List.of();
+   public List<Point> findIntersections(Ray ray) {
+        if(ray.getPoint().equals(center)) return List.of(ray.getPoint().add(ray.getDir().scale(super.getRadius())));
+        Vector u = this.center.subtract(ray.getPoint());
+        double tm = ray.getDir().dotProduct(u);
+        double d = alignZero(Math.sqrt(u.lengthSquared() - tm * tm));
+        if (isZero(d - super.getRadius()) || d > super.getRadius()) return null;
+        double th = alignZero(Math.sqrt(super.getRadius() * super.getRadius() - d * d));
+        double t1 = alignZero(tm - th);
+        double t2 = alignZero(tm + th);
+       if (t1 > 0 && t2 > 0)
+            return List.of(ray.getPoint().add(ray.getDir().scale(t1)), ray.getPoint().add(ray.getDir().scale(t2)));
+        if (t1 > 0)
+            return List.of(ray.getPoint().add(ray.getDir().scale(t1)));
+        if (t2 > 0)
+            return List.of(ray.getPoint().add(ray.getDir().scale(t2)));
+        return null;
     }
+
 }
