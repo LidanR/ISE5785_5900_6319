@@ -66,11 +66,11 @@ public class Plane extends Geometry {
      */
     @Override
     public List<Point> findIntersections(Ray ray) {
-        if(point.equals(ray.getPoint())) return null;
+        if(point.equals(ray.getHead())) return null;
         double nv = normal.dotProduct(ray.getDir());
         if(isZero(nv)) return null;
-        double t =alignZero(normal.dotProduct(point.subtract(ray.getPoint())) / nv);
+        double t =alignZero(normal.dotProduct(point.subtract(ray.getHead())) / nv);
         if (t <= 0) return null;
-        return List.of(ray.getPoint().add(ray.getDir().scale(t)));
+        return List.of(ray.getPoint(t));
     }
 }

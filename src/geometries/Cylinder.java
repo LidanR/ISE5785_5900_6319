@@ -38,14 +38,14 @@ public class Cylinder extends Tube {
         // The cylinder's axis
         Ray axisRay = super.axis;
 
-        if(axisRay.getPoint().equals(point)) return axisRay.getDir().scale(-1);
+        if(axisRay.getHead().equals(point)) return axisRay.getDir().scale(-1);
 
-        Point p0 = axisRay.getPoint(); // The starting point of the axis
+        Point p0 = axisRay.getHead(); // The starting point of the axis
         Vector dir = axisRay.getDir(); // The direction of the axis
 
         // Project the given point onto the cylinder's axis
         double t = point.subtract(p0).dotProduct(dir);
-        Point o = p0.add(dir.scale(t)); // The projection of the point onto the axis
+        Point o = axisRay.getPoint(t); // The projection of the point onto the axis
 
         // Check if the point is on the bottom base
         if (t <= 0) return dir.scale(-1);
@@ -55,6 +55,10 @@ public class Cylinder extends Tube {
         // If the point is on the lateral surface, return the normal to the surface
         return point.subtract(o).normalize();
     }
+    /**
+     * @param ray the ray to intersect with the object
+     * @return
+     */
     @Override
     public List<Point> findIntersections(Ray ray) {
         return null;

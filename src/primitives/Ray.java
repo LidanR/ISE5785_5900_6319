@@ -23,7 +23,7 @@ package primitives;
          * Returns the starting point of the ray.
          * @return the starting point of the ray
          */
-        public Point getPoint() {
+        public Point getHead() {
             return head;
         }
 
@@ -35,6 +35,16 @@ package primitives;
             return direction;
         }
 
+        /**
+         * Returns a point on the ray at a given distance from the starting point.
+         *
+         * @param t the distance from the starting point
+         * @return the point on the ray at the given distance
+         */
+        public Point getPoint(double t) {
+            if(t == 0) return head;
+            return head.add(direction.scale(t));
+        }
         /**
          * Returns a string representation of the ray.
          *

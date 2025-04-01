@@ -42,8 +42,8 @@ public class Sphere extends RadialGeometry {
      */
     @Override
    public List<Point> findIntersections(Ray ray) {
-        if(ray.getPoint().equals(center)) return List.of(ray.getPoint().add(ray.getDir().scale(super.getRadius())));
-        Vector u = this.center.subtract(ray.getPoint());
+        if(ray.getHead().equals(center)) return List.of(ray.getHead().add(ray.getDir().scale(super.getRadius())));
+        Vector u = this.center.subtract(ray.getHead());
         double tm = ray.getDir().dotProduct(u);
         double d = alignZero(Math.sqrt(u.lengthSquared() - tm * tm));
         if (isZero(d - super.getRadius()) || d > super.getRadius()) return null;
@@ -51,11 +51,11 @@ public class Sphere extends RadialGeometry {
         double t1 = alignZero(tm - th);
         double t2 = alignZero(tm + th);
        if (t1 > 0 && t2 > 0)
-            return List.of(ray.getPoint().add(ray.getDir().scale(t1)), ray.getPoint().add(ray.getDir().scale(t2)));
+            return List.of(ray.getPoint(t1), ray.getPoint(t2));
         if (t1 > 0)
-            return List.of(ray.getPoint().add(ray.getDir().scale(t1)));
+            return List.of(ray.getPoint(t1));
         if (t2 > 0)
-            return List.of(ray.getPoint().add(ray.getDir().scale(t2)));
+            return List.of(ray.getPoint(t2));
         return null;
     }
 
