@@ -33,11 +33,8 @@ package geometries;
          */
         public Vector getNormal(Point point) {
             double t=axis.getDir().dotProduct(point.subtract(axis.getHead()));
-            if(t == 0) {
-                return point.subtract(axis.getHead());
-            }
 
-            Point O=axis.getPoint(t);
+            Point O = axis.getPoint(t);
             return point.subtract(O).normalize();
         }
 

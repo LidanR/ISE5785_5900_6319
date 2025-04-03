@@ -62,14 +62,14 @@ public class Plane extends Geometry {
 
     /**
      * @param ray the ray to intersect with the object
-     * @return
+     * @return the list of intersection points with the object
      */
     @Override
     public List<Point> findIntersections(Ray ray) {
         if(point.equals(ray.getHead())) return null;
         double nv = normal.dotProduct(ray.getDir());
         if(isZero(nv)) return null;
-        double t =alignZero(normal.dotProduct(point.subtract(ray.getHead())) / nv);
+        double t = alignZero(normal.dotProduct(point.subtract(ray.getHead())) / nv);
         if (t <= 0) return null;
         return List.of(ray.getPoint(t));
     }

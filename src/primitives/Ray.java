@@ -1,6 +1,8 @@
 package primitives;
 
-    /**
+import static primitives.Util.isZero;
+
+/**
      * The Ray class represents a ray in 3D space.
      * It is defined by a starting point (head) and a direction vector.
      */
@@ -42,7 +44,7 @@ package primitives;
          * @return the point on the ray at the given distance
          */
         public Point getPoint(double t) {
-            if(t == 0) return head;
+            if(isZero(t)) return head;
             return head.add(direction.scale(t));
         }
         /**

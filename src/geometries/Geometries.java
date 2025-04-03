@@ -29,15 +29,15 @@ public class Geometries implements Intersectable{
     /**
      * Adds a geometry to the object.
      *
-     * @param geometrie the geometries to add to the object
+     * @param geometry the geometries to add to the object
      */
-    public void add(Intersectable geometrie){
-       geometries.addLast(geometrie);
+    public void add(Intersectable geometry){
+       geometries.addLast(geometry);
     }
 
     /**
      * @param ray the ray to intersect with the object
-     * @return
+     * @return a list of intersection points
      */
     @Override
     public List<Point> findIntersections(Ray ray) {

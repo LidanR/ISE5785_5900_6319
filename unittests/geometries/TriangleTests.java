@@ -26,7 +26,7 @@ class TriangleTests {
         // ============ Equivalence Partitions Tests ==================
         Triangle t = new Triangle(new Point(0, 0, 0), new Point(1, 0, 0), new Point(0, 1, 0));
         // TC01: Ray intersects inside the triangle
-        assertEquals(t.findIntersections(new Ray(new Point(0.3, 0.3, -1), new Vector(0, 0, 1))).size(), 1, "Ray intersects inside the triangle");
+        assertEquals(1, t.findIntersections(new Ray(new Point(0.3, 0.3, -1), new Vector(0, 0, 1))).size(), "Ray intersects inside the triangle");
         // TC02: Ray intersects outside the triangle against edge
         assertNull(t.findIntersections(new Ray(new Point(0.5, 0.5, -1), new Vector(0, 0, -1))), "Ray intersects outside the triangle against edge");
         // TC03: Ray intersects outside the triangle against vertex
