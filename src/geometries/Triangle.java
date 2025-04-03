@@ -6,6 +6,9 @@ import primitives.Point;
 
 import java.util.List;
 
+import static primitives.Util.alignZero;
+import static primitives.Util.isZero;
+
 /**
  * The Triangle class represents a triangle in 3D space.
  * It extends the Polygon class and is defined by three points.
@@ -37,30 +40,44 @@ public class Triangle extends Polygon {
     }
     @Override
     public List<Point> findIntersections(Ray ray) {
-        Vector v1 = vertices.get(0).subtract(ray.getHead());
-        Vector v2 = vertices.get(1).subtract(ray.getHead());
-        Vector v3 = vertices.get(2).subtract(ray.getHead());
+        Point vertex0 = vertices.get(0);
+        Point vertex1 = vertices.get(1);
+        Point vertex2 = vertices.get(2);
+        Vector edge1 = vertex1.subtract(vertex0);
+        Vector edge2 = vertex2.subtract(vertex0);
+        Vector h = ray.getDir().crossProduct(edge2);
+        Vector s = ray.getHead().subtract(vertex0);
+        Vector q = s.crossProduct(edge1);
+        double a, f, u, v;
+        a = alignZero(edge1.dotProduct(h));
 
-        Vector n1 = v1.crossProduct(v2).normalize();
-        Vector n2 = v2.crossProduct(v3).normalize();
-        Vector n3 = v3.crossProduct(v1).normalize();
+        if (isZero(a)) {
+            return null;    // This ray is parallel to this triangle.
+        }
 
-        Vector rayDir = ray.getDir();
+        f = 1.0 / a;
+        u = f * (s.dotProduct(h));
 
-        boolean posSide = (rayDir.dotProduct(n1) > 0) && (rayDir.dotProduct(n2) > 0) && (rayDir.dotProduct(n3) > 0);
-        boolean negSide = (rayDir.dotProduct(n1) < 0) && (rayDir.dotProduct(n2) < 0) && (rayDir.dotProduct(n3) < 0);
-
-        if (!posSide && !negSide) {
+        if (u <= 0.0 || u >= 1.0) {
             return null;
         }
 
-        List<Point> planeIntersections = this.plane.findIntersections(ray);
+        v = f * ray.getDir().dotProduct(q);
 
-        if (planeIntersections == null || planeIntersections.isEmpty()) {
+        if (v <= 0.0 || u + v >= 1.0) {
             return null;
         }
 
-        return List.of(planeIntersections.get(0));
+        // At this stage we can compute t to find out where the intersection point is on the line.
+        double t = f * edge2.dotProduct(q);
+        if (!isZero(t) && t > 0) // ray intersection
+        {
+            return plane.findIntersections(ray);
+        }
+        else // This means that there is a line intersection but not a ray intersection.
+        {
+            return null;
+        }
     }
 
 }
