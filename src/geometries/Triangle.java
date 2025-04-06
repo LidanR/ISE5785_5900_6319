@@ -38,6 +38,11 @@ public class Triangle extends Polygon {
         Vector vector2 = vertices.get(2).subtract(vertices.get(0));
         return vector1.crossProduct(vector2).normalize();
     }
+
+    /**
+     * @param ray the ray to intersect with the object
+     * @return a list of intersection points between the ray and the triangle
+     */
     @Override
     public List<Point> findIntersections(Ray ray) {
         Point vertex0 = vertices.get(0);
