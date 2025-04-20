@@ -36,8 +36,9 @@ public class Geometries implements Intersectable{
     }
 
     /**
-     * @param ray the ray to intersect with the object
-     * @return a list of intersection points
+     * The `Geometries` class represents a collection of geometries in 3D space.
+     * It implements the `Intersectable` interface and provides methods to manage
+     * and find intersections of the geometries.
      */
     @Override
     public List<Point> findIntersections(Ray ray) {

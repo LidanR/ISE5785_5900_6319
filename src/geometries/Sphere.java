@@ -37,8 +37,12 @@ public class Sphere extends RadialGeometry {
     }
 
     /**
-     * @param ray the ray to intersect with the object
-     * @return
+     * Finds the intersection points of the sphere with a given ray.
+     * The method calculates the intersection points by solving the quadratic equation
+     * derived from the sphere equation and the ray equation.
+     *
+     * @param ray the ray to intersect with the sphere
+     * @return a list of intersection points, or null if there are no intersections
      */
     @Override
    public List<Point> findIntersections(Ray ray) {

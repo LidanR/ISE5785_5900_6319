@@ -38,10 +38,14 @@ public class Triangle extends Polygon {
         Vector vector2 = vertices.get(2).subtract(vertices.get(0));
         return vector1.crossProduct(vector2).normalize();
     }
-
     /**
-     * @param ray the ray to intersect with the object
-     * @return a list of intersection points between the ray and the triangle
+     * Finds the intersection points between the triangle and a given ray.
+     * The method uses the Möller-Trumbore intersection algorithm to determine
+     * if the ray intersects the triangle and calculates the intersection points.
+     *
+     * @param ray the ray to intersect with the triangle
+     * @return a list of intersection points between the ray and the triangle,
+     *         or null if there are no intersections
      */
     @Override
     public List<Point> findIntersections(Ray ray) {

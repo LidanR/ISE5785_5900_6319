@@ -61,8 +61,17 @@ public class Plane extends Geometry {
     }
 
     /**
-     * @param ray the ray to intersect with the object
-     * @return the list of intersection points with the object
+     * Finds the intersections of the given ray with the plane.
+     *
+     * The method calculates the intersection point of a ray with the plane using
+     * the parametric equation of the ray and the plane equation. It checks for
+     * special cases such as:
+     * - The ray starting on the plane's reference point.
+     * - The ray being parallel to the plane.
+     * - The intersection point being behind the ray's origin.
+     *
+     * @param ray the ray to intersect with the plane
+     * @return a list containing the intersection point, or null if there are no intersections
      */
     @Override
     public List<Point> findIntersections(Ray ray) {
