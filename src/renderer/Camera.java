@@ -90,8 +90,8 @@ public class Camera implements Cloneable {
                 throw new IllegalArgumentException("Target point cannot be the same as the camera location");
             }
             cam.Vto = target.subtract(cam.location).normalize();
-            Vector vright = cam.Vto.crossProduct(vUp).normalize();
-            cam.Vup = vright.crossProduct(cam.Vto).normalize();
+            cam.Vright = cam.Vto.crossProduct(vUp).normalize();
+            cam.Vup = cam.Vright.crossProduct(cam.Vto).normalize();
             return this;
         }
 
