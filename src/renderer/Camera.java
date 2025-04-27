@@ -73,7 +73,6 @@ public class Camera implements Cloneable {
             }
             cam.Vto = vTo.normalize();
             cam.Vup = vUp.normalize();
-            cam.Vright = cam.Vto.crossProduct(cam.Vup).normalize();
             return this;
         }
 
@@ -90,8 +89,8 @@ public class Camera implements Cloneable {
                 throw new IllegalArgumentException("Target point cannot be the same as the camera location");
             }
             cam.Vto = target.subtract(cam.location).normalize();
-            cam.Vright = cam.Vto.crossProduct(vUp).normalize();
-            cam.Vup = cam.Vright.crossProduct(cam.Vto).normalize();
+            Vector vright = cam.Vto.crossProduct(vUp).normalize();
+            cam.Vup = vright.crossProduct(cam.Vto).normalize();
             return this;
         }
 
@@ -197,7 +196,7 @@ public class Camera implements Cloneable {
      * @return a {@link Ray} that starts at the camera location and goes through the pixel
      */
     public Ray constructRay(int nX, int nY, int j, int i) {
-        Point pCenter = this.location.add(this.Vto.scale(distance));
+        Point pIJ = this.location.add(this.Vto.scale(distance));
 
         double Rx = width / nX;
         double Ry = height / nY;
@@ -205,7 +204,6 @@ public class Camera implements Cloneable {
         double xJ = (j - ((nX - 1) / 2.0)) * Rx;
         double yI = -(i - ((nY - 1) / 2.0)) * Ry;
 
-        Point pIJ = pCenter;
         if (!Util.isZero(xJ)) {
             pIJ = pIJ.add(Vright.scale(xJ));
         }
