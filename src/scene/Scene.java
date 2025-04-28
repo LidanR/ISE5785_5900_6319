@@ -3,6 +3,8 @@ package scene;
 import geometries.Geometries;
 import lighting.AmbientLight;
 import primitives.Color;
+import renderer.Camera;
+
 /**
  * Represents a 3D scene containing geometries, lighting, and background settings.
  */

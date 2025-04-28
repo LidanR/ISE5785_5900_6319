@@ -1,5 +1,7 @@
 package primitives;
 
+import java.util.List;
+
 import static primitives.Util.isZero;
 
 /**
@@ -69,5 +71,25 @@ import static primitives.Util.isZero;
         public boolean equals(Object obj) {
             if (this == obj) return true;
             return (obj instanceof Ray other) && head.equals(other.head) && direction.equals(other.direction);
+        }
+
+        /**
+         * Finds the closest point to the ray from a list of points.
+         *
+         * @param points the list of points to search
+         * @return the closest point to the ray, or null if the list is empty
+         */
+        public Point findClosestPoint(List<Point> points) {
+            if (points == null || points.isEmpty()) return null;
+            Point closestPoint = points.get(0);
+            double minDistance = head.distanceSquared(closestPoint);
+            for (Point point : points) {
+                double distance = head.distanceSquared(point);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestPoint = point;
+                }
+            }
+            return closestPoint;
         }
     }
