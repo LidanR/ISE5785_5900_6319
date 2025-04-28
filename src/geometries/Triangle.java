@@ -14,7 +14,10 @@ import static primitives.Util.isZero;
  * It extends the Polygon class and is defined by three points.
  */
 public class Triangle extends Polygon {
-
+    // The edges of the triangle
+    private Vector edge1;
+    // The edges of the triangle
+    private Vector edge2;
     /**
      * Constructs a Triangle with the specified vertices.
      *
@@ -24,6 +27,8 @@ public class Triangle extends Polygon {
      */
     public Triangle(Point x, Point y, Point z) {
         super(x, y, z);
+        this.edge1 = y.subtract(x);
+        this.edge2 = z.subtract(x);
     }
 
     /**
@@ -49,16 +54,12 @@ public class Triangle extends Polygon {
      */
     @Override
     public List<Point> findIntersections(Ray ray) {
-        Point vertex0 = vertices.get(0);
-        Point vertex1 = vertices.get(1);
-        Point vertex2 = vertices.get(2);
-        Vector edge1 = vertex1.subtract(vertex0);
-        Vector edge2 = vertex2.subtract(vertex0);
-        Vector h = ray.getDir().crossProduct(edge2);
-        Vector s = ray.getHead().subtract(vertex0);
-        Vector q = s.crossProduct(edge1);
+
+        Vector h = ray.getDir().crossProduct(this.edge2);
+        Vector s = ray.getHead().subtract(vertices.get(0));
+        Vector q = s.crossProduct(this.edge1);
         double a, f, u, v;
-        a = alignZero(edge1.dotProduct(h));
+        a = alignZero(this.edge1.dotProduct(h));
 
         if (isZero(a)) {
             return null;    // This ray is parallel to this triangle.

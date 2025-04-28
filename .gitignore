@@ -30,3 +30,6 @@ bin/
 
 # Ignore the doc directory
 doc/
+
+# Ignore the images directory
+images/

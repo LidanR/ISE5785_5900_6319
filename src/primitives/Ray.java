@@ -7,7 +7,9 @@ import static primitives.Util.isZero;
      * It is defined by a starting point (head) and a direction vector.
      */
     public class Ray {
+        /// The starting point of the ray
         private final Point head;
+        /// The direction vector of the ray
         private final Vector direction;
 
         /**

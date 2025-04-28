@@ -11,6 +11,7 @@ package geometries;
      * It extends the RadialGeometry class and is defined by a radius and an axis ray.
      */
     public class Tube extends RadialGeometry {
+        /// The axis ray of the tube
         protected final Ray axis;
 
         /**

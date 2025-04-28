@@ -90,37 +90,38 @@ public class Polygon extends Geometry {
     */
    @Override
    public List<Point> findIntersections(Ray ray) {
-      // Initialize a list to hold the normals of the edges of the polygonal base
-      List<Vector> normals = new LinkedList<>();
+      // Create a list to store the normals formed by the polygon's sides
+      List<Vector> edgeNormals = new LinkedList<>();
 
-      // Get the starting point and direction of the ray
-      final Point startPoint = ray.getPoint(0);
-      final Vector dir = ray.getDir();
+      // Extract the origin and direction vector of the given ray
+      final Point rayOrigin = ray.getPoint(0);
+      final Vector rayDirection = ray.getDir();
 
-      // Calculate the normal vector for each edge of the polygonal base
-      Vector v1 = vertices.getFirst().subtract(startPoint);
-      for (Point p : vertices.subList(1, size)) {
-         Vector v2 = p.subtract(startPoint);
-         normals.add(v1.crossProduct(v2).normalize());
-         v1 = v2;
+      // Compute a normal vector for each side of the polygon
+      Vector previousVector = vertices.getFirst().subtract(rayOrigin);
+      for (Point vertex : vertices.subList(1, size)) {
+         Vector currentVector = vertex.subtract(rayOrigin);
+         edgeNormals.add(previousVector.crossProduct(currentVector).normalize());
+         previousVector = currentVector;
       }
-      // Add the normal for the edge connecting the last vertex to the first vertex
-      normals.add(vertices.getLast().subtract(startPoint).crossProduct(vertices.getFirst().subtract(startPoint)).normalize());
+      // Handle the last side connecting the last and first vertices
+      edgeNormals.add(vertices.getLast().subtract(rayOrigin).crossProduct(vertices.getFirst().subtract(rayOrigin)).normalize());
 
-      // Determine if the ray direction is consistently on one side of all the polygon's edges
-      boolean allPositive = dir.dotProduct(normals.getFirst()) > 0;
-      for (Vector normal : normals) {
-         double s = dir.dotProduct(normal);
-         // If the dot product is zero or if it changes sign, the ray does not intersect the polygon's base
-         if (Util.isZero(s) || (s > 0 != allPositive)) {
+      // Check if the ray points to the same side for all edges
+      boolean isInitiallyPositive = rayDirection.dotProduct(edgeNormals.getFirst()) > 0;
+      for (Vector normal : edgeNormals) {
+         double dot = rayDirection.dotProduct(normal);
+         // If dot product is zero or the sign is inconsistent, no intersection
+         if (Util.isZero(dot) || (dot > 0 != isInitiallyPositive)) {
             return null;
          }
       }
 
-      // Create a plane defined by the first three vertices of the polygon
-      Plane plane = new Plane(vertices.getFirst(), vertices.get(1), vertices.get(2));
+      // Build a plane using the first three vertices of the polygon
+      Plane basePlane = new Plane(vertices.getFirst(), vertices.get(1), vertices.get(2));
 
-      // Find and return the intersection points of the ray with the plane
-      return plane.findIntersections(ray);
+      // Find intersection points between the ray and the constructed plane
+      return basePlane.findIntersections(ray);
    }
+
 }

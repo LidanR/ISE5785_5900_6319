@@ -11,7 +11,9 @@ import static primitives.Util.*;
  * It extends the `Geometry` class and includes a point on the plane and the normal vector to the plane.
  */
 public class Plane extends Geometry {
+    /// The point on the plane
     private final Point point;
+    /// The normal vector to the plane
     private final Vector normal;
 
     /**

@@ -11,6 +11,7 @@ import java.util.List;
  * It extends the `Tube` class by adding a height attribute.
  */
 public class Cylinder extends Tube {
+    // The height of the cylinder
     private final double height;
 
     /**

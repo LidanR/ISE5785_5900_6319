@@ -12,6 +12,7 @@ import static primitives.Util.*;
  * It extends the `RadialGeometry` class and includes the center point of the sphere.
  */
 public class Sphere extends RadialGeometry {
+    /// The center point of the sphere
     private final Point center;
 
     /**

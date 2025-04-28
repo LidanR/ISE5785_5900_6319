@@ -5,7 +5,10 @@ package primitives;
              * It extends the Point class and provides additional vector-specific operations.
              */
             public class Vector extends Point {
-
+                /// The Axis vectors in 3D space
+                public static final Vector AXIS_X = new Vector(1, 0, 0);
+                public static final Vector AXIS_Y = new Vector(0, 1, 0);
+                public static final Vector AXIS_Z = new Vector(0, 0, 1);
                 /**
                  * Constructs a Vector with the specified Double3 object.
                  * Throws an IllegalArgumentException if the vector is the zero vector.

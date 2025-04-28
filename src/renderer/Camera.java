@@ -20,13 +20,21 @@ import java.util.MissingResourceException;
  * @author ...
  */
 public class Camera implements Cloneable {
+    /// The camera's position in 3D space
     private Point location;
+    /// The direction the camera is facing (toward the view plane)
     private Vector Vto;
+    /// The upward direction of the camera (typically (0,1,0))
     private Vector Vup;
+    /// The right direction of the camera (orthogonal to Vto and Vup)
     private Vector Vright;
+    /// The distance from the camera to the view plane
     private double distance = 0;
+    /// The width of the view plane
     private double width = 0;
+    /// The height of the view plane
     private double height = 0;
+
 
     /**
      * Private constructor to enforce use of builder.

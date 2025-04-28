@@ -5,7 +5,9 @@ package primitives;
      * It is defined by three coordinates (x, y, z).
      */
     public class Point {
+        /// The zero point in 3D space
         public static final Point ZERO = new Point(0, 0, 0);
+        /// The coordinates of the point
         final protected Double3 xyz;
 
         /**
