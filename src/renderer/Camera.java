@@ -1,6 +1,7 @@
 package renderer;
 
 import primitives.*;
+import scene.Scene;
 
 import java.util.MissingResourceException;
 
@@ -34,7 +35,14 @@ public class Camera implements Cloneable {
     private double width = 0;
     /// The height of the view plane
     private double height = 0;
-
+    /// The image writer used for rendering
+    private ImageWriter imageWriter;
+    /// The ray tracer used for rendering
+    private RayTracerBase rayTracerBase;
+    /// The number of horizontal pixels
+    private int nX;
+    /// The number of vertical pixels
+    private int nY;
 
     /**
      * Private constructor to enforce use of builder.
@@ -153,8 +161,27 @@ public class Camera implements Cloneable {
          * @return the builder instance
          */
         public Builder setResolution(int nX, int nY) {
+            if (nX <= 0 || nY <= 0)
+                throw new IllegalArgumentException("Resolution parameters must be positive");
+            cam.imageWriter = new ImageWriter(nX, nY);
+
+            if(cam.rayTracerBase == null) {
+                cam.rayTracerBase  = new SimpleRayTracer(null);
+            }
             return this;
         }
+
+        public Builder setRayTracer(Scene scene, RayTracerType rayTracerType) {
+            switch (rayTracerType) {
+                case SIMPLE:
+                    cam.rayTracerBase = new SimpleRayTracer(scene);
+                    break;
+                default:
+                    cam.rayTracerBase = null;
+            }
+            return this;
+        }
+
 
         /**
          * Builds and returns a valid Camera object after validating all required parameters.
@@ -221,5 +248,73 @@ public class Camera implements Cloneable {
 
         Vector dir = pIJ.subtract(location).normalize();
         return new Ray(location, dir);
+    }
+
+    /**
+     * Renders the image using the ray tracer and writes it to the image writer.
+     *
+     * @return the rendered image
+     */
+    public Camera renderImage(){
+        if(imageWriter == null) {
+            throw new MissingResourceException("ImageWriter is not set", "Camera", "imageWriter");
+        }
+
+        for (int i = 0; i < nX; i++) {
+            for (int j = 0; j < nY; j++) {
+                castRay(i, j);
+            }
+        }
+        return this;
+    }
+
+    public Camera printGrid(int interval, Color color) {
+        if (imageWriter == null) {
+            throw new MissingResourceException("ImageWriter is not set", "Camera", "imageWriter");
+        }
+        if (rayTracerBase == null) {
+            throw new MissingResourceException("RayTracerBase is not set", "Camera", "rayTracerBase");
+        }
+
+        for (int i = 0; i < nX; i += interval) {
+            for (int j = 0; j < nY; j++) {
+                imageWriter.writePixel(i, j, color);
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Writes the rendered image to a file.
+     *
+     * @param fileName the name of the file to write to
+     * @return the camera instance for method chaining
+     * @throws MissingResourceException if the image writer is not set
+     */
+    Camera writeToImage(String fileName) {
+        if (imageWriter == null) {
+            throw new MissingResourceException("ImageWriter is not set", "Camera", "imageWriter");
+        }
+        imageWriter.writeToImage(fileName);
+        return this;
+    }
+
+    /**
+     * Casts a ray through the specified pixel and writes the color to the image writer.
+     *
+     * @param x the pixel's column index
+     * @param y the pixel's row index
+     * @throws MissingResourceException if the image writer or ray tracer is not set
+     */
+    private void castRay(int x, int y) {
+        if (imageWriter == null) {
+            throw new MissingResourceException("ImageWriter is not set", "Camera", "imageWriter");
+        }
+        if (rayTracerBase == null) {
+            throw new MissingResourceException("RayTracerBase is not set", "Camera", "rayTracerBase");
+        }
+        Ray ray = constructRay(nX, nY, x, y);
+        Color color = rayTracerBase.traceRay(ray);
+        imageWriter.writePixel(x, y, color);
     }
 }
