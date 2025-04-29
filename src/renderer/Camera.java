@@ -164,6 +164,8 @@ public class Camera implements Cloneable {
             if (nX <= 0 || nY <= 0)
                 throw new IllegalArgumentException("Resolution parameters must be positive");
             cam.imageWriter = new ImageWriter(nX, nY);
+            this.cam.nX = nX;
+            this.cam.nY = nY;
 
             if(cam.rayTracerBase == null) {
                 cam.rayTracerBase  = new SimpleRayTracer(null);
@@ -267,22 +269,31 @@ public class Camera implements Cloneable {
         }
         return this;
     }
-
+    /**
+     * Prints a grid on the image writer.
+     *
+     * @param interval the interval between grid lines
+     * @param color the color of the grid lines
+     * @return the camera instance for method chaining
+     * @throws MissingResourceException if the image writer or ray tracer is not set
+     */
     public Camera printGrid(int interval, Color color) {
-        if (imageWriter == null) {
-            throw new MissingResourceException("ImageWriter is not set", "Camera", "imageWriter");
-        }
-        if (rayTracerBase == null) {
-            throw new MissingResourceException("RayTracerBase is not set", "Camera", "rayTracerBase");
-        }
-
-        for (int i = 0; i < nX; i += interval) {
-            for (int j = 0; j < nY; j++) {
-                imageWriter.writePixel(i, j, color);
+            if (imageWriter == null) {
+                throw new MissingResourceException("ImageWriter is not set", "Camera", "imageWriter");
             }
+            if (rayTracerBase == null) {
+                throw new MissingResourceException("RayTracerBase is not set", "Camera", "rayTracerBase");
+            }
+
+            for (int i = 0; i < nX; i++) {
+                for (int j = 0; j < nY; j++) {
+                    if (i % interval == 0 || j % interval == 0) {
+                        imageWriter.writePixel(i, j, color);
+                    }
+                }
+            }
+            return this;
         }
-        return this;
-    }
 
     /**
      * Writes the rendered image to a file.

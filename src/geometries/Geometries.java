@@ -38,7 +38,7 @@ public class Geometries implements Intersectable{
     /**
      * Adds a list of geometries to the object.
      *
-     * @param geometries the list of geometries to add to the object
+     * @param intersectables the list of geometries to add to the object
      */
     public void add(Intersectable... intersectables){
         for (Intersectable geometry : intersectables) {

@@ -1,5 +1,7 @@
 package primitives;
 
+import org.json.simple.JSONObject;
+
 /**
  * Wrapper class for java.jwt.Color The constructors operate with any
  * non-negative RGB values. The colors are maintained without upper limit of
@@ -111,6 +113,10 @@ public class Color {
       return new Color(rgb.reduce(k));
    }
 
+
+
+
    @Override
    public String toString() { return "rgb:" + rgb; }
+
 }

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import geometries.*;
 import lighting.AmbientLight;
 import primitives.*;
+import scene.JsonScene;
 import scene.Scene;
 
 /**
@@ -31,7 +32,7 @@ public class RenderTests {
    @Test
    public void renderTwoColorTest() {
       Scene scene = new Scene("Two color").setBackground(new Color(75, 127, 90))
-         .setAmbientLight(new AmbientLight(new Color(255, 191, 191)));
+         .setAmbientLight(new AmbientLight(new Color(255, 191, 191), 1d));
       scene.geometries.add(// center
               new Sphere(new Point(0, 0, -100), 50d),
               // up left
@@ -47,8 +48,31 @@ public class RenderTests {
          .build() //
          .renderImage() //
          .printGrid(100, new Color(YELLOW)) //
-         .writeToImage("Two color render test");
+         .writeToImage("TwoColorRenderTest");
    }
+    /**
+     * Produce a scene from json file with basic 3D model and render it into a png image with a
+     * grid
+     */
+   @Test
+   public void renderTwoColorJsonTest() {
+      Scene scene;
+      try {
+          scene = JsonScene.CreateScene("jsonScenes/TwoColor.json");
+      }catch (Exception e){
+         System.out.println("Failed to load scene");
+         return;
+      }
+
+      camera //
+              .setRayTracer(scene, RayTracerType.SIMPLE) //
+              .setResolution(1000, 1000) //
+              .build() //
+              .renderImage() //
+              .printGrid(100, new Color(YELLOW)) //
+              .writeToImage("TwoColorJsonRenderTest");
+   }
+
 
 
    // For stage 6 - please disregard in stage 5
