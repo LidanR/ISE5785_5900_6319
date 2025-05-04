@@ -173,6 +173,13 @@ public class Camera implements Cloneable {
             return this;
         }
 
+        /**
+         * Sets the ray tracer for the camera based on the given scene and ray tracer type.
+         *
+         * @param scene the scene to be rendered, used to initialize the ray tracer
+         * @param rayTracerType the type of ray tracer to use, determining the ray tracing behavior
+         * @return the builder instance
+         */
         public Builder setRayTracer(Scene scene, RayTracerType rayTracerType) {
             switch (rayTracerType) {
                 case SIMPLE:
@@ -278,22 +285,22 @@ public class Camera implements Cloneable {
      * @throws MissingResourceException if the image writer or ray tracer is not set
      */
     public Camera printGrid(int interval, Color color) {
-            if (imageWriter == null) {
-                throw new MissingResourceException("ImageWriter is not set", "Camera", "imageWriter");
-            }
-            if (rayTracerBase == null) {
-                throw new MissingResourceException("RayTracerBase is not set", "Camera", "rayTracerBase");
-            }
+        if (imageWriter == null) {
+            throw new MissingResourceException("ImageWriter is not set", "Camera", "imageWriter");
+        }
+        if (rayTracerBase == null) {
+            throw new MissingResourceException("RayTracerBase is not set", "Camera", "rayTracerBase");
+        }
 
-            for (int i = 0; i < nX; i++) {
-                for (int j = 0; j < nY; j++) {
-                    if (i % interval == 0 || j % interval == 0) {
-                        imageWriter.writePixel(i, j, color);
-                    }
+        for (int i = 0; i < nX; i++) {
+            for (int j = 0; j < nY; j++) {
+                if (i % interval == 0 || j % interval == 0) {
+                    imageWriter.writePixel(i, j, color);
                 }
             }
-            return this;
         }
+        return this;
+    }
 
     /**
      * Writes the rendered image to a file.

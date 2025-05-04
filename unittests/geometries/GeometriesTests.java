@@ -1,5 +1,5 @@
-import geometries.Geometries;
-import geometries.Sphere;
+package geometries;
+
 import org.junit.jupiter.api.Test;
 import primitives.Point;
 import primitives.Ray;

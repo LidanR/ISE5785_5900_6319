@@ -64,12 +64,12 @@ public class RenderTests {
          return;
       }
 
-      camera //
-              .setRayTracer(scene, RayTracerType.SIMPLE) //
-              .setResolution(1000, 1000) //
-              .build() //
-              .renderImage() //
-              .printGrid(100, new Color(YELLOW)) //
+      camera
+              .setRayTracer(scene, RayTracerType.SIMPLE)
+              .setResolution(1000, 1000)
+              .build()
+              .renderImage()
+              .printGrid(100, new Color(YELLOW))
               .writeToImage("TwoColorJsonRenderTest");
    }
 
