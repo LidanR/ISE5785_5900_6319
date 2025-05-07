@@ -38,12 +38,11 @@ public class JsonScene {
         {
             JSONObject ambientLightObj = (JSONObject) sceneObj.get("ambient-light");
             Color ambientLight = parseColor((String) ambientLightObj.get("color"));
-            double ka = ((Number) ambientLightObj.get("ka")).doubleValue();
-            scene.setAmbientLight(new AmbientLight(ambientLight, ka));
+      //      double ka = ((Number) ambientLightObj.get("ka")).doubleValue();
+            scene.setAmbientLight(new AmbientLight(ambientLight/*, ka*/));
         }
         if(sceneObj.containsKey("geometries")){
-            JSONArray materials = (JSONArray) sceneObj.get("materials");
-            scene.geometries.add(parseGeometries((JSONArray) sceneObj.get("geometries"), materials));
+            scene.geometries.add(parseGeometries((JSONArray) sceneObj.get("geometries")));
         }
 
 
@@ -68,10 +67,9 @@ public class JsonScene {
      * Parses a JSON array of geometries and returns a Geometries object.
      *
      * @param geometriesArray the JSON array containing the geometries
-     * @param materials the JSON array containing the materials
      * @return a Geometries object constructed from the JSON data
      */
-    private static Geometries parseGeometries(JSONArray geometriesArray, JSONArray materials) {
+    private static Geometries parseGeometries(JSONArray geometriesArray) {
         Geometries geometries = new Geometries();
         for (Object obj : geometriesArray) {
             JSONObject geometryObj = (JSONObject) obj;
@@ -100,8 +98,8 @@ public class JsonScene {
 
     /**
      * Parses a string representation of a vector into a Vector object.
-     * @param vector
-     * @return
+     * @param vector the string representation of the vector
+     * @return a Vector object constructed from the string
      */
     private static Vector parseVector(String vector) {
         double[] coords = parseCoordinates(vector);
@@ -109,8 +107,8 @@ public class JsonScene {
     }
     /**
      * Parses a string representation of a point into a Point object.
-     * @param pointStr
-     * @return
+     * @param pointStr the string representation of the point
+     * @return a Point object constructed from the string
      */
     private static Point parsePoint(String pointStr) {
         double[] coords = parseCoordinates(pointStr);

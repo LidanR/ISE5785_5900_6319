@@ -39,12 +39,13 @@ package geometries;
             return point.subtract(O).normalize();
         }
 
+
     /**
      * @param ray the ray to intersect with the object
-     * @return
+     * @return null
      */
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    protected List<Intersection> findIntersectionsHelper(Ray ray) {
         return null;
     }
 }

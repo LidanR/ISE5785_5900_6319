@@ -16,9 +16,9 @@ import javax.imageio.ImageIO;
  */
 final class ImageWriter {
    /** Horizontal resolution of the image - number of pixels in row */
-   private final int           nX;
+   private final int nX;
    /** Vertical resolution of the image - number of pixels in column */
-   private final int           nY;
+   private final int nY;
 
    /**
     * Directory path for the image file generation - relative to the user

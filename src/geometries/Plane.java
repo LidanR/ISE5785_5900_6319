@@ -64,7 +64,6 @@ public class Plane extends Geometry {
 
     /**
      * Finds the intersections of the given ray with the plane.
-     *
      * The method calculates the intersection point of a ray with the plane using
      * the parametric equation of the ray and the plane equation. It checks for
      * special cases such as:
@@ -76,12 +75,12 @@ public class Plane extends Geometry {
      * @return a list containing the intersection point, or null if there are no intersections
      */
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    protected List<Intersection> findIntersectionsHelper(Ray ray) {
         if(point.equals(ray.getHead())) return null;
         double nv = normal.dotProduct(ray.getDir());
         if(isZero(nv)) return null;
         double t = alignZero(normal.dotProduct(point.subtract(ray.getHead())) / nv);
         if (t <= 0) return null;
-        return List.of(ray.getPoint(t));
+        return List.of(new Intersection(this,ray.getPoint(t)));
     }
 }

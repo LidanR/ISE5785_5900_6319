@@ -1,6 +1,5 @@
 package primitives;
 
-import org.json.simple.JSONObject;
 
 /**
  * Wrapper class for java.jwt.Color The constructors operate with any
@@ -62,7 +61,7 @@ public class Color {
       int ir = (int) rgb.d1();
       int ig = (int) rgb.d2();
       int ib = (int) rgb.d3();
-      return new java.awt.Color(ir > 255 ? 255 : ir, ig > 255 ? 255 : ig, ib > 255 ? 255 : ib);
+      return new java.awt.Color(Math.min(ir, 255), Math.min(ig, 255), Math.min(ib, 255));
    }
 
    /**
@@ -75,9 +74,12 @@ public class Color {
       double rg = rgb.d2();
       double rb = rgb.d3();
       for (Color c : colors) {
-         rr += c.rgb.d1();
-         rg += c.rgb.d2();
-         rb += c.rgb.d3();
+         if(colors!=null)
+         {
+            rr += c.rgb.d1();
+            rg += c.rgb.d2();
+            rb += c.rgb.d3();
+         }
       }
       return new Color(rr, rg, rb);
    }

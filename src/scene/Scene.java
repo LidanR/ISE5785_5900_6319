@@ -3,7 +3,6 @@ package scene;
 import geometries.Geometries;
 import lighting.AmbientLight;
 import primitives.Color;
-import renderer.Camera;
 
 /**
  * Represents a 3D scene containing geometries, lighting, and background settings.
@@ -12,7 +11,7 @@ public class Scene {
     // The name of the scene
     public String name;
     // The background color of the scene
-    public Color background;
+    public Color background = Color.BLACK;
     // The ambient light in the scene
     public AmbientLight ambientLight=AmbientLight.NONE;
     // The geometries in the scene

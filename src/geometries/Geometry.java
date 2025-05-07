@@ -1,17 +1,36 @@
 package geometries;
 
+import primitives.Color;
 import primitives.Point;
-import primitives.Ray;
 import primitives.Vector;
 
-import java.util.List;
 
 /**
  * The `Geometry` class is an abstract base class for all geometric objects.
  * It provides a method to get the normal vector to the geometry at a given point.
  */
-public abstract class Geometry implements Intersectable{
+public abstract class Geometry extends Intersectable{
+    /// The emission color of the geometry
+    protected Color emission = Color.BLACK;
 
+    /**
+     * Sets the emission color of the geometry.
+     *
+     * @param emission the emission color to set
+     * @return the current geometry object
+     */
+    public Geometry setEmission(Color emission) {
+        this.emission = emission;
+        return this;
+    }
+
+    /**
+     * Returns the emission color of the geometry.
+     * @return the emission color
+     */
+    public Color getEmission() {
+        return emission;
+    }
     /**
      * Returns the normal vector to the geometry at a given point.
      * This method should be implemented by subclasses to provide the specific normal vector calculation.

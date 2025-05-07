@@ -8,7 +8,6 @@ import java.util.MissingResourceException;
 /**
  * The {@code Camera} class represents a virtual camera in a 3D scene.
  * It is responsible for constructing rays through a view plane, used in ray tracing or other rendering techniques.
- *
  * The camera is defined by:
  * <ul>
  *     <li>Position (location) in 3D space</li>
@@ -40,9 +39,9 @@ public class Camera implements Cloneable {
     /// The ray tracer used for rendering
     private RayTracerBase rayTracerBase;
     /// The number of horizontal pixels
-    private int nX;
+    private int nX=1;
     /// The number of vertical pixels
-    private int nY;
+    private int nY=1;
 
     /**
      * Private constructor to enforce use of builder.
@@ -56,6 +55,16 @@ public class Camera implements Cloneable {
      */
     public static Builder getBuilder() {
         return new Builder();
+    }
+
+    @Override
+    public Camera clone() {
+        try {
+            Camera clone = (Camera) super.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 
     /**
@@ -222,11 +231,8 @@ public class Camera implements Cloneable {
             // Ensure Vright is calculated
             cam.Vright = cam.Vto.crossProduct(cam.Vup).normalize();
 
-            try {
-                return (Camera) cam.clone();
-            } catch (CloneNotSupportedException e) {
-                throw new RuntimeException("Failed to clone Camera object", e);
-            }
+            return cam.clone();
+
         }
     }
 

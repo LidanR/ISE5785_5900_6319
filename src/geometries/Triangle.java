@@ -5,6 +5,7 @@ import primitives.Vector;
 import primitives.Point;
 
 import java.util.List;
+import java.util.Objects;
 
 import static primitives.Util.alignZero;
 import static primitives.Util.isZero;
@@ -15,9 +16,9 @@ import static primitives.Util.isZero;
  */
 public class Triangle extends Polygon {
     // The edges of the triangle
-    private Vector edge1;
+    private final Vector edge1;
     // The edges of the triangle
-    private Vector edge2;
+    private final Vector edge2;
     /**
      * Constructs a Triangle with the specified vertices.
      *
@@ -52,11 +53,12 @@ public class Triangle extends Polygon {
      * @return a list of intersection points between the ray and the triangle,
      *         or null if there are no intersections
      */
+
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    protected List<Intersection> findIntersectionsHelper(Ray ray) {
 
         Vector h = ray.getDir().crossProduct(this.edge2);
-        Vector s = ray.getHead().subtract(vertices.get(0));
+        Vector s = ray.getHead().subtract(vertices.getFirst());
         Vector q = s.crossProduct(this.edge1);
         double a, f, u, v;
         a = alignZero(this.edge1.dotProduct(h));
@@ -82,7 +84,10 @@ public class Triangle extends Polygon {
         double t = f * edge2.dotProduct(q);
         if (!isZero(t) && t > 0) // ray intersection
         {
-            return plane.findIntersections(ray);
+            // convert the plane points to intersection points
+            return Objects.requireNonNull(plane.findIntersections(ray)).stream()
+                    .map(p -> new Intersection(this,p))
+                    .toList();
         }
         else // This means that there is a line intersection but not a ray intersection.
         {

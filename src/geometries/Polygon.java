@@ -7,6 +7,8 @@ import primitives.Vector;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+
 import static primitives.Util.*;
 
 /**
@@ -84,13 +86,15 @@ public class Polygon extends Geometry {
    @Override
    public Vector getNormal(Point point) { return plane.getNormal(point); }
 
+
    /**
-    * @param ray the ray to intersect with the object
-    * @return
+    * Finds the intersection points between the polygon and a given ray.
+    * @param ray the ray to intersect with the polygon
+    * @return a list of intersection points between the ray and the polygon,
     */
    @Override
-   public List<Point> findIntersections(Ray ray) {
-      // Create a list to store the normals formed by the polygon's sides
+   protected List<Intersection> findIntersectionsHelper(Ray ray) {
+// Create a list to store the normals formed by the polygon's sides
       List<Vector> edgeNormals = new LinkedList<>();
 
       // Extract the origin and direction vector of the given ray
@@ -121,7 +125,8 @@ public class Polygon extends Geometry {
       Plane basePlane = new Plane(vertices.getFirst(), vertices.get(1), vertices.get(2));
 
       // Find intersection points between the ray and the constructed plane
-      return basePlane.findIntersections(ray);
+      return Objects.requireNonNull(basePlane.findIntersections(ray)).stream()
+              .map(point -> new Intersection(this, point))
+              .toList();
    }
-
 }
