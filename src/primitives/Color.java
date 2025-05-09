@@ -13,7 +13,7 @@ public class Color {
     * The internal fields maintain RGB components as double numbers from 0 to
     * whatever...
     */
-   private final Double3     rgb;
+   private final Double3 rgb;
 
    /** Black color = (0,0,0) */
    public static final Color BLACK = new Color();
@@ -115,7 +115,11 @@ public class Color {
       return new Color(rgb.reduce(k));
    }
 
-
+   /**
+    * cast the color to a double triad
+    * @return the color as a double triad
+    */
+    public Double3 getColorAsDouble3() { return rgb; }
 
 
    @Override
