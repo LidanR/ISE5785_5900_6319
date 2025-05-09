@@ -58,6 +58,7 @@ public abstract class Intersectable {
         return list == null ? null : list.stream().map(intersection -> intersection.point).toList();
     }
     /**
+     *
      * find intersectionshelper method to find all intersection points between a given ray and the geometric object.
      */
     protected abstract List<Intersection> findIntersectionsHelper(Ray ray);
