@@ -1,9 +1,9 @@
 package renderer;
 
 import static java.awt.Color.*;
+import org.junit.jupiter.api.Test;
 
 import org.json.simple.parser.ParseException;
-import org.junit.jupiter.api.Test;
 
 import geometries.Sphere;
 import geometries.Triangle;
@@ -123,13 +123,11 @@ class RenderTests {
       try
       {
          scene = JsonScene.CreateScene("jsonScenes/TwoColor.json");
-      } catch (IOException e) {
-         throw new RuntimeException(e);
-      } catch (ParseException e) {
+      } catch (IOException | ParseException e) {
          throw new RuntimeException(e);
       }
 
-      camera //
+       camera //
               .setRayTracer(scene, RayTracerType.SIMPLE) //
               .setResolution(1000, 1000) //
               .build() //
@@ -137,4 +135,6 @@ class RenderTests {
               .printGrid(100, new Color(YELLOW)) //
               .writeToImage("json render test");
    }
+
+
 }

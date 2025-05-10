@@ -1,13 +1,11 @@
 package renderer;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
 import primitives.*;
 import geometries.*;
-import renderer.Camera;
 
 import java.util.List;
 

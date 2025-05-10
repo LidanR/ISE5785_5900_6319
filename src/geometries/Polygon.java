@@ -98,7 +98,7 @@ public class Polygon extends Geometry {
       List<Vector> edgeNormals = new LinkedList<>();
 
       // Extract the origin and direction vector of the given ray
-      final Point rayOrigin = ray.getPoint(0);
+      final Point rayOrigin = ray.getHead();
       final Vector rayDirection = ray.getDir();
 
       // Compute a normal vector for each side of the polygon

@@ -11,6 +11,8 @@ import primitives.*;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * JsonScene is a utility class that provides methods to create a Scene object from a JSON file.
@@ -38,15 +40,87 @@ public class JsonScene {
         {
             JSONObject ambientLightObj = (JSONObject) sceneObj.get("ambient-light");
             Color ambientLight = parseColor((String) ambientLightObj.get("color"));
-      //      double ka = ((Number) ambientLightObj.get("ka")).doubleValue();
-            scene.setAmbientLight(new AmbientLight(ambientLight/*, ka*/));
+            scene.setAmbientLight(new AmbientLight(ambientLight));
         }
         if(sceneObj.containsKey("geometries")){
-            scene.geometries.add(parseGeometries((JSONArray) sceneObj.get("geometries")));
+            JSONArray materials = (JSONArray) sceneObj.get("materials");
+            scene.geometries.add(parseGeometries((JSONArray) sceneObj.get("geometries"), materials));
         }
 
+        if(sceneObj.containsKey("lights"))
+            scene.setLights(parseLights((JSONArray) sceneObj.get("lights")));
 
         return scene;
+    }
+    /**
+     * Parses a JSON array of lights and returns a list of LightSource objects.
+     *
+     * @param lights the JSON array containing the lights
+     * @return a list of LightSource objects constructed from the JSON data
+     */
+    private static List<LightSource> parseLights(JSONArray lights) {
+        List<LightSource> lightSources = new LinkedList<>();
+        for (Object obj : lights) {
+            JSONObject lightObj = (JSONObject) obj;
+            if (lightObj.containsKey("point")) {
+                lightSources.add(parsePointLight((JSONObject) lightObj.get("point")));
+            } else if (lightObj.containsKey("directional")) {
+                lightSources.add(parseDirectionalLight((JSONObject) lightObj.get("directional")));
+            } else if (lightObj.containsKey("spot")) {
+                lightSources.add(parseSpotLight((JSONObject) lightObj.get("spot")));
+            } else {
+                throw new IllegalArgumentException("Unknown light type");
+            }
+        }
+        return lightSources;
+    }
+    /**
+     * Parses a JSON object representing a spot light and returns a SpotLight object.
+     *
+     * @param lightObj the JSON object representing the spot light
+     * @return a SpotLight object constructed from the JSON data
+     */
+    private static LightSource parseSpotLight(JSONObject lightObj) {
+        Color color = parseColor((String) lightObj.get("color"));
+        Point position = parsePoint((String) lightObj.get("position"));
+        Vector direction = parseVector((String) lightObj.get("direction"));
+        SpotLight spotLight = new SpotLight(color,position, direction);
+        if (lightObj.containsKey("kc")) {
+            spotLight.setKc(((Number) lightObj.get("kc")).doubleValue());
+        }
+        if (lightObj.containsKey("kl")) {
+            spotLight.setKl(((Number) lightObj.get("kl")).doubleValue());
+        }
+        if (lightObj.containsKey("kq")) {
+            spotLight.setKq(((Number) lightObj.get("kq")).doubleValue());
+        }
+        if (lightObj.containsKey("narrow-beam")) {
+            spotLight.setNarrowBeam(((Number) lightObj.get("narrow-beam")).doubleValue());
+        }
+        return spotLight;
+    }
+
+    private static LightSource parseDirectionalLight(JSONObject lightObj) {
+        Color color = parseColor((String) lightObj.get("color"));
+        Vector direction = parseVector((String) lightObj.get("direction"));
+        return new DirectionalLight(color, direction);
+    }
+
+    private static LightSource parsePointLight(JSONObject lightObj) {
+        Color color = parseColor((String) lightObj.get("color"));
+        Point position = parsePoint((String) lightObj.get("position"));
+        PointLight pointLight = new PointLight(color, position);
+        if (lightObj.containsKey("kc")) {
+            pointLight.setKc(((Number) lightObj.get("kc")).doubleValue());
+        }
+        if (lightObj.containsKey("kl")) {
+            pointLight.setKl(((Number) lightObj.get("kl")).doubleValue());
+        }
+        if (lightObj.containsKey("kq")) {
+            pointLight.setKq(((Number) lightObj.get("kq")).doubleValue());
+        }
+
+        return pointLight;
     }
     /**
      * Parses a string of coordinates into an array of doubles.
@@ -59,6 +133,12 @@ public class JsonScene {
                 .mapToDouble(Double::parseDouble)
                 .toArray();
     }
+    /**
+     * Parses a string representation of a color into a Color object.
+     *
+     * @param rgb the string representation of the color
+     * @return a Color object constructed from the string
+     */
     private static Color parseColor(String rgb) {
         double[] colors = parseCoordinates(rgb);
         return new Color(colors[0], colors[1], colors[2]);
@@ -69,7 +149,7 @@ public class JsonScene {
      * @param geometriesArray the JSON array containing the geometries
      * @return a Geometries object constructed from the JSON data
      */
-    private static Geometries parseGeometries(JSONArray geometriesArray) {
+    private static Geometries parseGeometries(JSONArray geometriesArray, JSONArray materials) {
         Geometries geometries = new Geometries();
         for (Object obj : geometriesArray) {
             JSONObject geometryObj = (JSONObject) obj;
@@ -90,10 +170,61 @@ public class JsonScene {
                 throw new IllegalArgumentException("Unknown geometry type");
             }
 
+            if (geometryObj.containsKey("material"))
+                parseMaterial(geometryObj, geometry, materials);
+
+            if(geometryObj.containsKey("emission"))
+                geometry.setEmission(parseColor((String) geometryObj.get("emission")));
 
             geometries.add(geometry);
         }
         return geometries;
+    }
+
+    /**
+     * Parses the material properties from a JSON object and sets them to the geometry.
+     * @param geometryObj the JSON object representing the geometry
+     * @param geometry the geometry object to set the material for
+     * @param materials the JSON array containing the materials
+     */
+    private static void parseMaterial(JSONObject geometryObj, Geometry geometry, JSONArray materials) {
+
+        Object objCheck = geometryObj.get("material");
+        JSONObject materialObj = null;
+        if (objCheck instanceof String) {
+            int materialIndex = Integer.parseInt((String) objCheck);
+            materialObj = (JSONObject) materials.get(materialIndex);
+        } else {
+            materialObj = (JSONObject) objCheck;
+        }
+
+        Material material = new Material();
+        if (materialObj.containsKey("kd")) {
+            if(materialObj.get("kd") instanceof Number)
+                material.setKd(((Number) materialObj.get("kd")).doubleValue());
+            else{
+                String[] kd = ((String) materialObj.get("kd")).split(" ");
+                Double3 kdColor = new Double3(Double.parseDouble(kd[0]), Double.parseDouble(kd[1]), Double.parseDouble(kd[2]));
+                material.setKd(kdColor);
+            }
+        }
+        if (materialObj.containsKey("ks")) {
+            if(materialObj.get("ks") instanceof Number)
+                material.setKd(((Number) materialObj.get("ks")).doubleValue());
+            else{
+                String[] ks = ((String) materialObj.get("ks")).split(" ");
+                Double3 ksColor = new Double3(Double.parseDouble(ks[0]), Double.parseDouble(ks[1]), Double.parseDouble(ks[2]));
+                material.setKd(ksColor);
+            }
+        }
+        if (materialObj.containsKey("ns")) {
+            material.setShininess(((Number) materialObj.get("ns")).intValue());
+        }
+        if (materialObj.containsKey("ka")) {
+            material.setKa(((Number) materialObj.get("ka")).doubleValue());
+        }
+
+        geometry.setMaterial(material);
     }
 
     /**
@@ -203,5 +334,4 @@ public class JsonScene {
         }
         return points;
     }
-
 }

@@ -30,7 +30,7 @@ public class SpotLight extends PointLight {
     /**
      * setter for the KC value
      * @param kC the attenuation factor
-     * @return this
+     * @return this the light source
      */
     @Override
     public SpotLight setKc(double kC) {

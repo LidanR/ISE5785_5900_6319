@@ -60,8 +60,7 @@ public class Camera implements Cloneable {
     @Override
     public Camera clone() {
         try {
-            Camera clone = (Camera) super.clone();
-            return clone;
+            return (Camera) super.clone();
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }

@@ -9,6 +9,8 @@ import lighting.*;
 import primitives.*;
 import scene.Scene;
 
+import java.util.List;
+
 /**
  * Test rendering a basic image
  * @author Dan Zilberstein
@@ -17,20 +19,20 @@ class LightsTests {
    /** Default constructor to satisfy JavaDoc generator */
    LightsTests() { /* to satisfy JavaDoc generator */ }
 
-   /** First scene for some of tests */
+   /** First scene for some of the tests */
    private final Scene          scene1                  = new Scene("Test scene");
-   /** Second scene for some of tests */
+   /** Second scene for some of the tests */
    private final Scene          scene2                  = new Scene("Test scene")
       .setAmbientLight(new AmbientLight(new Color(38, 38, 38)));
 
-   /** First camera builder for some of tests */
+   /** First camera builder for some of the tests */
    private final Camera.Builder camera1                 = Camera.getBuilder()                                          //
       .setRayTracer(scene1, RayTracerType.SIMPLE)                                                                      //
       .setLocation(new Point(0, 0, 1000))                                                                              //
       .setDirection(Point.ZERO, Vector.AXIS_Y)                                                                         //
       .setVpSize(150, 150).setVpDistance(1000);
 
-   /** Second camera builder for some of tests */
+   /** Second camera builder for some of the tests */
    private final Camera.Builder camera2                 = Camera.getBuilder()                                          //
       .setRayTracer(scene2, RayTracerType.SIMPLE)                                                                      //
       .setLocation(new Point(0, 0, 1000))                                                                              //
@@ -134,6 +136,22 @@ class LightsTests {
          .renderImage() //
          .writeToImage("lightSphereSpot");
    }
+   /** Produce a picture of a sphere lighted by all the lights */
+   @Test
+   void sphereAllLights() {
+      scene1.geometries.add(sphere);
+     scene1.lights.addAll(List.of(
+         new DirectionalLight(sphereLightColor, sphereLightDirection),
+         new PointLight(sphereLightColor, sphereLightPosition).setKl(0.001).setKq(0.0002),
+         new SpotLight(sphereLightColor, sphereLightPosition, sphereLightDirection).setKl(0.001).setKq(0.0001)
+     ));
+
+      camera1 //
+              .setResolution(500, 500) //
+              .build() //
+              .renderImage() //
+              .writeToImage("lightSphereAllLights");
+   }
 
    /** Produce a picture of two triangles lighted by a directional light */
    @Test
@@ -172,6 +190,21 @@ class LightsTests {
          .renderImage() //
          .writeToImage("lightTrianglesSpot");
    }
+    /** Produce a picture of two triangles lighted by all the lights */
+    @Test
+    void trianglesAllLights() {
+        scene2.geometries.add(triangle1, triangle2);
+        scene2.lights.addAll(List.of(
+                new DirectionalLight(trianglesLightColor, trianglesLightDirection),
+                new PointLight(trianglesLightColor, trianglesLightPosition).setKl(0.001).setKq(0.0002),
+                new SpotLight(trianglesLightColor, trianglesLightPosition, trianglesLightDirection).setKl(0.001).setKq(0.0001)
+        ));
+
+        camera2.setResolution(500, 500) //
+                .build() //
+                .renderImage() //
+                .writeToImage("lightTrianglesAllLights");
+    }
 
    /** Produce a picture of a sphere lighted by a narrow spotlight */
    @Test

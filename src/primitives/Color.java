@@ -74,12 +74,9 @@ public class Color {
       double rg = rgb.d2();
       double rb = rgb.d3();
       for (Color c : colors) {
-         if(colors!=null)
-         {
-            rr += c.rgb.d1();
-            rg += c.rgb.d2();
-            rb += c.rgb.d3();
-         }
+         rr += c.rgb.d1();
+         rg += c.rgb.d2();
+         rb += c.rgb.d3();
       }
       return new Color(rr, rg, rb);
    }
@@ -114,12 +111,6 @@ public class Color {
       if (k < 1) throw new IllegalArgumentException("Can't scale a color by a by a number lower than 1");
       return new Color(rgb.reduce(k));
    }
-
-   /**
-    * cast the color to a double triad
-    * @return the color as a double triad
-    */
-    public Double3 getColorAsDouble3() { return rgb; }
 
 
    @Override

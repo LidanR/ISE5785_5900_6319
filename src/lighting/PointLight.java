@@ -19,22 +19,37 @@ public class PointLight extends Light implements LightSource {
 
     /**
      * Default constructor for the PointLight class.
-     * @param color
-     * @param position
+     * @param color the color of the light
+     * @param position the position of the light source
      */
      public PointLight(Color color, Point position) {
      super(color);
      this.position = position;
      }
-    // Setters to kc, kl, kq
+
+    /**
+     * setter for the kc
+     * @param kc the constant attenuation coefficient
+     * @return the light source
+     */
     public PointLight setKc(double kc) {
         this.kc = kc;
         return this;
     }
+    /**
+     * setter for the kl
+     * @param kl the linear attenuation coefficient
+     * @return the light source
+     */
     public PointLight setKl(double kl) {
         this.kl = kl;
         return this;
     }
+    /**
+     * setter for the kq
+     * @param kq the quadratic attenuation coefficient
+     * @return the light source
+     */
     public PointLight setKq(double kq) {
         this.kq = kq;
         return this;
@@ -42,7 +57,7 @@ public class PointLight extends Light implements LightSource {
 
     /**
      * calculates the intensity of the light at a given point.
-     * @param point
+     * @param point the point at which the intensity is calculated
      * @return the intensity of the light at the given point
      */
     @Override
@@ -57,7 +72,7 @@ public class PointLight extends Light implements LightSource {
 
     /**
      * calculates the vector from the light source to a given point.
-     * @param point
+     * @param point the point at which the vector is calculated
      * @return the vector from the light source to the given point
      */
     @Override

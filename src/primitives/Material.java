@@ -12,7 +12,7 @@ public class Material {
 
     /**
      * Setter for the ambient reflection coefficient.
-     * @param Ka
+     * @param Ka the ambient reflection coefficient
      * @return this Material object
      */
     public Material setKa(Double3 Ka) {
@@ -22,7 +22,7 @@ public class Material {
 
     /**
      * another setter for the ambient reflection coefficient.
-     * @param Ka
+     * @param Ka the ambient reflection coefficient
      * @return this Material object
      */
     public Material setKa(double Ka) {
@@ -31,7 +31,7 @@ public class Material {
     }
     /**
      * Setter for the diffuse reflection coefficient.
-     * @param Kd
+     * @param Kd the diffuse reflection coefficient
      * @return this Material object
      */
     public Material setKd(Double3 Kd) {
@@ -40,7 +40,7 @@ public class Material {
     }
     /**
      * another setter for the diffuse reflection coefficient.
-     * @param Kd
+     * @param Kd the diffuse reflection coefficient
      * @return this Material object
      */
     public Material setKd(double Kd) {
@@ -49,7 +49,7 @@ public class Material {
     }
     /**
      * Setter for the specular reflection coefficient.
-     * @param Ks
+     * @param Ks the specular reflection coefficient
      * @return this Material object
      */
     public Material setKs(Double3 Ks) {
@@ -58,7 +58,7 @@ public class Material {
     }
     /**
      * another setter for the specular reflection coefficient.
-     * @param Ks
+     * @param Ks the specular reflection coefficient
      * @return this Material object
      */
     public Material setKs(double Ks) {
@@ -67,7 +67,7 @@ public class Material {
     }
     /**
      * Setter for the shininess coefficient.
-     * @param nSh
+     * @param nSh the shininess coefficient
      * @return this Material object
      */
     public Material setShininess(int nSh) {

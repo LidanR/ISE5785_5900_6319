@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the {@link ImageWriter} class.
- *
  * This test creates an image containing an orange background with a black grid,
  * and verifies that the image generation process completes without throwing exceptions.
  */
@@ -27,7 +26,6 @@ class ImageWriterTests {
 
     /**
      * Test method for {@link ImageWriter#writeToImage(String)}.
-     *
      * This test generates an image with:
      * <ul>
      *     <li>An orange background filling the entire image.</li>
