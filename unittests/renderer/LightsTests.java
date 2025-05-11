@@ -142,7 +142,7 @@ class LightsTests {
       scene1.geometries.add(sphere);
      scene1.lights.addAll(List.of(
          new DirectionalLight(sphereLightColor, sphereLightDirection),
-         new PointLight(sphereLightColor, sphereLightPosition).setKl(0.001).setKq(0.0002),
+         new PointLight(sphereLightColor, new Point(50,50,-25)).setKl(0.001).setKq(0.0002),
          new SpotLight(sphereLightColor, sphereLightPosition, sphereLightDirection).setKl(0.001).setKq(0.0001)
      ));
 
