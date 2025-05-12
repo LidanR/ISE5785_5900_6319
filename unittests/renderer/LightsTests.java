@@ -1,7 +1,5 @@
 package renderer;
 
-import static java.awt.Color.BLUE;
-
 import org.junit.jupiter.api.Test;
 
 import geometries.*;
@@ -10,6 +8,8 @@ import primitives.*;
 import scene.Scene;
 
 import java.util.List;
+
+import static java.awt.Color.*;
 
 /**
  * Test rendering a basic image
@@ -136,22 +136,7 @@ class LightsTests {
          .renderImage() //
          .writeToImage("lightSphereSpot");
    }
-   /** Produce a picture of a sphere lighted by all the lights */
-   @Test
-   void sphereAllLights() {
-      scene1.geometries.add(sphere);
-     scene1.lights.addAll(List.of(
-         new DirectionalLight(sphereLightColor, sphereLightDirection),
-         new PointLight(sphereLightColor, new Point(50,50,-25)).setKl(0.001).setKq(0.0002),
-         new SpotLight(sphereLightColor, sphereLightPosition, sphereLightDirection).setKl(0.001).setKq(0.0001)
-     ));
 
-      camera1 //
-              .setResolution(500, 500) //
-              .build() //
-              .renderImage() //
-              .writeToImage("lightSphereAllLights");
-   }
 
    /** Produce a picture of two triangles lighted by a directional light */
    @Test
@@ -190,21 +175,7 @@ class LightsTests {
          .renderImage() //
          .writeToImage("lightTrianglesSpot");
    }
-    /** Produce a picture of two triangles lighted by all the lights */
-    @Test
-    void trianglesAllLights() {
-        scene2.geometries.add(triangle1, triangle2);
-        scene2.lights.addAll(List.of(
-                new DirectionalLight(trianglesLightColor, trianglesLightDirection),
-                new PointLight(trianglesLightColor, trianglesLightPosition).setKl(0.001).setKq(0.0002),
-                new SpotLight(trianglesLightColor, trianglesLightPosition, trianglesLightDirection).setKl(0.001).setKq(0.0001)
-        ));
 
-        camera2.setResolution(500, 500) //
-                .build() //
-                .renderImage() //
-                .writeToImage("lightTrianglesAllLights");
-    }
 
    /** Produce a picture of a sphere lighted by a narrow spotlight */
    @Test
@@ -232,5 +203,36 @@ class LightsTests {
          .renderImage() //
          .writeToImage("lightTrianglesSpotSharp");
    }
+   /** Produce a picture of a sphere lighted by a narrow spotlight with a different color */
+   @Test
+   void sphereMultipleLights() {
+      scene1.geometries.add(sphere);
 
+      scene1.lights.add(new SpotLight(new Color(700, 400, 400), new Point(-100, -100, -100), new Vector(1, 1, -3))
+              .setKl(0.0004).setKq(0.0002));
+      scene1.lights.add(new PointLight(new Color(500, 300, 0), new Point(100, -100, -100))
+              .setKl(0.0004).setKq(0.0002));
+      scene1.lights.add(new DirectionalLight(new Color(400, 400, 700), new Vector(1, -1, -1)));
+
+      camera1.setResolution(3080, 3080)
+              .build()
+              .renderImage()
+              .writeToImage("sphereMultipleLights");
+   }
+   /** Produce a picture of two triangles lighted by a narrow spotlight with a different color */
+   @Test
+   void trianglesMultipleLights() {
+      scene2.geometries.add(triangle1, triangle2);
+
+      scene2.lights.add(new SpotLight(new Color(700, 400, 400), new Point(-100, -100, -100) ,new Vector(1, 1, -3))
+              .setKl(0.0004).setKq(0.0002));
+      scene2.lights.add(new PointLight(new Color(500, 300, 0), new Point(100, -100, -100))
+              .setKl(0.0004).setKq(0.0002));
+      scene2.lights.add(new DirectionalLight(new Color(400, 400, 700), new Vector(1, -1, -1)));
+
+      camera2.setResolution(500, 500)
+              .build()
+              .renderImage()
+              .writeToImage("trianglesMultipleLights");
+   }
 }

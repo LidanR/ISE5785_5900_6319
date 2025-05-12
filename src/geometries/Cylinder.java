@@ -39,10 +39,10 @@ public class Cylinder extends Tube {
         // The cylinder's axis
         Ray axisRay = super.axis;
 
-        if(axisRay.getHead().equals(point)) return axisRay.getDir().scale(-1);
-
         Point p0 = axisRay.getHead(); // The starting point of the axis
         Vector dir = axisRay.getDir(); // The direction of the axis
+        // Check if the point is on the bottom base
+        if(p0.equals(point)) return dir.scale(-1);
 
         // Project the given point onto the cylinder's axis
         double t = point.subtract(p0).dotProduct(dir);
