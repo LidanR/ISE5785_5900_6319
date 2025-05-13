@@ -125,7 +125,8 @@ public class SimpleRayTracer extends RayTracerBase {
         Point point = intersection.point.add(deltaVector);
         Ray lightRay = new Ray(point, lightDirection);
         List<Intersection> intersections = scene.geometries.calculateIntersections(lightRay);
-        if(intersections == null) return true;
+        if(intersections == null) return true; // no intersection with any geometry
+        // Check if the light source is blocked by any other geometry
         double distance = intersection.light.getDistance(point);
         for (Intersection i : intersections) {
             if (i.point.distance(point)<distance) return false;
