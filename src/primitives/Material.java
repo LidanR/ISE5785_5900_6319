@@ -15,7 +15,7 @@ public class Material {
      * @param Ka the ambient reflection coefficient
      * @return this Material object
      */
-    public Material setKa(Double3 Ka) {
+    public Material setKA(Double3 Ka) {
         this.Ka = Ka;
         return this;
     }
@@ -25,7 +25,7 @@ public class Material {
      * @param Ka the ambient reflection coefficient
      * @return this Material object
      */
-    public Material setKa(double Ka) {
+    public Material setKA(double Ka) {
         this.Ka = new Double3(Ka);
         return this;
     }
@@ -34,7 +34,7 @@ public class Material {
      * @param Kd the diffuse reflection coefficient
      * @return this Material object
      */
-    public Material setKd(Double3 Kd) {
+    public Material setKD(Double3 Kd) {
         this.Kd = Kd;
         return this;
     }
@@ -43,7 +43,7 @@ public class Material {
      * @param Kd the diffuse reflection coefficient
      * @return this Material object
      */
-    public Material setKd(double Kd) {
+    public Material setKD(double Kd) {
         this.Kd = new Double3(Kd);
         return this;
     }
@@ -52,7 +52,7 @@ public class Material {
      * @param Ks the specular reflection coefficient
      * @return this Material object
      */
-    public Material setKs(Double3 Ks) {
+    public Material setKS(Double3 Ks) {
         this.Ks = Ks;
         return this;
     }
@@ -61,7 +61,7 @@ public class Material {
      * @param Ks the specular reflection coefficient
      * @return this Material object
      */
-    public Material setKs(double Ks) {
+    public Material setKS(double Ks) {
         this.Ks = new Double3(Ks);
         return this;
     }

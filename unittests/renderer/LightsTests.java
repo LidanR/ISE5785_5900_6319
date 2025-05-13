@@ -7,8 +7,6 @@ import lighting.*;
 import primitives.*;
 import scene.Scene;
 
-import java.util.List;
-
 import static java.awt.Color.*;
 
 /**
@@ -52,7 +50,7 @@ class LightsTests {
    private static final Double3 KS3                     = new Double3(0.2, 0.4, 0.3);
 
    /** Material for some of the geometries in the tests */
-   private final Material       material                = new Material().setKd(KD3).setKs(KS3).setShininess(SHININESS);
+   private final Material       material                = new Material().setKD(KD3).setKS(KS3).setShininess(SHININESS);
    /** Light color for tests with triangles */
    private final Color          trianglesLightColor     = new Color(800, 500, 250);
    /** Light color for tests with sphere */
@@ -88,7 +86,7 @@ class LightsTests {
 
    /** The sphere in appropriate tests */
    private final Geometry       sphere                  = new Sphere(sphereCenter, SPHERE_RADIUS)
-      .setEmission(sphereColor).setMaterial(new Material().setKd(KD).setKs(KS).setShininess(SHININESS));
+      .setEmission(sphereColor).setMaterial(new Material().setKD(KD).setKS(KS).setShininess(SHININESS));
    /** The first triangle in appropriate tests */
    private final Geometry       triangle1               = new Triangle(vertices[0], vertices[1], vertices[2])
       .setMaterial(material);

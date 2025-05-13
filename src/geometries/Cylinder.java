@@ -36,25 +36,26 @@ public class Cylinder extends Tube {
      */
     @Override
     public Vector getNormal(Point point) {
-        // The cylinder's axis
-        Ray axisRay = super.axis;
-
-        Point p0 = axisRay.getHead(); // The starting point of the axis
-        Vector dir = axisRay.getDir(); // The direction of the axis
-        // Check if the point is on the bottom base
-        if(p0.equals(point)) return dir.scale(-1);
-
-        // Project the given point onto the cylinder's axis
-        double t = point.subtract(p0).dotProduct(dir);
-        Point o = axisRay.getPoint(t); // The projection of the point onto the axis
-
-        // Check if the point is on the bottom base
-        if (t <= 0) return dir.scale(-1);
-        // Check if the point is on the top base
-        if (t >= height) return dir;
-
-        // If the point is on the lateral surface, return the normal to the surface
-        return point.subtract(o).normalize();
+        return null;
+//        // The cylinder's axis
+//        Ray axisRay = super.axis;
+//
+//        Point p0 = axisRay.getHead(); // The starting point of the axis
+//        Vector dir = axisRay.getDir(); // The direction of the axis
+//        // Check if the point is on the bottom base
+//        if(p0.equals(point)) return dir.scale(-1);
+//
+//        // Project the given point onto the cylinder's axis
+//        double t = point.subtract(p0).dotProduct(dir);
+//        Point o = axisRay.getPoint(t); // The projection of the point onto the axis
+//
+//        // Check if the point is on the bottom base
+//        if (t <= 0) return dir.scale(-1);
+//        // Check if the point is on the top base
+//        if (t >= height) return dir;
+//
+//        // If the point is on the lateral surface, return the normal to the surface
+//        return point.subtract(o).normalize();
     }
     /**
      * @param ray the ray to intersect with the object

@@ -16,14 +16,23 @@ public abstract class Intersectable {
      * Represents an intersection between a ray and a geometric object.
      */
     public static class Intersection {
+        /// The geometric object that was intersected
         public final Geometry geometry;
+        /// The point of intersection
         public final Point point;
+        /// The material of the intersected geometry
         public final Material material;
+        /// The normal vector at the intersection point
         public Vector normal;
+        /// The direction vector of the ray
         public Vector v;
+        /// The distance from the ray's head to the intersection point
         public double vNormal;
+        /// The light source at the intersection point
         public LightSource light;
+        /// The direction vector from the light source to the intersection point
         public Vector l;
+        /// The dot product of the normal vector and the light direction vector
         public double lNormal;
 
         /**

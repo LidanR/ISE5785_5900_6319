@@ -92,7 +92,7 @@ import static primitives.Util.isZero;
          * @return the closest intersection point, or null if the list is empty
          */
         public Intersection findClosestIntersection(List<Intersection> intersections) {
-            if (intersections == null || intersections.isEmpty()) return null;
+            if (intersections == null) return null;
             Intersection closest = intersections.getFirst();
             double minDistance = head.distanceSquared(closest.point);
             for (int i = 1; i < intersections.size(); i++) {

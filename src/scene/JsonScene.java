@@ -201,27 +201,27 @@ public class JsonScene {
         Material material = new Material();
         if (materialObj.containsKey("kd")) {
             if(materialObj.get("kd") instanceof Number)
-                material.setKd(((Number) materialObj.get("kd")).doubleValue());
+                material.setKD(((Number) materialObj.get("kd")).doubleValue());
             else{
                 String[] kd = ((String) materialObj.get("kd")).split(" ");
                 Double3 kdColor = new Double3(Double.parseDouble(kd[0]), Double.parseDouble(kd[1]), Double.parseDouble(kd[2]));
-                material.setKd(kdColor);
+                material.setKD(kdColor);
             }
         }
         if (materialObj.containsKey("ks")) {
             if(materialObj.get("ks") instanceof Number)
-                material.setKd(((Number) materialObj.get("ks")).doubleValue());
+                material.setKD(((Number) materialObj.get("ks")).doubleValue());
             else{
                 String[] ks = ((String) materialObj.get("ks")).split(" ");
                 Double3 ksColor = new Double3(Double.parseDouble(ks[0]), Double.parseDouble(ks[1]), Double.parseDouble(ks[2]));
-                material.setKd(ksColor);
+                material.setKD(ksColor);
             }
         }
         if (materialObj.containsKey("ns")) {
             material.setShininess(((Number) materialObj.get("ns")).intValue());
         }
         if (materialObj.containsKey("ka")) {
-            material.setKa(((Number) materialObj.get("ka")).doubleValue());
+            material.setKA(((Number) materialObj.get("ka")).doubleValue());
         }
 
         geometry.setMaterial(material);

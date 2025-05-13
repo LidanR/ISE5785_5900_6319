@@ -7,8 +7,10 @@ import java.util.List;
 /**
  * The `Geometries` class represents a collection of geometries in 3D space.
  * It implements the `Intersectable` interface and includes a list of geometries.
+ * This is a composite class that allows for the grouping of multiple geometries.
  */
 public class Geometries extends Intersectable{
+    /// The list of geometries in the collection
     private final List<Intersectable> geometries = new LinkedList<>();
 
     /**

@@ -16,12 +16,10 @@ import java.util.MissingResourceException;
  * </ul>
  *
  * The class uses the builder pattern to ensure safe and flexible construction.
- *
- * @author ...
  */
 public class Camera implements Cloneable {
     /// The camera's position in 3D space
-    private Point location;
+    private Point p0;
     /// The direction the camera is facing (toward the view plane)
     private Vector Vto;
     /// The upward direction of the camera (typically (0,1,0))
@@ -79,7 +77,7 @@ public class Camera implements Cloneable {
          * @return the builder instance
          */
         public Builder setLocation(Point p) {
-            cam.location = p;
+            cam.p0 = p;
             return this;
         }
 
@@ -109,11 +107,12 @@ public class Camera implements Cloneable {
          * @throws IllegalArgumentException if target equals the camera location
          */
         public Builder setDirection(Point target, Vector vUp) {
-            if (target.equals(cam.location)) {
+            if (target.equals(cam.p0)) {
                 throw new IllegalArgumentException("Target point cannot be the same as the camera location");
             }
-            cam.Vto = target.subtract(cam.location).normalize();
+            cam.Vto = target.subtract(cam.p0).normalize();
             Vector vright = cam.Vto.crossProduct(vUp).normalize();
+            // we need to calculate the Vup vector again to ensure orthogonality
             cam.Vup = vright.crossProduct(cam.Vto).normalize();
             return this;
         }
@@ -211,7 +210,7 @@ public class Camera implements Cloneable {
             final String MISSING_DATA_ERROR = "Missing rendering data";
             final String CAMERA_CLASS_NAME = "Camera";
 
-            if (cam.location == null) {
+            if (cam.p0 == null) {
                 throw new MissingResourceException(MISSING_DATA_ERROR, CAMERA_CLASS_NAME, "position");
             }
             if (cam.Vto == null) {
@@ -245,7 +244,7 @@ public class Camera implements Cloneable {
      * @return a {@link Ray} that starts at the camera location and goes through the pixel
      */
     public Ray constructRay(int nX, int nY, int j, int i) {
-        Point pIJ = this.location.add(this.Vto.scale(distance));
+        Point pIJ = this.p0.add(this.Vto.scale(distance));
 
         double Rx = width / nX;
         double Ry = height / nY;
@@ -260,8 +259,8 @@ public class Camera implements Cloneable {
             pIJ = pIJ.add(Vup.scale(yI));
         }
 
-        Vector dir = pIJ.subtract(location).normalize();
-        return new Ray(location, dir);
+        Vector dir = pIJ.subtract(p0).normalize();
+        return new Ray(p0, dir);
     }
 
     /**

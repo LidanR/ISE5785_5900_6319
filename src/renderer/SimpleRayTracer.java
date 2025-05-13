@@ -11,6 +11,10 @@ import java.util.List;
  */
 public class SimpleRayTracer extends RayTracerBase {
     /**
+     * A small value used to avoid shadow acne.
+     */
+    private static final double DELTA = 0.1;
+    /**
      * Constructor for SimpleRayTracer.
      *
      * @param scene the scene to be rendered
@@ -74,7 +78,8 @@ public class SimpleRayTracer extends RayTracerBase {
         {
             if (!setLightSource(intersection, lightSource)) continue;
 
-            if (intersection.lNormal * intersection.vNormal > 0)
+            if ((intersection.lNormal * intersection.vNormal > 0) //sign(nl)== sign(vl)
+             &unshaded(intersection))  // check if the point is in shadow
             {
                 Color iL = lightSource.getIntensity(intersection.point);
                 color = color.add(iL.scale(calcSpecular(intersection)))
@@ -107,6 +112,26 @@ public class SimpleRayTracer extends RayTracerBase {
     {
         return intersection.material.Kd.scale(Math.abs(intersection.lNormal));
     }
+    /**
+     * Calculates the shadow intensity at a given intersection point.
+     *
+     * @param intersection the intersection point
+     * @return the shadow intensity
+     */
+    private boolean unshaded(Intersection intersection)
+    {
+        Vector lightDirection = intersection.l.scale(-1);
+        Vector deltaVector = intersection.normal.scale(intersection.lNormal < 0 ? DELTA : -DELTA);
+        Point point = intersection.point.add(deltaVector);
+        Ray lightRay = new Ray(point, lightDirection);
+        List<Intersection> intersections = scene.geometries.calculateIntersections(lightRay);
+        if(intersections == null) return true;
+        double distance = intersection.light.getDistance(point);
+        for (Intersection i : intersections) {
+            if (i.point.distance(point)<distance) return false;
+        }
+        return true;
+    }
 
     /**
      * Traces a ray through the scene and returns the color at the intersection point.
@@ -117,7 +142,7 @@ public class SimpleRayTracer extends RayTracerBase {
     @Override
     public Color traceRay(Ray ray) {
         List<Intersection> intersections = scene.geometries.calculateIntersections(ray);
-        if (intersections == null || intersections.isEmpty()) {
+        if (intersections == null) {
             return scene.background;
         } else {
             Intersection closestPoint = ray.findClosestIntersection(intersections);
