@@ -7,6 +7,10 @@ public class Material {
     public Double3 Kd = Double3.ZERO;
     // Specular reflection coefficient
     public Double3 Ks = Double3.ZERO;
+    // Transparency coefficient
+    public Double3 Kt = Double3.ZERO;
+    // Refraction coefficient
+    public Double3 Kr = Double3.ZERO;
     // Shininess coefficient
     public int nSh = 0;
 
@@ -63,6 +67,43 @@ public class Material {
      */
     public Material setKS(double Ks) {
         this.Ks = new Double3(Ks);
+        return this;
+    }
+
+    /**
+     * Setter for the transparency coefficient.
+     * @param Kt the transparency coefficient
+     * @return this Material object
+     */
+    public Material setKT(Double3 Kt) {
+        this.Kt = Kt;
+        return this;
+    }
+    /**
+     * another setter for the transparency coefficient.
+     * @param Kt the transparency coefficient
+     * @return this Material object
+     */
+    public Material setKT(double Kt) {
+        this.Kt = new Double3(Kt);
+        return this;
+    }
+    /**
+     * Setter for the refraction coefficient.
+     * @param Kr the refraction coefficient
+     * @return this Material object
+     */
+    public Material setKR(Double3 Kr) {
+        this.Kr = Kr;
+        return this;
+    }
+    /**
+     * another setter for the refraction coefficient.
+     * @param Kr the refraction coefficient
+     * @return this Material object
+     */
+    public Material setKR(double Kr) {
+        this.Kr = new Double3(Kr);
         return this;
     }
     /**
