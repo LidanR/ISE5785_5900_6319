@@ -107,4 +107,100 @@ class ReflectionRefractionTests {
          .renderImage() //
          .writeToImage("refractionShadow");
    }
+   /**
+    * “Floating Lantern Courtyard”:
+    * Warm, meditative scene of glowing lanterns over a reflective floor.
+    */
+   @Test
+   void floatingLanternCourtyard() {
+      // 1. Ambient: very low to highlight lantern glow
+      scene.setAmbientLight(new AmbientLight(new Color(20, 20, 20)));
+
+      // 2. Floor: dark reflective polygon (four tiles)
+      scene.geometries.add(
+              new Polygon(
+                      new Point(-100, -100, -80),
+                      new Point( 100, -100, -80),
+                      new Point( 100,  100, -80),
+                      new Point(-100,  100, -80)
+              )
+                      .setEmission(new Color(30, 30, 30))       // deep charcoal
+                      .setMaterial(new Material()
+                              .setKD(0.2)                             // some diffuse
+                              .setKS(0.7)                             // strong reflection
+                              .setKR(0.5)                             // mirror-like floor
+                              .setShininess(200))
+      );
+
+      // 3. Lanterns: spheres with internal point lights
+      double[][] lanternPositions = {
+              {-50,  20, -40},
+              {  0,  30, -45},
+              { 50,  25, -40},
+              {-25, -10, -42},
+              { 25, -15, -42}
+      };
+      for (double[] pos : lanternPositions) {
+         Point center = new Point(pos[0], pos[1], pos[2]);
+         scene.geometries.add(
+                 new Sphere(center, 8)
+                         .setEmission(new Color(200, 120,  40))         // burnt orange
+                         .setMaterial(new Material()
+                                 .setKD(0.1)
+                                 .setKS(0.9).setShininess(150)
+                                 .setKT(0.4))                                  // slight translucency
+         );
+         // internal glow
+         scene.lights.add(
+                 new PointLight(new Color(800, 500, 200), center)
+                         .setKl(0.0008)
+         );
+      }
+
+      // 4. Pillars & Beams: ivory triangles framing scene
+      scene.geometries.add(
+              // left beam
+              new Triangle(
+                      new Point(-120, -100, -80),
+                      new Point(-120,  100, -80),
+                      new Point(-115,  100, -40)
+              ).setEmission(new Color(220, 210, 200))
+                      .setMaterial(new Material().setKD(0.8).setKS(0.2).setShininess(30)),
+              // right beam
+              new Triangle(
+                      new Point(120, -100, -80),
+                      new Point(120,  100, -80),
+                      new Point(115,  100, -40)
+              ).setEmission(new Color(220, 210, 200))
+                      .setMaterial(new Material().setKD(0.8).setKS(0.2).setShininess(30))
+      );
+
+      // 5. Backdrop wall: subtle warm glow
+      scene.geometries.add(
+              new Plane(new Point(0, 0, -100), new Vector(0, 0, 1))
+                      .setEmission(new Color(50, 40, 40))
+                      .setMaterial(new Material()
+                              .setKD(0.3)
+                              .setKS(0.3).setShininess(50))
+      );
+
+      // 6. Fill light from below for gentle upward glow
+      scene.lights.add(
+              new PointLight(new Color(200, 80, 20), new Point(0, 0, -100))
+                      .setKl(0.0005)
+      );
+
+      // 7. Camera: 30° oblique top‑down view
+      cameraBuilder
+              .setLocation(new Point(0, 120, 100))                             // pulled back and up
+              .setDirection(
+                      new Vector(0, -0.5, -1)                                   // world-up Y
+              )
+              .setVpDistance(200).setVpSize(200, 200)
+              .setResolution(600, 600)
+              .build()
+              .renderImage()
+              .writeToImage("floatingLanternCourtyard");
+   }
+
 }

@@ -55,7 +55,7 @@ public class Triangle extends Polygon {
      */
 
     @Override
-    protected List<Intersection> findIntersectionsHelper(Ray ray) {
+    protected List<Intersection> findIntersectionsHelper(Ray ray,double maxDistance) {
 
         Vector h = ray.getDir().crossProduct(this.edge2);
         Vector s = ray.getHead().subtract(vertices.getFirst());
@@ -84,8 +84,12 @@ public class Triangle extends Polygon {
         double t = f * edge2.dotProduct(q);
         if (!isZero(t) && t > 0) // ray intersection
         {
+            var intersectionPoints = plane.findIntersections(ray,maxDistance);
+            if (intersectionPoints == null) {
+                return null; // No intersection with the plane
+            }
             // convert the plane points to intersection points
-            return Objects.requireNonNull(plane.findIntersections(ray)).stream()
+            return Objects.requireNonNull(intersectionPoints).stream()
                     .map(p -> new Intersection(this,p))
                     .toList();
         }

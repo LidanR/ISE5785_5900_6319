@@ -47,7 +47,7 @@ public class Sphere extends RadialGeometry {
      * @return a list of intersection points, or null if there are no intersections
      */
     @Override
-    protected List<Intersection> findIntersectionsHelper(Ray ray) {
+    protected List<Intersection> findIntersectionsHelper(Ray ray,double maxDistance) {
         if(ray.getHead().equals(center)) return List.of(new Intersection(this,ray.getHead().add(ray.getDir().scale(super.getRadius())))) ;
         Vector u = this.center.subtract(ray.getHead());
         double tm = ray.getDir().dotProduct(u);
@@ -56,12 +56,19 @@ public class Sphere extends RadialGeometry {
         double th = alignZero(Math.sqrt(super.getRadius() * super.getRadius() - d * d));
         double t1 = alignZero(tm - th);
         double t2 = alignZero(tm + th);
-        if (t1 > 0 && t2 > 0)
-            return List.of(new Intersection(this,ray.getPoint(t1)),new Intersection(this,ray.getPoint(t2)));
-        if (t1 > 0)
-            return List.of(new Intersection(this,ray.getPoint(t1)));
-        if (t2 > 0)
-            return List.of(new Intersection(this,ray.getPoint(t2)));
+        if (t1 > 0 && t2 > 0) {
+            if (t1 <= maxDistance && t2 <= maxDistance)
+                return List.of(new Intersection(this, ray.getPoint(t1)), new Intersection(this, ray.getPoint(t2)));
+            if (t1 <= maxDistance)
+                return List.of(new Intersection(this, ray.getPoint(t1)));
+            if (t2 <= maxDistance)
+                return List.of(new Intersection(this, ray.getPoint(t2)));
+            return null;
+        }
+        if (t1 > 0 && t1 <= maxDistance)
+            return List.of(new Intersection(this, ray.getPoint(t1)));
+        if (t2 > 0 && t2 <= maxDistance)
+            return List.of(new Intersection(this, ray.getPoint(t2)));
         return null;
     }
 

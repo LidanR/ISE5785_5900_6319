@@ -98,7 +98,7 @@ public class Polygon extends Geometry {
     * @return a list of intersection points between the ray and the polygon,
     */
    @Override
-   protected List<Intersection> findIntersectionsHelper(Ray ray) {
+   protected List<Intersection> findIntersectionsHelper(Ray ray,double maxDistance) {
 // Create a list to store the normals formed by the polygon's sides
       List<Vector> edgeNormals = new LinkedList<>();
 
@@ -129,8 +129,13 @@ public class Polygon extends Geometry {
       // Build a plane using the first three vertices of the polygon
       Plane basePlane = new Plane(vertices.getFirst(), vertices.get(1), vertices.get(2));
 
+      List<Point> intersectionPoints = basePlane.findIntersections(ray,maxDistance);
+        if (intersectionPoints == null) {
+             return null; // No intersection with the plane
+        }
+
       // Find intersection points between the ray and the constructed plane
-      return Objects.requireNonNull(basePlane.findIntersections(ray)).stream()
+      return Objects.requireNonNull(intersectionPoints).stream()
               .map(point -> new Intersection(this, point))
               .toList();
    }

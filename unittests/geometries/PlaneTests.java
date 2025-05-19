@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import primitives.*;
 
+import java.util.Objects;
+
 class PlaneTests {
     /**
      * Test method for {@link geometries.Plane#getNormal()}.
@@ -51,7 +53,7 @@ class PlaneTests {
 
         // ============ Equivalence Partitions Tests ==================
         // TC01: Ray intersects the plane,not orthogonal to the plane and not parrallel to it
-        assertEquals(plane.findIntersections(new Ray(new Point(0.5, 0.5, -1), new Vector(0, 0.2, 0.2))).size(), 1, "Ray intersects the plane,not orthogonal to the plane and not parrallel to it");
+        assertEquals(1, Objects.requireNonNull(plane.findIntersections(new Ray(new Point(0.5, 0.5, -1), new Vector(0, 0.2, 0.2)))).size(), "Ray intersects the plane,not orthogonal to the plane and not parrallel to it");
         // TC02: Ray not intersects the plane, not orthogonal to the plane and not parrallel to it
         assertNull(plane.findIntersections(new Ray(new Point(0.5, 0.5, -1), new Vector(0, 0, -1))), "Ray not intersects the plane, not orthogonal to the plane and not parrallel to it");
 
@@ -61,7 +63,7 @@ class PlaneTests {
         // TC04: Ray is parrallel to the plane and not included in it
         assertNull(plane.findIntersections(new Ray(new Point(0.5, 0.5, 0), new Vector(1, 1, 0))), "Ray is parrallel to the plane and not included in it");
         // TC05: Ray is orthogonal to the plane and starts before it
-        assertEquals(plane.findIntersections(new Ray(new Point(0.5, 0.5, -1), new Vector(0, 0, 1))).size(), 1, "Ray is orthogonal to the plane and starts before it");
+        assertEquals(1, Objects.requireNonNull(plane.findIntersections(new Ray(new Point(0.5, 0.5, -1), new Vector(0, 0, 1)))).size(), "Ray is orthogonal to the plane and starts before it");
         // TC06: Ray is orthogonal to the plane and starts in it
         assertNull(plane.findIntersections(new Ray(new Point(0.5, 0.5, 0), new Vector(0, 0, 1))), "Ray is orthogonal to the plane and starts in it");
         // TC07: Ray is orthogonal to the plane and starts after it
@@ -71,5 +73,23 @@ class PlaneTests {
         // TC09: Ray point starts on the plane but not on the plane point
         assertNull(plane.findIntersections(new Ray(new Point(0.5, 0.5, 0), new Vector(0, 0, 1))), "Ray point starts on the plane but not on the plane point");
 
+    }
+    /**
+     * Test method for {@link geometries.Plane#findIntersectionsHelper(Ray, double)}.
+     */
+    @Test
+    void testIntersectionWithDistance() {
+        final Point p1 = new Point(0, 0, 2);
+        final Point p2 = new Point(0, 0, 1);
+        final Vector v = new Vector(0, 0, 1);
+        final Plane plane = new Plane(p2, v);
+        // ============ Equivalence Partitions Tests ==============
+        // TC01: The distance between the ray intersection point and the ray's start point is more than the distance(0 points)
+        assertNull(plane.findIntersectionsHelper(new Ray(p1, new Vector(0, 1, -1)), 1),
+                "Ray's intersection point is out of the distance");
+
+        // TC02: The distance between the ray intersection point and the ray's start point is less than the distance(1 point)
+        assertEquals(1, plane.findIntersectionsHelper(new Ray(p1, new Vector(0, 1, -1)), 10).size(),
+                "Ray's intersection points is in the distance");
     }
 }

@@ -75,12 +75,12 @@ public class Plane extends Geometry {
      * @return a list containing the intersection point, or null if there are no intersections
      */
     @Override
-    protected List<Intersection> findIntersectionsHelper(Ray ray) {
+    protected List<Intersection> findIntersectionsHelper(Ray ray,double maxDistance) {
         if(point.equals(ray.getHead())) return null;
         double nv = normal.dotProduct(ray.getDir());
         if(isZero(nv)) return null;
         double t = alignZero(normal.dotProduct(point.subtract(ray.getHead())) / nv);
-        if (t <= 0) return null;
+        if (t <= 0||t>maxDistance) return null;
         return List.of(new Intersection(this,ray.getPoint(t)));
     }
 }

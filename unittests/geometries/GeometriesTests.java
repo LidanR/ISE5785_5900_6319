@@ -28,6 +28,7 @@ class GeometriesTests {
         // TC03: One shape intersects
         geometries.add(new Sphere(new Point(2, 0, 0), 1));
         List<Point> result = geometries.findIntersections(ray);
+        assertNotNull(result);
         assertEquals(2, result.size(), "One shape intersects should return two intersection point");
 
         Geometries geometries2 = new Geometries();
@@ -36,12 +37,14 @@ class GeometriesTests {
         geometries2.add(new Sphere(new Point(10, 0, 0), 1));
         geometries2.add(new Sphere(new Point(15, 0, 0), 1));
         result = geometries2.findIntersections(ray);
+        assertNotNull(result);
         assertEquals(6, result.size(), "All shapes intersect should return six intersection points");
 
         // ============ Equivalence Partitions Tests ==================
         // TC05: Some shapes intersect
         geometries.add(new Sphere(new Point(20, 5, 0), 1));
         result = geometries.findIntersections(ray);
+        assertNotNull(result);
         assertEquals(2, result.size(), "Some shapes intersect should return two intersection points");
     }
 }

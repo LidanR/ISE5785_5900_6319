@@ -34,6 +34,25 @@ public class FunTests {
 //
 //        }, "Failed to render image");
     }
+    @Test
+    public void diamondRing() {
+        assertDoesNotThrow(() -> {
+                    Scene scene = JsonScene.CreateScene("jsonScenes/diamondRing.json");
+                    final Camera.Builder camera = Camera.getBuilder()
+                            .setDirection(new Vector(0, 1, -0.1).normalize(), new Vector(0, 0.1, 1).normalize())
+                            .setLocation(new Point(0, -350, 60))//Point(0, 130, 30)
+                            .setVpDistance(500)
+                            .setResolution(1000,1000)
+                            .setRayTracer(scene, RayTracerType.SIMPLE)
+                            .setVpSize(150, 150);
+
+                    camera
+                            .build()
+                            .renderImage()
+                            .writeToImage("DiamondRing");
+                }, "Failed to render image"
+        );
+    }
 
 
 }

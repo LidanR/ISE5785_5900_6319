@@ -223,7 +223,24 @@ public class JsonScene {
         if (materialObj.containsKey("ka")) {
             material.setKA(((Number) materialObj.get("ka")).doubleValue());
         }
-
+        if (materialObj.containsKey("kt")) {
+            if(materialObj.get("kt") instanceof Number)
+                material.setKT(((Number) materialObj.get("kt")).doubleValue());
+            else{
+                String[] kt = ((String) materialObj.get("kt")).split(" ");
+                Double3 ktColor = new Double3(Double.parseDouble(kt[0]), Double.parseDouble(kt[1]), Double.parseDouble(kt[2]));
+                material.setKT(ktColor);
+            }
+        }
+        if (materialObj.containsKey("kr")) {
+            if(materialObj.get("kr") instanceof Number)
+                material.setKR(((Number) materialObj.get("kr")).doubleValue());
+            else{
+                String[] kr = ((String) materialObj.get("kr")).split(" ");
+                Double3 krColor = new Double3(Double.parseDouble(kr[0]), Double.parseDouble(kr[1]), Double.parseDouble(kr[2]));
+                material.setKR(krColor);
+            }
+        }
         geometry.setMaterial(material);
     }
 

@@ -79,10 +79,20 @@ public abstract class Intersectable {
         return list == null ? null : list.stream().map(intersection -> intersection.point).toList();
     }
     /**
+     * Finds all intersection points between a given ray and the geometric object within a specified distance.
+     *
+     * @param ray the ray to intersect with the object
+     * @return a list of intersection points
+     */
+    public final List<Point> findIntersections(Ray ray,double maxDistance){
+        var list = calculateIntersections(ray,maxDistance);
+        return list == null ? null : list.stream().map(intersection -> intersection.point).toList();
+    }
+    /**
      *
      * find intersectionshelper method to find all intersection points between a given ray and the geometric object.
      */
-    protected abstract List<Intersection> findIntersectionsHelper(Ray ray);
+    protected abstract List<Intersection> findIntersectionsHelper(Ray ray,double maxDistance);
     /**
      * Calculates the intersections between a ray and the geometric object.
      *
@@ -90,7 +100,11 @@ public abstract class Intersectable {
      * @return a list of intersection points
      */
     public final List<Intersection> calculateIntersections(Ray ray) {
-        return findIntersectionsHelper(ray);
+        return findIntersectionsHelper(ray,Double.POSITIVE_INFINITY);
+    }
+
+    public final List<Intersection> calculateIntersections(Ray ray, double maxDistance) {
+        return findIntersectionsHelper(ray, maxDistance);
     }
 
 }

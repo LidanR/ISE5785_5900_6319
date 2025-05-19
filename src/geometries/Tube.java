@@ -42,7 +42,7 @@ package geometries;
      * @return null
      */
     @Override
-    protected List<Intersection> findIntersectionsHelper(Ray ray) {
+    protected List<Intersection> findIntersectionsHelper(Ray ray,double maxDistance) {
         return null;
     }
 }
