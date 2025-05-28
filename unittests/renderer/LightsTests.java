@@ -111,7 +111,7 @@ class LightsTests {
    @Test
    void spherePoint() {
       scene1.geometries.add(sphere);
-      scene1.lights.add(new PointLight(sphereLightColor, sphereLightPosition) //
+      scene1.lights.add(new PointLight(sphereLightColor, sphereLightPosition,0.0) //
          .setKl(0.001).setKq(0.0002));
 
       camera1 //
@@ -152,7 +152,7 @@ class LightsTests {
    @Test
    void trianglesPoint() {
       scene2.geometries.add(triangle1, triangle2);
-      scene2.lights.add(new PointLight(trianglesLightColor, trianglesLightPosition) //
+      scene2.lights.add(new PointLight(trianglesLightColor, trianglesLightPosition,0.0) //
          .setKl(0.001).setKq(0.0002));
 
       camera2.setResolution(500, 500) //
@@ -208,7 +208,7 @@ class LightsTests {
 
       scene1.lights.add(new SpotLight(new Color(700, 400, 400), new Point(-100, -100, -100), new Vector(1, 1, -3))
               .setKl(0.0004).setKq(0.0002));
-      scene1.lights.add(new PointLight(new Color(500, 300, 0), new Point(100, -100, -100))
+      scene1.lights.add(new PointLight(new Color(500, 300, 0), new Point(100, -100, -100),0.0)
               .setKl(0.0004).setKq(0.0002));
       scene1.lights.add(new DirectionalLight(new Color(400, 400, 700), new Vector(1, -1, -1)));
 
@@ -224,7 +224,7 @@ class LightsTests {
 
       scene2.lights.add(new SpotLight(new Color(700, 400, 400), new Point(-100, -100, -100) ,new Vector(1, 1, -3))
               .setKl(0.0004).setKq(0.0002));
-      scene2.lights.add(new PointLight(new Color(500, 300, 0), new Point(100, -100, -100))
+      scene2.lights.add(new PointLight(new Color(500, 300, 0), new Point(100, -100, -100),0.0)
               .setKl(0.0004).setKq(0.0002));
       scene2.lights.add(new DirectionalLight(new Color(400, 400, 700), new Vector(1, -1, -1)));
 

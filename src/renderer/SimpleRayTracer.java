@@ -1,6 +1,8 @@
 package renderer;
 
 import lighting.LightSource;
+import lighting.PointLight;
+import lighting.SpotLight;
 import primitives.*;
 import scene.Scene;
 import geometries.Intersectable. Intersection;
@@ -22,6 +24,34 @@ public class SimpleRayTracer extends RayTracerBase {
      * the k value for the initial color.
      */
     private static final Double3 INITIAL_K = Double3.ONE;
+    /**
+     * Indicates whether to use soft shadows.
+     * If true, the ray tracer will calculate soft shadows.
+     * If false, it will use hard shadows.
+     * Default is false.
+     */
+
+    /**
+     * Sets whether to use soft shadows.
+     *
+     * @param softShadow true to enable soft shadows, false for hard shadows
+     * @return the current instance of SimpleRayTracer
+     */
+    @Override
+    public SimpleRayTracer setSoftShadow(boolean softShadow) {
+        this.softShadow = softShadow;
+        return this;
+    }
+
+    /**
+     * @param antiAliasing true to enable anti-aliasing, false to disable
+     * @return the current instance of SimpleRayTracer
+     */
+    @Override
+    public SimpleRayTracer setAntiAliasing(boolean antiAliasing) {
+        this.antiAliasing = antiAliasing;
+        return null;
+    }
 
     /**
      * Constructor for SimpleRayTracer.
@@ -39,8 +69,18 @@ public class SimpleRayTracer extends RayTracerBase {
      */
     @Override
     public Color traceRay(Ray ray) {
+        List<Ray> rays = List.of(ray);
         Intersection intersection = findClosestIntersection(ray);
-        return intersection == null ? scene.background : calcColor(intersection, ray);
+        if(antiAliasing)
+        {
+            rays = ray.constructRaysBeam(intersection==null?ray.getHead():intersection.point);
+        }
+        Color color = Color.BLACK;
+        for (Ray r : rays) {
+            intersection = findClosestIntersection(r);
+            color = color.add(intersection==null?scene.background: calcColor(intersection,r));
+        }
+        return color.reduce(rays.size());
     }
     /**
      * Calculates the color at a given point in the scene.
@@ -90,9 +130,9 @@ public class SimpleRayTracer extends RayTracerBase {
      * @param lightSource the light source to set
      * @return true if the light source is valid, false otherwise
      */
-    private boolean setLightSource(Intersection intersection, LightSource lightSource){
+    private boolean setLightSource(Intersection intersection, LightSource lightSource,Vector direction){
         intersection.light = lightSource;
-        intersection.l = lightSource.getL(intersection.point);
+        intersection.l = direction;
         intersection.lNormal = Util.alignZero(intersection.normal.dotProduct(intersection.l));
         return intersection.lNormal != 0;
 
@@ -129,6 +169,7 @@ public class SimpleRayTracer extends RayTracerBase {
      * @param intersection the intersection point
      * @return the shadow intensity
      */
+    @SuppressWarnings("unused")
     private boolean unshaded(Intersection intersection)
     {
         Vector lightDirection = intersection.l.scale(-1);
@@ -147,29 +188,51 @@ public class SimpleRayTracer extends RayTracerBase {
      * Calculates the color at a given intersection point based on local effects.
      *
      * @param intersection the intersection point
+     * @param k the k value for color calculations
      * @return the color at the intersection point
      */
     private Color calcColorLocalEffects(Intersection intersection,Double3 k)
     {
         Color color = intersection.geometry.getEmission();
-
         if (intersection.vNormal == 0) return color;
+
         for(LightSource lightSource : scene.lights)
         {
-            if (!setLightSource(intersection, lightSource)) continue;
+            if(!setLightSource(intersection,lightSource,lightSource.getL(intersection.point))) continue;
+            Ray centerRay = new Ray(intersection.point,lightSource.getL(intersection.point).scale(-1));
+            List<Ray> rays;
+            Double3 Ktr;
 
-            if ((Util.alignZero(intersection.lNormal * intersection.vNormal) > 0)) //sign(nl)== sign(vl)
+            if(softShadow
+            && (lightSource instanceof SpotLight || lightSource instanceof PointLight))
             {
-                Double3 ktr = transparency(intersection);
-                if(!ktr.product(k).lowerThan(MIN_CALC_COLOR_K)) {
-                    Color iL = lightSource.getIntensity(intersection.point).scale(ktr);
-                    color = color.add(iL.scale(calcSpecular(intersection)))
-                            .add(iL.scale(calcDiffuse(intersection)));
+                Point lightPosition = centerRay.getPoint(lightSource.getDistance(intersection.point));
+                rays = centerRay.constructRaysBeam(lightPosition);
+            }
+            else
+            {
+                rays = List.of(centerRay);
+            }
+            for(Ray ray : rays)
+            {
+                if(!setLightSource(intersection,lightSource,ray.getDir().scale(-1))||
+                        intersection.lNormal*intersection.vNormal <= 0) continue;
+                Ktr = transparency(intersection).reduce(rays.size());
+                if (!Ktr.product(k).lowerThan(MIN_CALC_COLOR_K)) {
+                    Color iL = lightSource.getIntensity(intersection.point).scale(Ktr);
+                    color = color.add(
+                            iL.scale(calcDiffuse(intersection)
+                                    .add(calcSpecular(intersection))));
                 }
             }
+
         }
+
         return color;
+
     }
+
+
     /**
      * constructs a refracted ray at a given intersection point.
      *

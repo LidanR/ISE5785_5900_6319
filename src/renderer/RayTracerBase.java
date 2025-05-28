@@ -14,6 +14,8 @@ import scene.Scene;
 public abstract class RayTracerBase {
     /// The scene to be rendered
     protected final Scene scene;
+    protected boolean softShadow = false;
+    protected boolean antiAliasing = false;
 
     /**
      * Constructor for RayTracerBase.
@@ -33,4 +35,22 @@ public abstract class RayTracerBase {
      * @return the color at the intersection point
      */
     public abstract Color traceRay(Ray ray);
+
+    /**
+     * Sets whether soft shadows should be used in the ray tracing.
+     *
+     * @param softShadow true to enable soft shadows, false to disable
+     * @return the current instance of SimpleRayTracer for method chaining
+     */
+    public abstract SimpleRayTracer setSoftShadow(boolean softShadow);
+
+    /**
+     * Sets whether anti-aliasing should be used in the ray tracing.
+     *
+     * @param antiAliasing true to enable anti-aliasing, false to disable
+     * @return the current instance of SimpleRayTracer for method chaining
+     */
+    public abstract SimpleRayTracer setAntiAliasing(boolean antiAliasing);
+
 }
+

@@ -16,16 +16,19 @@ public class PointLight extends Light implements LightSource {
     private double kc=1.0;
     private double kl=0.0;
     private double kq=0.0;
+    // radius of the light source
+    private double radius = 0.0;
 
     /**
      * Default constructor for the PointLight class.
      * @param color the color of the light
      * @param position the position of the light source
      */
-     public PointLight(Color color, Point position) {
-     super(color);
-     this.position = position;
-     }
+    public PointLight(Color color, Point position,double radius) {
+        super(color);
+        this.position = position;
+        this.radius = radius;
+    }
 
     /**
      * setter for the kc

@@ -1,6 +1,7 @@
 package renderer;
 
 import static java.awt.Color.BLUE;
+import static java.awt.Color.RED;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,10 +22,10 @@ class ShadowTests {
    private final Scene          scene      = new Scene("Test scene");
    /** Camera builder of the tests */
    private final Camera.Builder camera     = Camera.getBuilder()
-      .setLocation(new Point(0, 0, 1000)).setVpDistance(1000)
-      .setDirection(Point.ZERO, Vector.AXIS_Y)
-      .setVpSize(200, 200)
-      .setRayTracer(scene, RayTracerType.SIMPLE);
+           .setLocation(new Point(0, 0, 1000)).setVpDistance(1000)
+           .setDirection(Point.ZERO, Vector.AXIS_Y)
+           .setVpSize(200, 200)
+           .setRayTracer(scene, RayTracerType.SIMPLE);
 
    /** The sphere in the tests */
    private final Intersectable  sphere     = new Sphere(new Point(0, 0, -200), 60d)
@@ -117,5 +118,7 @@ class ShadowTests {
          .renderImage() //
          .writeToImage("shadowTrianglesSphere");
    }
+
+
 
 }

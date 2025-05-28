@@ -40,7 +40,10 @@ public class Camera implements Cloneable {
     private int nX=1;
     /// The number of vertical pixels
     private int nY=1;
-
+    // Use SoftShadow
+    private boolean useSoftShadow = false;
+    // Use AntiAliasing
+    private boolean useAntiAliasing = false;
     /**
      * Private constructor to enforce use of builder.
      */
@@ -198,7 +201,25 @@ public class Camera implements Cloneable {
             return this;
         }
 
+        /**
+         * Sets whether to use soft shadows in the ray tracing.
+         * @param useSoftShadow true to enable soft shadows, false to disable
+         * @return the builder instance
+         */
+        public Builder setSoftShadow(boolean useSoftShadow) {
+            cam.useSoftShadow = useSoftShadow;
+            return this;
+        }
 
+        /**
+         * Sets whether to use anti-aliasing in the ray tracing.
+         * @param useAntiAliasing true to enable anti-aliasing, false to disable
+         * @return the builder instance
+         */
+        public Builder setAntiAliasing(boolean useAntiAliasing) {
+            cam.useAntiAliasing = useAntiAliasing;
+            return this;
+        }
         /**
          * Builds and returns a valid Camera object after validating all required parameters.
          *
@@ -225,10 +246,17 @@ public class Camera implements Cloneable {
             if (cam.width <= 0 || cam.height <= 0) {
                 throw new IllegalArgumentException("Width and height must be positive");
             }
+            if(cam.rayTracerBase == null) {
+                throw new MissingResourceException(MISSING_DATA_ERROR, CAMERA_CLASS_NAME, "rayTracerBase");
+            }
+            if (cam.imageWriter == null) {
+                throw new MissingResourceException("ImageWriter is not set", "Camera", "imageWriter");
+            }
 
             // Ensure Vright is calculated
             cam.Vright = cam.Vto.crossProduct(cam.Vup).normalize();
-
+            cam.rayTracerBase.setSoftShadow(cam.useSoftShadow);
+            cam.rayTracerBase.setAntiAliasing(cam.useAntiAliasing);
             return cam.clone();
 
         }
@@ -269,10 +297,6 @@ public class Camera implements Cloneable {
      * @return the rendered image
      */
     public Camera renderImage(){
-        if(imageWriter == null) {
-            throw new MissingResourceException("ImageWriter is not set", "Camera", "imageWriter");
-        }
-
         for (int i = 0; i < nX; i++) {
             for (int j = 0; j < nY; j++) {
                 castRay(i, j);
@@ -289,13 +313,6 @@ public class Camera implements Cloneable {
      * @throws MissingResourceException if the image writer or ray tracer is not set
      */
     public Camera printGrid(int interval, Color color) {
-        if (imageWriter == null) {
-            throw new MissingResourceException("ImageWriter is not set", "Camera", "imageWriter");
-        }
-        if (rayTracerBase == null) {
-            throw new MissingResourceException("RayTracerBase is not set", "Camera", "rayTracerBase");
-        }
-
         for (int i = 0; i < nX; i++) {
             for (int j = 0; j < nY; j++) {
                 if (i % interval == 0 || j % interval == 0) {
@@ -314,9 +331,6 @@ public class Camera implements Cloneable {
      * @throws MissingResourceException if the image writer is not set
      */
     Camera writeToImage(String fileName) {
-        if (imageWriter == null) {
-            throw new MissingResourceException("ImageWriter is not set", "Camera", "imageWriter");
-        }
         imageWriter.writeToImage(fileName);
         return this;
     }
@@ -329,12 +343,6 @@ public class Camera implements Cloneable {
      * @throws MissingResourceException if the image writer or ray tracer is not set
      */
     private void castRay(int x, int y) {
-        if (imageWriter == null) {
-            throw new MissingResourceException("ImageWriter is not set", "Camera", "imageWriter");
-        }
-        if (rayTracerBase == null) {
-            throw new MissingResourceException("RayTracerBase is not set", "Camera", "rayTracerBase");
-        }
         Ray ray = constructRay(nX, nY, x, y);
         Color color = rayTracerBase.traceRay(ray);
         imageWriter.writePixel(x, y, color);
