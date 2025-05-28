@@ -119,19 +119,4 @@ public class Ray {
         }
         return closest;
     }
-
-
-    public List<Ray> constructRaysBeam(Point p) {
-        if (p == null) {
-            throw new IllegalArgumentException("Point cannot be null");
-        }
-        Blackboard blackboard = Blackboard.getBuilder()
-                .setMethod(Blackboard.MethodsOfPoints.JITTERED)
-                .setUseCircle(true)
-                .build(this, p);
-        return blackboard.points.stream()
-                .map(point -> new Ray(head, point.subtract(head).normalize()))
-                .toList();
-    }
-
 }

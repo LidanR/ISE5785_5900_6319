@@ -24,34 +24,7 @@ public class SimpleRayTracer extends RayTracerBase {
      * the k value for the initial color.
      */
     private static final Double3 INITIAL_K = Double3.ONE;
-    /**
-     * Indicates whether to use soft shadows.
-     * If true, the ray tracer will calculate soft shadows.
-     * If false, it will use hard shadows.
-     * Default is false.
-     */
 
-    /**
-     * Sets whether to use soft shadows.
-     *
-     * @param softShadow true to enable soft shadows, false for hard shadows
-     * @return the current instance of SimpleRayTracer
-     */
-    @Override
-    public SimpleRayTracer setSoftShadow(boolean softShadow) {
-        this.softShadow = softShadow;
-        return this;
-    }
-
-    /**
-     * @param antiAliasing true to enable anti-aliasing, false to disable
-     * @return the current instance of SimpleRayTracer
-     */
-    @Override
-    public SimpleRayTracer setAntiAliasing(boolean antiAliasing) {
-        this.antiAliasing = antiAliasing;
-        return null;
-    }
 
     /**
      * Constructor for SimpleRayTracer.
@@ -69,18 +42,11 @@ public class SimpleRayTracer extends RayTracerBase {
      */
     @Override
     public Color traceRay(Ray ray) {
-        List<Ray> rays = List.of(ray);
+
         Intersection intersection = findClosestIntersection(ray);
-        if(antiAliasing)
-        {
-            rays = ray.constructRaysBeam(intersection==null?ray.getHead():intersection.point);
-        }
         Color color = Color.BLACK;
-        for (Ray r : rays) {
-            intersection = findClosestIntersection(r);
-            color = color.add(intersection==null?scene.background: calcColor(intersection,r));
-        }
-        return color.reduce(rays.size());
+        color = color.add(intersection==null?scene.background: calcColor(intersection, ray));
+        return color;
     }
     /**
      * Calculates the color at a given point in the scene.
@@ -188,7 +154,6 @@ public class SimpleRayTracer extends RayTracerBase {
      * Calculates the color at a given intersection point based on local effects.
      *
      * @param intersection the intersection point
-     * @param k the k value for color calculations
      * @return the color at the intersection point
      */
     private Color calcColorLocalEffects(Intersection intersection,Double3 k)
@@ -199,37 +164,17 @@ public class SimpleRayTracer extends RayTracerBase {
         for(LightSource lightSource : scene.lights)
         {
             if(!setLightSource(intersection,lightSource,lightSource.getL(intersection.point))) continue;
-            Ray centerRay = new Ray(intersection.point,lightSource.getL(intersection.point).scale(-1));
-            List<Ray> rays;
             Double3 Ktr;
-
-            if(softShadow
-            && (lightSource instanceof SpotLight || lightSource instanceof PointLight))
-            {
-                Point lightPosition = centerRay.getPoint(lightSource.getDistance(intersection.point));
-                rays = centerRay.constructRaysBeam(lightPosition);
+            if(intersection.lNormal*intersection.vNormal <= 0) continue;
+            Ktr = transparency(intersection);
+            if (!Ktr.product(k).lowerThan(MIN_CALC_COLOR_K)) {
+                Color iL = lightSource.getIntensity(intersection.point).scale(Ktr);
+                color = color.add(
+                        iL.scale(calcDiffuse(intersection)
+                                .add(calcSpecular(intersection))));
             }
-            else
-            {
-                rays = List.of(centerRay);
-            }
-            for(Ray ray : rays)
-            {
-                if(!setLightSource(intersection,lightSource,ray.getDir().scale(-1))||
-                        intersection.lNormal*intersection.vNormal <= 0) continue;
-                Ktr = transparency(intersection).reduce(rays.size());
-                if (!Ktr.product(k).lowerThan(MIN_CALC_COLOR_K)) {
-                    Color iL = lightSource.getIntensity(intersection.point).scale(Ktr);
-                    color = color.add(
-                            iL.scale(calcDiffuse(intersection)
-                                    .add(calcSpecular(intersection))));
-                }
-            }
-
         }
-
         return color;
-
     }
 
 
@@ -282,9 +227,9 @@ public class SimpleRayTracer extends RayTracerBase {
      */
     private Color calcGlobalEffects(Intersection intersection, int level, Double3 k)
     {
-       Material material = intersection.geometry.getMaterial();
-       return calcGlobalEffect(constructRefractedRay(intersection),material.Kt,level , k)
-               .add(calcGlobalEffect(constructReflectedRay(intersection),material.Kr,level, k));
+        Material material = intersection.geometry.getMaterial();
+        return calcGlobalEffect(constructRefractedRay(intersection),material.Kt,level , k)
+                .add(calcGlobalEffect(constructReflectedRay(intersection),material.Kr,level, k));
     }
 
     /**
@@ -316,8 +261,8 @@ public class SimpleRayTracer extends RayTracerBase {
         // Check if the light source is blocked by any other geometry
         Double3 ktr = Double3.ONE;
         for (Intersection i : intersections) {
-                ktr = ktr.product(i.material.Kt);
-                if (ktr.lowerThan(MIN_CALC_COLOR_K)) return Double3.ZERO;
+            ktr = ktr.product(i.material.Kt);
+            if (ktr.lowerThan(MIN_CALC_COLOR_K)) return Double3.ZERO;
         }
         return ktr;
     }

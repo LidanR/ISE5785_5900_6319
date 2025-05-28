@@ -109,7 +109,7 @@ public class JsonScene {
     private static LightSource parsePointLight(JSONObject lightObj) {
         Color color = parseColor((String) lightObj.get("color"));
         Point position = parsePoint((String) lightObj.get("position"));
-        PointLight pointLight = new PointLight(color, position,0.0);
+        PointLight pointLight = new PointLight(color, position);
         if (lightObj.containsKey("kc")) {
             pointLight.setKc(((Number) lightObj.get("kc")).doubleValue());
         }

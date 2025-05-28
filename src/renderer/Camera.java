@@ -42,8 +42,7 @@ public class Camera implements Cloneable {
     private int nY=1;
     // Use SoftShadow
     private boolean useSoftShadow = false;
-    // Use AntiAliasing
-    private boolean useAntiAliasing = false;
+
     /**
      * Private constructor to enforce use of builder.
      */
@@ -212,15 +211,6 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets whether to use anti-aliasing in the ray tracing.
-         * @param useAntiAliasing true to enable anti-aliasing, false to disable
-         * @return the builder instance
-         */
-        public Builder setAntiAliasing(boolean useAntiAliasing) {
-            cam.useAntiAliasing = useAntiAliasing;
-            return this;
-        }
-        /**
          * Builds and returns a valid Camera object after validating all required parameters.
          *
          * @return a fully constructed Camera object
@@ -255,8 +245,7 @@ public class Camera implements Cloneable {
 
             // Ensure Vright is calculated
             cam.Vright = cam.Vto.crossProduct(cam.Vup).normalize();
-            cam.rayTracerBase.setSoftShadow(cam.useSoftShadow);
-            cam.rayTracerBase.setAntiAliasing(cam.useAntiAliasing);
+
             return cam.clone();
 
         }
