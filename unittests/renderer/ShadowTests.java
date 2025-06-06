@@ -21,15 +21,15 @@ class ShadowTests {
    private final Scene          scene      = new Scene("Test scene");
    /** Camera builder of the tests */
    private final Camera.Builder camera     = Camera.getBuilder()
-      .setLocation(new Point(0, 0, 1000)).setVpDistance(1000)
-      .setDirection(Point.ZERO, Vector.AXIS_Y)
-      .setVpSize(200, 200)
-      .setRayTracer(scene, RayTracerType.SIMPLE);
+           .setLocation(new Point(0, 0, 1000)).setVpDistance(1000)
+           .setDirection(Point.ZERO, Vector.AXIS_Y)
+           .setVpSize(200, 200)
+           .setRayTracer(scene, RayTracerType.SIMPLE);
 
    /** The sphere in the tests */
    private final Intersectable  sphere     = new Sphere(new Point(0, 0, -200), 60d)
-      .setEmission(new Color(BLUE))
-      .setMaterial(new Material().setKD(0.5).setKS(0.5).setShininess(30));
+           .setEmission(new Color(BLUE))
+           .setMaterial(new Material().setKD(0.5).setKS(0.5).setShininess(30));
    /** The material of the triangles in the tests */
    private final Material       trMaterial = new Material().setKD(0.5).setKS(0.5).setShininess(30);
 
@@ -42,52 +42,52 @@ class ShadowTests {
    private void sphereTriangleHelper(String pictName, Triangle triangle, Point spotLocation) {
       scene.geometries.add(sphere, triangle.setEmission(new Color(BLUE)).setMaterial(trMaterial));
       scene.lights //
-         .add(new SpotLight(new Color(400, 240, 0), spotLocation, new Vector(1, 1, -3)) //
-            .setKl(1E-5).setKq(1.5E-7));
+              .add(new SpotLight(new Color(400, 240, 0), spotLocation, new Vector(1, 1, -3)) //
+                      .setKl(1E-5).setKq(1.5E-7));
       camera.setResolution(1000, 1000) //
-         .build() //
-         .renderImage() //
-         .writeToImage(pictName);
+              .build() //
+              .renderImage() //
+              .writeToImage(pictName);
    }
 
    /** Produce a picture of a sphere and triangle with point light and shade */
    @Test
    void sphereTriangleInitial() {
       sphereTriangleHelper("shadowSphereTriangleInitial", //
-                           new Triangle(new Point(-70, -40, 0), new Point(-40, -70, 0), new Point(-68, -68, -4)), //
-                           new Point(-100, -100, 200));
+              new Triangle(new Point(-70, -40, 0), new Point(-40, -70, 0), new Point(-68, -68, -4)), //
+              new Point(-100, -100, 200));
    }
 
    /** Sphere-Triangle shading - move triangle up-right */
    @Test
    void sphereTriangleMove1() {
       sphereTriangleHelper("shadowSphereTriangleMove2", //
-                           new Triangle(new Point(-50, -20, 0), new Point(-20, -50, 0), new Point(-48, -48, -4)), //
-                           new Point(-100, -100, 200));
+              new Triangle(new Point(-50, -20, 0), new Point(-20, -50, 0), new Point(-48, -48, -4)), //
+              new Point(-100, -100, 200));
    }
 
    /** Sphere-Triangle shading - move triangle upper-righter */
    @Test
    void sphereTriangleMove2() {
       sphereTriangleHelper("shadowSphereTriangleMove1", //
-                           new Triangle(new Point(-60, -30, 0), new Point(-30, -60, 0), new Point(-58, -58, -4)), //
-                           new Point(-100, -100, 200));
+              new Triangle(new Point(-60, -30, 0), new Point(-30, -60, 0), new Point(-58, -58, -4)), //
+              new Point(-100, -100, 200));
    }
 
    /** Sphere-Triangle shading - move spot closer */
    @Test
    void sphereTriangleSpot1() {
       sphereTriangleHelper("shadowSphereTriangleSpot1", //
-                           new Triangle(new Point(-70, -40, 0), new Point(-40, -70, 0), new Point(-68, -68, -4)), //
-                           new Point(-90, -90, 150));
+              new Triangle(new Point(-70, -40, 0), new Point(-40, -70, 0), new Point(-68, -68, -4)), //
+              new Point(-90, -90, 150));
    }
 
    /** Sphere-Triangle shading - move spot even more close */
    @Test
    void sphereTriangleSpot2() {
       sphereTriangleHelper("shadowSphereTriangleSpot2", //
-                           new Triangle(new Point(-70, -40, 0), new Point(-40, -70, 0), new Point(-68, -68, -4)), //
-                           new Point(-80, -80, 100));
+              new Triangle(new Point(-70, -40, 0), new Point(-40, -70, 0), new Point(-68, -68, -4)), //
+              new Point(-80, -80, 100));
    }
 
    /**
@@ -97,25 +97,32 @@ class ShadowTests {
    @Test
    void trianglesSphere() {
       scene.geometries //
-         .add( //
-              new Triangle(new Point(-150, -150, -115), new Point(150, -150, -135), new Point(75, 75, -150)) //
-                 .setMaterial(new Material().setKS(0.8).setShininess(60)), //
-              new Triangle(new Point(-150, -150, -115), new Point(-70, 70, -140), new Point(75, 75, -150)) //
-                 .setMaterial(new Material().setKS(0.8).setShininess(60)), //
-              new Sphere(new Point(0, 0, -11), 30d) //
-                 .setEmission(new Color(BLUE)) //
-                 .setMaterial(new Material().setKD(0.5).setKS(0.5).setShininess(30)) //
-         );
+              .add( //
+                      new Triangle(new Point(-150, -150, -115), new Point(150, -150, -135), new Point(75, 75, -150)) //
+                              .setMaterial(new Material().setKS(0.8).setShininess(60)), //
+                      new Triangle(new Point(-150, -150, -115), new Point(-70, 70, -140), new Point(75, 75, -150)) //
+                              .setMaterial(new Material().setKS(0.8).setShininess(60)), //
+                      new Sphere(new Point(0, 0, -11), 30d) //
+                              .setEmission(new Color(BLUE)) //
+                              .setMaterial(new Material().setKD(0.5).setKS(0.5).setShininess(30)) //
+              );
       scene.setAmbientLight(new AmbientLight(new Color(38, 38, 38)));
       scene.lights //
-         .add(new SpotLight(new Color(700, 400, 400), new Point(40, 40, 115), new Vector(-1, -1, -4)) //
-            .setKl(4E-4).setKq(2E-5));
-
-      camera//
-         .setResolution(600, 600) //
-         .build() //
-         .renderImage() //
-         .writeToImage("shadowTrianglesSphere");
+              .add(new SpotLight(new Color(700, 400, 400), new Point(40, 40, 115), new Vector(-1, -1, -4),20) //
+                      .setKl(4E-4).setKq(2E-5));
+      Blackboard blackboard = new Blackboard.Builder()
+              .setSoftShadows(true)
+              .setDepthOfField(false)
+              .setUseCircle(false)
+              .setAntiAliasing(false)
+              .build();
+      camera.setMultithreading(0)
+              .setBlackboard(blackboard)
+              .setFocusPointDistance(300)
+              .setRayTracer(scene, RayTracerType.SIMPLE) //
+              .setResolution(600, 600) //
+              .build() //
+              .renderImage() //
+              .writeToImage("shadowTrianglesSphere");
    }
-
 }

@@ -1,10 +1,7 @@
 package geometries;
 
 import lighting.LightSource;
-import primitives.Material;
-import primitives.Point;
-import primitives.Ray;
-import primitives.Vector;
+import primitives.*;
 
 import java.util.List;
 
@@ -85,6 +82,7 @@ public abstract class Intersectable {
      * @return a list of intersection points
      */
     public final List<Point> findIntersections(Ray ray,double maxDistance){
+        if(Util.isZero(maxDistance)) return null;
         var list = calculateIntersections(ray,maxDistance);
         return list == null ? null : list.stream().map(intersection -> intersection.point).toList();
     }
@@ -92,7 +90,7 @@ public abstract class Intersectable {
      *
      * find intersectionshelper method to find all intersection points between a given ray and the geometric object.
      */
-    protected abstract List<Intersection> findIntersectionsHelper(Ray ray,double maxDistance);
+    protected abstract List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance);
     /**
      * Calculates the intersections between a ray and the geometric object.
      *
@@ -100,11 +98,17 @@ public abstract class Intersectable {
      * @return a list of intersection points
      */
     public final List<Intersection> calculateIntersections(Ray ray) {
-        return findIntersectionsHelper(ray,Double.POSITIVE_INFINITY);
+        return calculateIntersectionsHelper(ray,Double.POSITIVE_INFINITY);
     }
-
+    /**
+     * Calculates the intersections between a ray and the geometric object within a specified distance.
+     *
+     * @param ray         the ray to intersect with the object
+     * @param maxDistance the maximum distance for the intersection
+     * @return a list of intersection points
+     */
     public final List<Intersection> calculateIntersections(Ray ray, double maxDistance) {
-        return findIntersectionsHelper(ray, maxDistance);
+        return calculateIntersectionsHelper(ray, maxDistance);
     }
 
 }

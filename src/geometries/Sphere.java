@@ -47,10 +47,10 @@ public class Sphere extends RadialGeometry {
      * @return a list of intersection points, or null if there are no intersections
      */
     @Override
-    protected List<Intersection> findIntersectionsHelper(Ray ray,double maxDistance) {
-        if(ray.getHead().equals(center)) return List.of(new Intersection(this,ray.getHead().add(ray.getDir().scale(super.getRadius())))) ;
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
+        if(ray.getHead().equals(center)) return List.of(new Intersection(this,ray.getHead().add(ray.getDirection().scale(super.getRadius())))) ;
         Vector u = this.center.subtract(ray.getHead());
-        double tm = ray.getDir().dotProduct(u);
+        double tm = ray.getDirection().dotProduct(u);
         double d = alignZero(Math.sqrt(u.lengthSquared() - tm * tm));
         if (isZero(d - super.getRadius()) || d > super.getRadius()) return null;
         double th = alignZero(Math.sqrt(super.getRadius() * super.getRadius() - d * d));

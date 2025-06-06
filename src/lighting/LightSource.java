@@ -25,4 +25,9 @@ public interface LightSource {
      * @return the distance from the light source to the point
      */
     double getDistance(Point point);
+    /**
+     * Getter for the radius of the light source.
+     * @return the radius of the light source
+     */
+    double getRadius();
 }

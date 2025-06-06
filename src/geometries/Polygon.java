@@ -98,13 +98,13 @@ public class Polygon extends Geometry {
     * @return a list of intersection points between the ray and the polygon,
     */
    @Override
-   protected List<Intersection> findIntersectionsHelper(Ray ray,double maxDistance) {
+   protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
 // Create a list to store the normals formed by the polygon's sides
       List<Vector> edgeNormals = new LinkedList<>();
 
       // Extract the origin and direction vector of the given ray
       final Point rayOrigin = ray.getHead();
-      final Vector rayDirection = ray.getDir();
+      final Vector rayDirection = ray.getDirection();
 
       // Compute a normal vector for each side of the polygon
       Vector previousVector = vertices.getFirst().subtract(rayOrigin);

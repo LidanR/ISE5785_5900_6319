@@ -71,23 +71,23 @@ class SphereTests {
         }
 
     /**
-     * Test method for {@link geometries.Sphere#findIntersectionsHelper(Ray, double)}.
+     * Test method for {@link geometries.Sphere#calculateIntersectionsHelper(Ray, double)}.
      */
     @Test
     void testFindIntersectionsWithMaxDistance() {
         Sphere s = new Sphere(new Point(5,3,0), 2);
         // ray starts at (0,4,0)
-        assertNull( s.findIntersectionsHelper(new Ray(new Point(0,4,0), new Vector(1,0,0)), 2), "Ray start outside the sphere and doesn't intersect the sphere");
+        assertNull( s.calculateIntersectionsHelper(new Ray(new Point(0,4,0), new Vector(1,0,0)), 2), "Ray start outside the sphere and doesn't intersect the sphere");
         // ray starts at (2.5,3.5,0)
-        assertEquals( 1, s.findIntersectionsHelper(new Ray(new Point(2.5,3.5,0), new Vector(1,0,0)), 2).size(), "Ray start outside the sphere and intersects the sphere");
+        assertEquals( 1, s.calculateIntersectionsHelper(new Ray(new Point(2.5,3.5,0), new Vector(1,0,0)), 2).size(), "Ray start outside the sphere and intersects the sphere");
         // ray starts at (3.5,3,0)
-        assertNull( s.findIntersectionsHelper(new Ray(new Point(3.5,3,0), new Vector(1,0,0)), 2), "Ray start outside the sphere and intersects the sphere");
+        assertNull( s.calculateIntersectionsHelper(new Ray(new Point(3.5,3,0), new Vector(1,0,0)), 2), "Ray start outside the sphere and intersects the sphere");
         // ray starts at (5.5,2.5,0)
-        assertEquals( 1, s.findIntersectionsHelper(new Ray(new Point(5.5,2.5,0), new Vector(1,0,0)), 2).size(), "Ray start outside the sphere and intersects the sphere");
+        assertEquals( 1, s.calculateIntersectionsHelper(new Ray(new Point(5.5,2.5,0), new Vector(1,0,0)), 2).size(), "Ray start outside the sphere and intersects the sphere");
         // ray starts at (6.5,1.5,0)
-        assertEquals( 1, s.findIntersectionsHelper(new Ray(new Point(6.5,2,0), new Vector(1,0,0)), 2).size(), "Ray start outside the sphere and intersects the sphere");
+        assertEquals( 1, s.calculateIntersectionsHelper(new Ray(new Point(6.5,2,0), new Vector(1,0,0)), 2).size(), "Ray start outside the sphere and intersects the sphere");
         // ray starts at (9,1.5,0)
-        assertNull( s.findIntersectionsHelper(new Ray(new Point(9,1.5,0), new Vector(1,0,0)), 2), "Ray start outside the sphere and intersects the sphere");
+        assertNull( s.calculateIntersectionsHelper(new Ray(new Point(9,1.5,0), new Vector(1,0,0)), 2), "Ray start outside the sphere and intersects the sphere");
     }
 
 }

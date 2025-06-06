@@ -14,7 +14,6 @@ public class SpotLight extends PointLight {
     // The angle of the spotlight beam
     private Double narrowBeam = 1d;
 
-
     /**
      * Constructor for the SpotLight class.
      *
@@ -23,7 +22,10 @@ public class SpotLight extends PointLight {
      * @param position  The position of the light source
      */
     public SpotLight(Color color, Point position, Vector direction) {
-        super(color, position);
+       this(color, position, direction, 1.0);
+    }
+    public SpotLight(Color color, Point position, Vector direction, double radius) {
+        super(color, position, radius);
         this.direction = direction.normalize();
     }
 

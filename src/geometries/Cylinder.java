@@ -62,7 +62,7 @@ public class Cylinder extends Tube {
      * @return nothing
      */
     @Override
-    protected List<Intersection> findIntersectionsHelper(Ray ray,double maxDistance) {
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
         return null;
     }
 }

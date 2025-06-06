@@ -13,7 +13,20 @@ public class Material {
     public Double3 Kr = Double3.ZERO;
     // Shininess coefficient
     public int nSh = 0;
+    // strength of the material
+    public double strength = 0.5;
 
+    private final double maxDegree = 90;
+
+    /**
+     * setter for the strength of the material.
+     * @param strength the strength of the material
+     * @return this Material object
+     */
+    public Material setStrength(double strength) {
+        this.strength = strength%maxDegree;
+        return this;
+    }
     /**
      * Setter for the ambient reflection coefficient.
      * @param Ka the ambient reflection coefficient

@@ -143,18 +143,18 @@ class PolygonTests {
               "Failed to find the intersection point when the intersection point is inside the Polygon");
    }
    /**
-    * Test method for {@link geometries.Polygon#findIntersectionsHelper(Ray, double)}.
+    * Test method for {@link geometries.Polygon#calculateIntersectionsHelper(Ray, double)}.
     */
    @Test
    void testIntersectionWithDistance() {
       Polygon mesh = new Polygon(new Point(1, 1, 0), new Point(1, 0, 0), new Point(-1, -1, 0), new Point(0, 1, 0));
       // ============ Equivalence Partitions Tests ==============
       // TC01: The distance between the ray intersection point and the ray's start point is more than the distance(0 points)
-      assertNull(mesh.findIntersectionsHelper(new Ray(new Point(-0.5, -0.5, 2), new Vector(0, 0, -1)), 1),
+      assertNull(mesh.calculateIntersectionsHelper(new Ray(new Point(-0.5, -0.5, 2), new Vector(0, 0, -1)), 1),
               "Ray's intersection point is out of the distance");
 
       // TC02: The distance between the ray intersection point and the ray's start point is less than the distance(1 point)
-      assertEquals(1, mesh.findIntersectionsHelper(new Ray(new Point(-0.5, -0.5, 2), new Vector(0, 0, -1)),
+      assertEquals(1, mesh.calculateIntersectionsHelper(new Ray(new Point(-0.5, -0.5, 2), new Vector(0, 0, -1)),
               10).size(), "Ray's intersection points is in the distance");
    }
 }

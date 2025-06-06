@@ -2,7 +2,6 @@ package primitives;
 
 import java.util.List;
 import geometries.Intersectable.Intersection;
-import static primitives.Util.isZero;
 
 /**
  * The Ray class represents a ray in 3D space.
@@ -52,7 +51,7 @@ public class Ray {
      *
      * @return the direction vector of the ray
      */
-    public Vector getDir() {
+    public Vector getDirection() {
         return direction;
     }
 
@@ -63,7 +62,7 @@ public class Ray {
      * @return the point on the ray at the given distance
      */
     public Point getPoint(double t) {
-        if(isZero(t)) return head;
+        if(Util.isZero(t)) return head;
         return head.add(direction.scale(t));
     }
     /**

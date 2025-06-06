@@ -55,9 +55,9 @@ public class Triangle extends Polygon {
      */
 
     @Override
-    protected List<Intersection> findIntersectionsHelper(Ray ray,double maxDistance) {
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
 
-        Vector h = ray.getDir().crossProduct(this.edge2);
+        Vector h = ray.getDirection().crossProduct(this.edge2);
         Vector s = ray.getHead().subtract(vertices.getFirst());
         Vector q = s.crossProduct(this.edge1);
         double a, f, u, v;
@@ -74,7 +74,7 @@ public class Triangle extends Polygon {
             return null;
         }
 
-        v = f * ray.getDir().dotProduct(q);
+        v = f * ray.getDirection().dotProduct(q);
 
         if (v <= 0.0 || u + v >= 1.0) {
             return null;
