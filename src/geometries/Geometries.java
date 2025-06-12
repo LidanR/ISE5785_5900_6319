@@ -46,7 +46,7 @@ public class Geometries extends Intersectable{
      */
     @Override
     protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
-        List<Intersection> intersections = new LinkedList<>();;
+        List<Intersection> intersections = new LinkedList<>();
 
         // Iterate over all geometries and collect intersection points
         for (Intersectable geometry : geometries) {

@@ -11,21 +11,19 @@ public class Cube extends Geometry {
      * Dimensions of the cube.
      * These represent the height, width, and depth of the cube.
      */
-    private double height;
-    private double width;
-    private double depth;
+    private final double height;
+    private final double width;
+    private final double depth;
     /**
      * Center point of the cube.
      * This point is used as the reference for positioning and rotation.
      */
-    private Point center;
+    private final Point center;
     /**
      * Rotation angles around the X, Y, and Z axes in degrees.
      * These angles are used to rotate the cube's vertices.
      */
-    private double rotateX;
-    private double rotateY;
-    private double rotateZ;
+    private final Double3 rotation;
     /**
      * List of polygons representing the faces of the cube.
      * Each polygon is defined by its vertices.
@@ -79,10 +77,7 @@ public class Cube extends Geometry {
         this.width = width;
         this.depth = depth;
         this.center = center;
-        this.rotateX = rotation.d1();
-        this.rotateY = rotation.d2();
-        this.rotateZ = rotation.d3();
-
+        this.rotation = rotation;
         polygons = initPolygons();
     }
     /**
@@ -146,12 +141,12 @@ public class Cube extends Geometry {
         double y = v.dotProduct(new Vector(0, 1, 0));
         double z = v.dotProduct(new Vector(0, 0, 1));
 
-        double cosX = Math.cos(Math.toRadians(rotateX));
-        double sinX = Math.sin(Math.toRadians(rotateX));
-        double cosY = Math.cos(Math.toRadians(rotateY));
-        double sinY = Math.sin(Math.toRadians(rotateY));
-        double cosZ = Math.cos(Math.toRadians(rotateZ));
-        double sinZ = Math.sin(Math.toRadians(rotateZ));
+        double cosX = Math.cos(Math.toRadians(rotation.d1()));
+        double sinX = Math.sin(Math.toRadians(rotation.d1()));
+        double cosY = Math.cos(Math.toRadians(rotation.d2()));
+        double sinY = Math.sin(Math.toRadians(rotation.d2()));
+        double cosZ = Math.cos(Math.toRadians(rotation.d3()));
+        double sinZ = Math.sin(Math.toRadians(rotation.d3()));
 
         // Rotate around X
         double y1 = y * cosX - z * sinX;

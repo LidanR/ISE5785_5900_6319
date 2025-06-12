@@ -9,8 +9,6 @@ import scene.Scene;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class BlackboardTests {
     /**
      * The builder for the Blackboard used in the tests
