@@ -48,12 +48,15 @@ public class Sphere extends RadialGeometry {
      */
     @Override
     protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
-        if(ray.getHead().equals(center)) return List.of(new Intersection(this,ray.getHead().add(ray.getDirection().scale(super.getRadius())))) ;
-        Vector u = this.center.subtract(ray.getHead());
-        double tm = ray.getDirection().dotProduct(u);
+        Point p0 = ray.getHead();
+        Vector v = ray.getDirection();
+        if(p0.equals(center))
+            return List.of(new Intersection(this,ray.getPoint(radius)));
+        Vector u = this.center.subtract(p0);
+        double tm = v.dotProduct(u);
         double d = alignZero(Math.sqrt(u.lengthSquared() - tm * tm));
-        if (isZero(d - super.getRadius()) || d > super.getRadius()) return null;
-        double th = alignZero(Math.sqrt(super.getRadius() * super.getRadius() - d * d));
+        if (isZero(d - radius) || d > radius) return null;
+        double th = Math.sqrt(radius * radius - d * d);
         double t1 = alignZero(tm - th);
         double t2 = alignZero(tm + th);
         if (t1 > 0 && t2 > 0) {

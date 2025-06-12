@@ -26,5 +26,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="googlecode.json.simple" level="project" />
+    <orderEntry type="library" name="jcodec.javase" level="project" />
   </component>
 </module>

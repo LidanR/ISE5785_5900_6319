@@ -2,6 +2,7 @@ package geometries;
 
 import primitives.Ray;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 /**
@@ -27,14 +28,6 @@ public class Geometries extends Intersectable{
             add(intersectable);
         }
     }
-    /**
-     * Adds a geometry to the object.
-     *
-     * @param geometry the geometries to add to the object
-     */
-    public void add(Intersectable geometry){
-       geometries.addLast(geometry);
-    }
 
     /**
      * Adds a list of geometries to the object.
@@ -42,9 +35,7 @@ public class Geometries extends Intersectable{
      * @param intersectables the list of geometries to add to the object
      */
     public void add(Intersectable... intersectables){
-        for (Intersectable geometry : intersectables) {
-            geometries.addLast(geometry);
-        }
+        Collections.addAll(geometries, intersectables);
     }
 
     /**
@@ -55,20 +46,17 @@ public class Geometries extends Intersectable{
      */
     @Override
     protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
-        List<Intersection> intersections = null;
+        List<Intersection> intersections = new LinkedList<>();;
 
         // Iterate over all geometries and collect intersection points
         for (Intersectable geometry : geometries) {
             List<Intersection> geoIntersections = geometry.calculateIntersectionsHelper(ray, maxDistance);
             if (geoIntersections != null) {
-                if (intersections == null) {
-                    intersections = new LinkedList<>();
-                }
-                intersections.addAll(geoIntersections);
+                   intersections.addAll(geoIntersections);
             }
         }
 
         // Return null if no intersections were found
-        return intersections;
+        return intersections.isEmpty() ? null : intersections;
     }
 }

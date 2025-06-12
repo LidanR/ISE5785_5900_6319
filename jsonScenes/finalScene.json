@@ -1,0 +1,52 @@
+{
+"scene": {
+  "name": "Final Scene",
+  "background-color": "0 0 0",
+  "ambient-light": {
+    "color": "30 30 30"
+  },
+  "geometries": [
+    {
+      "cube":{
+        "center": "0 0 0",
+        "size": 50
+      },
+        "emission": "255 0 0",
+      "material": {
+        "kd": 0.8,
+        "ks": 0.6,
+        "ns": 10
+      }
+    },
+    {
+      "plane":{
+        "point": "0 -25 0",
+        "normal": "0 1 0"
+      },
+      "emission": "30 30 30",
+      "material": {
+        "kd": 0.8,
+        "ks": 0.2,
+        "ns": 100
+      }
+    }
+
+  ],
+    "lights": [
+        {
+        "point": {
+            "position": "0 0 -10",
+            "color": "255 255 255",
+            "intensity": 1.0
+        }
+        },
+        {
+        "point": {
+            "position": "0 10 -10",
+            "color": "255 0 0",
+            "intensity": 0.5
+        }
+        }
+    ]
+}
+}

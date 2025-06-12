@@ -18,18 +18,18 @@ import java.util.stream.IntStream;
  *     <li>Three orthogonal vectors: Vto (view direction), Vup (upward direction), Vright (right direction)</li>
  *     <li>View plane dimensions and distance</li>
  * </ul>
- *
+ * <p>
  * The class uses the builder pattern to ensure safe and flexible construction.
  */
 public class Camera implements Cloneable {
     /// The camera's position in 3D space
-    private Point p0;
+    private Point p0 = null;
     /// The direction the camera is facing (toward the view plane)
-    private Vector Vto;
+    private Vector Vto = null;
     /// The upward direction of the camera (typically (0,1,0))
-    private Vector Vup;
+    private Vector Vup = null;
     /// The right direction of the camera (orthogonal to Vto and Vup)
-    private Vector Vright;
+    private Vector Vright = null;
     /// The distance from the camera to the view plane
     private double distance = 0;
     /// The width of the view plane
@@ -41,12 +41,14 @@ public class Camera implements Cloneable {
     /// The ray tracer used for rendering
     private RayTracerBase rayTracerBase;
     /// The number of horizontal pixels
-    private int nX=1;
+    private int nX = 1;
     /// The number of vertical pixels
-    private int nY=1;
+    private int nY = 1;
     /// The settings for improvement, such as anti-aliasing or other enhancements
     private Blackboard improvementSettings = Blackboard.getBuilder().build();
-    /** Amount of threads to use fore rendering image by the camera */
+    /**
+     * Amount of threads to use fore rendering image by the camera
+     */
     private int threadsCount = 0;
     /**
      * Amount of threads to spare for Java VM threads:<br>
@@ -80,7 +82,8 @@ public class Camera implements Cloneable {
     /**
      * Private constructor to enforce use of builder.
      */
-    private Camera() {}
+    private Camera() {
+    }
 
     /**
      * Returns a new {@code Builder} instance for constructing a Camera.
@@ -91,14 +94,6 @@ public class Camera implements Cloneable {
         return new Builder();
     }
 
-    @Override
-    public Camera clone() {
-        try {
-            return (Camera) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
-    }
 
     /**
      * Builder class for creating a Camera instance using the Builder pattern.
@@ -138,7 +133,7 @@ public class Camera implements Cloneable {
          * Sets the direction of the camera based on a target point and up vector.
          *
          * @param target the point the camera should look at
-         * @param vUp the upward vector
+         * @param vUp    the upward vector
          * @return the builder instance
          * @throws IllegalArgumentException if target equals the camera location
          */
@@ -167,7 +162,7 @@ public class Camera implements Cloneable {
         /**
          * Sets the view plane size.
          *
-         * @param width the width of the view plane
+         * @param width  the width of the view plane
          * @param height the height of the view plane
          * @return the builder instance
          * @throws IllegalArgumentException if width or height is non-positive
@@ -210,8 +205,8 @@ public class Camera implements Cloneable {
             this.cam.nX = nX;
             this.cam.nY = nY;
 
-            if(cam.rayTracerBase == null) {
-                cam.rayTracerBase  = new SimpleRayTracer(null);
+            if (cam.rayTracerBase == null) {
+                cam.rayTracerBase = new SimpleRayTracer(null);
             }
             return this;
         }
@@ -230,20 +225,21 @@ public class Camera implements Cloneable {
         /**
          * Sets the ray tracer for the camera based on the given scene and ray tracer type.
          *
-         * @param scene the scene to be rendered, used to initialize the ray tracer
+         * @param scene         the scene to be rendered, used to initialize the ray tracer
          * @param rayTracerType the type of ray tracer to use, determining the ray tracing behavior
          * @return the builder instance
          */
         public Builder setRayTracer(Scene scene, RayTracerType rayTracerType) {
             switch (rayTracerType) {
                 case SIMPLE:
-                    cam.rayTracerBase = new SimpleRayTracer(scene,cam.improvementSettings);
+                    cam.rayTracerBase = new SimpleRayTracer(scene);
                     break;
                 default:
                     cam.rayTracerBase = null;
             }
             return this;
         }
+
         /**
          * Set multi-threading <br>
          * Parameter value meaning:
@@ -253,6 +249,7 @@ public class Camera implements Cloneable {
          * <li>0 - multi-threading is not activated</li>
          * <li>1 and more - literally number of threads</li>
          * </ul>
+         *
          * @param threads number of threads
          * @return builder object itself
          */
@@ -266,8 +263,10 @@ public class Camera implements Cloneable {
                 cam.threadsCount = threads;
             return this;
         }
+
         /**
          * Set debug printing interval. If it's zero - there won't be printing at all
+         *
          * @param interval printing interval in %
          * @return builder object itself
          */
@@ -276,6 +275,7 @@ public class Camera implements Cloneable {
             cam.printInterval = interval;
             return this;
         }
+
         public Builder setFocusPointDistance(double focusPointDistance) {
             if (focusPointDistance < 0) {
                 throw new IllegalArgumentException("Focus point distance must be non-negative");
@@ -283,6 +283,7 @@ public class Camera implements Cloneable {
             cam.focusPointDistance = focusPointDistance;
             return this;
         }
+
         public Builder setAperture(double aperture) {
             if (aperture < 0) {
                 throw new IllegalArgumentException("Aperture must be non-negative");
@@ -290,6 +291,7 @@ public class Camera implements Cloneable {
             cam.aperture = aperture;
             return this;
         }
+
         /**
          * Builds and returns a valid Camera object after validating all required parameters.
          *
@@ -316,17 +318,29 @@ public class Camera implements Cloneable {
             if (cam.width <= 0 || cam.height <= 0) {
                 throw new IllegalArgumentException("Width and height must be positive");
             }
-            if(cam.rayTracerBase == null) {
+            if (cam.rayTracerBase == null) {
                 throw new MissingResourceException(MISSING_DATA_ERROR, CAMERA_CLASS_NAME, "rayTracerBase");
             }
             if (cam.imageWriter == null) {
                 throw new MissingResourceException("ImageWriter is not set", "Camera", "imageWriter");
             }
+            if (cam.aperture < 0) {
+                throw new IllegalArgumentException("Aperture must be non-negative");
+            }
+            if (cam.focusPointDistance <= 0) {
+                throw new IllegalArgumentException("Focus point distance must be non-negative");
+            }
 
+            // Ensure improvementSetting are settled
+            cam.rayTracerBase = new SimpleRayTracer(cam.rayTracerBase.scene, cam.improvementSettings);
             // Ensure Vright is calculated
             cam.Vright = cam.Vto.crossProduct(cam.Vup).normalize();
 
-            return cam.clone();
+            try {
+                return (Camera) cam.clone();
+            } catch (CloneNotSupportedException e) {
+                return null;
+            }
 
         }
     }
@@ -336,8 +350,8 @@ public class Camera implements Cloneable {
      *
      * @param nX number of pixels in the X axis (columns)
      * @param nY number of pixels in the Y axis (rows)
-     * @param j the pixel's column index
-     * @param i the pixel's row index
+     * @param j  the pixel's column index
+     * @param i  the pixel's row index
      * @return a {@link Ray} that starts at the camera location and goes through the pixel
      */
     public Ray constructRay(int nX, int nY, int j, int i) {
@@ -360,8 +374,10 @@ public class Camera implements Cloneable {
         return new Ray(p0, dir);
     }
 
-    /** This function renders image's pixel color map from the scene
+    /**
+     * This function renders image's pixel color map from the scene
      * included in the ray tracer object
+     *
      * @return the camera object itself
      */
     public Camera renderImage() {
@@ -372,11 +388,12 @@ public class Camera implements Cloneable {
             default -> renderImageRawThreads();
         };
     }
+
     /**
      * Prints a grid on the image writer.
      *
      * @param interval the interval between grid lines
-     * @param color the color of the grid lines
+     * @param color    the color of the grid lines
      * @return the camera instance for method chaining
      * @throws MissingResourceException if the image writer or ray tracer is not set
      */
@@ -412,46 +429,57 @@ public class Camera implements Cloneable {
      */
     private void castRay(int x, int y) {
         Ray baseRay = constructRay(nX, nY, x, y);
-        List<Ray> rays =
-                List.of(baseRay);
-        if(improvementSettings.useDepthOfField())
-        {
-            Point basePoint = baseRay.getPoint(distance);
-            Point focusPoint = baseRay.getPoint(distance+focusPointDistance);
-            rays = improvementSettings.constructRays(
-              new Ray(
-                 focusPoint,
-                 basePoint.subtract(focusPoint).normalize()
-              ),
-              basePoint, aperture
-          );
-           // reverse the rays' direction
-            rays = rays.stream()
-                .map(r -> new Ray( r.getPoint(focusPointDistance), r.getDirection().scale(-1)))
-                .toList();
+
+        // First handle antiAliasing
+        List<Ray> antiAliasingRays = List.of(baseRay);
+        if (improvementSettings.useAntiAliasing()) {
+            antiAliasingRays = improvementSettings.constructRays(baseRay, distance, this.height / this.nY);
         }
+
         Color color = Color.BLACK;
-        for (Ray ray : rays) {
-            List<Ray> raysAntiAlising =
-                    List.of(ray);
-            if(improvementSettings.useAntiAliasing())
-            {
-                raysAntiAlising = improvementSettings.constructRays(ray, baseRay.getPoint(distance),this.height/this.nY);
+
+        // For each antiAliasing ray, apply depth of field if needed
+        for (Ray antiAliasingRay : antiAliasingRays) {
+            List<Ray> dofRays = List.of(antiAliasingRay);
+
+            if (improvementSettings.useDepthOfField()) {
+                Point basePoint = antiAliasingRay.getPoint(distance);
+                Point focusPoint = antiAliasingRay.getPoint(distance + focusPointDistance);
+                dofRays = improvementSettings.constructRays(
+                        new Ray(
+                                focusPoint,
+                                basePoint.subtract(focusPoint).normalize()
+                        ),
+                        distance, aperture
+                );
+
+                // reverse the rays' direction
+                dofRays = dofRays.stream()
+                        .map(r -> new Ray(r.getPoint(focusPointDistance), r.getDirection().scale(-1)))
+                        .toList();
             }
-            for (Ray rayAntiAlising : raysAntiAlising) {
-                color = color
-                        .add(rayTracerBase.traceRay(rayAntiAlising));
+
+            // Trace all the depth of field rays for this antiAliasing ray
+            Color rayColor = Color.BLACK;
+            for (Ray dofRay : dofRays) {
+                rayColor = rayColor.add(rayTracerBase.traceRay(dofRay));
             }
-            color = color.reduce(raysAntiAlising.size());
+
+            // Average the color for this set of depth of field rays
+            rayColor = rayColor.reduce(dofRays.size());
+            color = color.add(rayColor);
         }
-        // Average the color if multiple rays were used
-        color = color.reduce(rays.size());
+
+        // Average the color across all anti-aliasing rays
+        color = color.reduce(antiAliasingRays.size());
+
         imageWriter.writePixel(x, y, color);
         pixelManager.pixelDone();
     }
 
     /**
      * Render image using multi-threading by parallel streaming
+     *
      * @return the camera object itself
      */
     private Camera renderImageStream() {
@@ -460,8 +488,10 @@ public class Camera implements Cloneable {
                         .forEach(j -> castRay(j, i)));
         return this;
     }
+
     /**
      * Render image without multi-threading
+     *
      * @return the camera object itself
      */
     private Camera renderImageNoThreads() {
@@ -470,8 +500,10 @@ public class Camera implements Cloneable {
                 castRay(j, i);
         return this;
     }
+
     /**
      * Render image using multi-threading by creating and running raw threads
+     *
      * @return the camera object itself
      */
     private Camera renderImageRawThreads() {
@@ -485,7 +517,8 @@ public class Camera implements Cloneable {
         for (var thread : threads) thread.start();
         try {
             for (var thread : threads) thread.join();
-        } catch (InterruptedException ignored) {}
+        } catch (InterruptedException ignored) {
+        }
         return this;
     }
 

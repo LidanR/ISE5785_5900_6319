@@ -54,6 +54,6 @@ public class DirectionalLight extends Light implements LightSource {
      */
     @Override
     public double getRadius() {
-        return 1.0d; // Directional light does not have a radius
+        return 0.0d; // Directional light does not have a radius
     }
 }

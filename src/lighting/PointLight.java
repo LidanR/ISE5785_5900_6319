@@ -24,7 +24,7 @@ public class PointLight extends Light implements LightSource {
      * @param position the position of the light source
      */
      public PointLight(Color color, Point position) {
-        this(color, position, 1.0);
+        this(color, position, 0.0);
      }
     public PointLight(Color color, Point position,double radius) {
         super(color);

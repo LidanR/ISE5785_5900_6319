@@ -22,7 +22,7 @@ public class SpotLight extends PointLight {
      * @param position  The position of the light source
      */
     public SpotLight(Color color, Point position, Vector direction) {
-       this(color, position, direction, 1.0);
+       this(color, position, direction, 0.0);
     }
     public SpotLight(Color color, Point position, Vector direction, double radius) {
         super(color, position, radius);

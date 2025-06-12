@@ -26,11 +26,11 @@ public class SimpleRayTracer extends RayTracerBase {
     /**
      * The size of the glossy and blurry effect.
      */
-    private static final double SIZEOFGLOSSYANDBLURRY = 0.1;
+    private static final double SIZEOFGLOSSYANDBLURRY = 1;
     /**
      * The blackboard used for additional parameters in ray tracing.
      */
-    Blackboard blackboard = Blackboard.getBuilder().build();
+    private Blackboard blackboard = Blackboard.getBuilder().build();
 
     /**
      * Constructor for SimpleRayTracer.
@@ -185,17 +185,14 @@ public class SimpleRayTracer extends RayTracerBase {
             List<Ray> rays=List.of(centerRay);
             if(blackboard.useSoftShadows())
             {
-                if(!(lightSource instanceof DirectionalLight))
-                {
-                    Point lightPosition = centerRay.getPoint(lightSource.getDistance(intersection.point));
-                    rays = blackboard.constructRays(centerRay, lightPosition,lightSource.getRadius());
-                }
+                    double lightDistance = lightSource.getDistance(intersection.point);
+                    rays = blackboard.constructRays(centerRay, lightDistance,lightSource.getRadius());
             }
             for(Ray ray : rays)
             {
                 if(!setLightSource(intersection,lightSource,ray.getDirection().scale(-1))||
                         intersection.lNormal*intersection.vNormal <= 0) continue;
-                Ktr = transparency(intersection).reduce(rays.size());
+                Ktr = transparency(intersection).reduce(rays.size()); // Average of rays colors
                 if (!Ktr.product(k).lowerThan(MIN_CALC_COLOR_K)) {
                     Color iL = lightSource.getIntensity(intersection.point).scale(Ktr);
                     color = color.add(
@@ -206,8 +203,6 @@ public class SimpleRayTracer extends RayTracerBase {
         }
         return color;
     }
-
-
     /**
      * constructs a refracted ray at a given intersection point.
      *
@@ -249,7 +244,7 @@ public class SimpleRayTracer extends RayTracerBase {
         // If global effects beam is enabled, generate multiple rays with the calculated radius
         if (blackboard.useBlurryAndGlossy()) {
             // Generate beam of rays for reflection/refraction
-            rays = blackboard.constructRays(ray, ray.getPoint(SIZEOFGLOSSYANDBLURRY),glossinessRadius);
+            rays = blackboard.constructRays(ray, SIZEOFGLOSSYANDBLURRY,glossinessRadius);
             // Filter out rays that are not valid for the intersection
             rays.removeIf(r -> intersectionOfRay.normal.dotProduct(r.getDirection()) <= 0);
             if( rays.isEmpty()) {

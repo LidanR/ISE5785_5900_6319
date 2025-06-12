@@ -1,10 +1,9 @@
 package renderer;
 
 import primitives.*;
+import primitives.Vector;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.MissingResourceException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -23,7 +22,6 @@ public class Blackboard implements Cloneable {
      * Default is false.
      */
     private boolean useCircle = false;
-
     /**
      * Indicates whether to use soft shadows.
      * If true, the rays will be generated in a way that simulates soft shadows.
@@ -48,7 +46,6 @@ public class Blackboard implements Cloneable {
      * Default is false.
      */
     private boolean blurryAndGlossy = false;
-
     /**
      * Enum representing the methods of generating points.
      * GRID: Generates points in a grid pattern.
@@ -75,7 +72,7 @@ public class Blackboard implements Cloneable {
      * This is used to determine the number of points in a grid pattern.
      * Default is 10, which corresponds to a 10x10 grid.
      */
-    private double gridSize = 10;
+    private int gridSize = 10;
     /**
      * Default radius for point generation.
      * This is used to define the size of the area in which points are generated.
@@ -161,7 +158,7 @@ public class Blackboard implements Cloneable {
          * @param gridSize the size of the grid, represented as a double
          * @return this Builder instance for method chaining
          */
-        public Builder setGridSize(double gridSize) {
+        public Builder setGridSize(int gridSize) {
             blackboard.gridSize = gridSize;
             return this;
         }
@@ -228,28 +225,28 @@ public class Blackboard implements Cloneable {
 
     /**
      * Constructs rays from the generated points based on the specified base ray and center point.
+     * Uses a default radius size
      * This method uses local variables to avoid thread safety issues.
      *
      * @param baseRay the base ray used for direction calculation
-     * @param center the center point around which rays are constructed
+     * @param distance the center point around which rays are constructed
      * @return a list of rays constructed from the generated points
      */
-    public List<Ray> constructRays(Ray baseRay, Point center) {
-        List<Point> localPoints = calculatePoints(baseRay, center, DEFAULT_RADIUS);
-        if (useCircle) {
-            localPoints = filterCirclePoints(localPoints, center, DEFAULT_RADIUS);
-        }
-
-        List<Ray> resultRays = new LinkedList<>();
-        for (Point point : localPoints) {
-            if (point.equals(baseRay.getHead())) continue;
-            Vector direction = point.subtract(baseRay.getHead()).normalize();
-            resultRays.add(new Ray(baseRay.getHead(), direction));
-        }
-        return resultRays;
+    public List<Ray> constructRays(Ray baseRay, double distance) {
+        return constructRays(baseRay, distance, DEFAULT_RADIUS);
     }
 
-    public List<Ray> constructRays(Ray baseRay, Point center, double radius) {
+    /**
+     * Constructs rays from the generated points based on the specified base ray and center point.
+     * This method uses local variables to avoid thread safety issues.
+     *
+     * @param baseRay the base ray used for direction calculation
+     * @param distance the center point around which rays are constructed
+     * @param radius the radius of the target zone
+     * @return a list of rays constructed from the generated points
+     */
+    public List<Ray> constructRays(Ray baseRay, double distance, double radius) {
+        Point center = baseRay.getPoint(distance);
         List<Point> localPoints = calculatePoints(baseRay, center, radius);
         if (useCircle) {
             localPoints = filterCirclePoints(localPoints, center, radius);
@@ -295,42 +292,101 @@ public class Blackboard implements Cloneable {
     }
 
     /**
-     * Creates grid points based on the base ray and center point.
-     * This method generates points in a grid pattern within a square area defined by the radius.
-     *
-     * @param baseRay the base ray used for direction calculation
-     * @param center the center point around which grid points are constructed
-     * @param radius the radius defining the area size
-     * @param pointsList the list to add generated points to
+     * Creates evenly spaced grid points based on the base ray and center point.
+     * Selects a subset of the grid cells randomly, preserving spatial uniformity with holes.
      */
     private void createGridPoints(Ray baseRay, Point center, double radius, List<Point> pointsList) {
-        double cellSize = (2.0 * radius) / gridSize;
         Vector v = baseRay.getDirection();
         Vector w = Vector.AXIS_Y.equals(v) ? Vector.AXIS_X : Vector.AXIS_Y.crossProduct(v).normalize();
         Vector u = v.crossProduct(w).normalize();
 
-        for (int i = 0; i < gridSize; i++) {
-            for (int j = 0; j < gridSize; j++) {
-                double x = (i + 0.5) * cellSize - radius;
-                double y = (j + 0.5) * cellSize - radius;
+        int gridCount = gridSize;  // Convert to integer for looping
+        double cellSize = (2.0 * radius) / gridSize;
 
-                Point point = center;
-                if (!Util.isZero(x)) point = point.add(u.scale(x));
-                if (!Util.isZero(y)) point = point.add(w.scale(y));
+        List<int[]> cellIndices = new ArrayList<>();
+        int mid = gridCount / 2;
 
-                pointsList.add(point);
+        // Collect all grid cell indices
+        for (int i = 0; i < gridCount; i++) {
+            for (int j = 0; j < gridCount; j++) {
+                cellIndices.add(new int[]{i, j});
             }
+        }
+
+        // Sort cells by distance from the grid center, farthest first
+        cellIndices.sort((a, b) -> {
+            double da = Math.pow(a[0] - mid + 0.5, 2) + Math.pow(a[1] - mid + 0.5, 2);
+            double db = Math.pow(b[0] - mid + 0.5, 2) + Math.pow(b[1] - mid + 0.5, 2);
+            return Double.compare(db, da);  // reversed: farthest first
+        });
+
+        int count = Math.min(amountOfRays, cellIndices.size());
+
+        for (int k = 0; k < count; k++) {
+            int[] cell = cellIndices.get(k);
+            int i = cell[0];
+            int j = cell[1];
+
+            double x = (i + 0.5) * cellSize - radius;
+            double y = (j + 0.5) * cellSize - radius;
+
+            Point point = center;
+            if (!Util.isZero(x)) point = point.add(u.scale(x));
+            if (!Util.isZero(y)) point = point.add(w.scale(y));
+
+            pointsList.add(point);
         }
     }
 
+
+
+    /**
+     * Creates jittered points within grid cells, based on the base ray and center point.
+     * Randomly skips some cells to generate {@code amountOfRays} total, preserving the grid layout with holes.
+     */
+    private void createJitteredPoints(Ray baseRay, Point center, double radius, List<Point> pointsList) {
+        Vector v = baseRay.getDirection();
+        Vector w = Vector.AXIS_Y.equals(v) ? Vector.AXIS_X : Vector.AXIS_Y.crossProduct(v).normalize();
+        Vector u = v.crossProduct(w).normalize();
+
+        double cellSize = (2.0 * radius) / gridSize;
+
+        List<int[]> cellIndices = new ArrayList<>();
+        for (int i = 0; i < gridSize; i++) {
+            for (int j = 0; j < gridSize; j++) {
+                cellIndices.add(new int[]{i, j});
+            }
+        }
+
+        Collections.shuffle(cellIndices);
+        int count = Math.min(amountOfRays, cellIndices.size());
+
+        for (int k = 0; k < count; k++) {
+            int[] cell = cellIndices.get(k);
+            int i = cell[0];
+            int j = cell[1];
+
+            double x = (i + Math.random()) * cellSize - radius;
+            double y = (j + Math.random()) * cellSize - radius;
+
+            Point point = center;
+            if (!Util.isZero(x)) point = point.add(u.scale(x));
+            if (!Util.isZero(y)) point = point.add(w.scale(y));
+
+            pointsList.add(point);
+        }
+    }
+
+
     /**
      * Creates random points based on the base ray and center point.
-     * This method generates points within a square area defined by the radius.
+     * Each point is placed randomly within the square area defined by {@code radius}.
+     * Generates exactly {@code amountOfRays} points.
      *
-     * @param baseRay the base ray used for direction calculation
-     * @param center the center point around which random points are constructed
-     * @param radius the radius defining the area size
-     * @param pointsList the list to add generated points to
+     * @param baseRay    the base ray used to determine orientation
+     * @param center     the center point around which points are created
+     * @param radius     the radius defining the square area size
+     * @param pointsList the list to which generated points are added
      */
     private void createRandomPoints(Ray baseRay, Point center, double radius, List<Point> pointsList) {
         Vector v = baseRay.getDirection();
@@ -349,34 +405,6 @@ public class Blackboard implements Cloneable {
         }
     }
 
-    /**
-     * Creates jittered points based on the base ray and center point.
-     * This method generates a grid of points with random offsets within each cell.
-     *
-     * @param baseRay the base ray used for direction calculation
-     * @param center the center point around which jittered points are constructed
-     * @param radius the radius defining the area size
-     * @param pointsList the list to add generated points to
-     */
-    private void createJitteredPoints(Ray baseRay, Point center, double radius, List<Point> pointsList) {
-        double cellSize = (2.0 * radius) / gridSize;
-        Vector v = baseRay.getDirection();
-        Vector w = Vector.AXIS_Y.equals(v) ? Vector.AXIS_X : Vector.AXIS_Y.crossProduct(v).normalize();
-        Vector u = v.crossProduct(w).normalize();
-
-        for (int i = 0; i < gridSize; i++) {
-            for (int j = 0; j < gridSize; j++) {
-                double x = (i + Math.random()) * cellSize - radius;
-                double y = (j + Math.random()) * cellSize - radius;
-
-                Point point = center;
-                if (!Util.isZero(x)) point = point.add(u.scale(x));
-                if (!Util.isZero(y)) point = point.add(w.scale(y));
-
-                pointsList.add(point);
-            }
-        }
-    }
 
     /**
      * Filters points to keep only those within the specified radius from the center.

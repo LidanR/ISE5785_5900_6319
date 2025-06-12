@@ -166,6 +166,8 @@ public class JsonScene {
                 geometry = parseCylinder((JSONObject) geometryObj.get("cylinder"));
             } else if (geometryObj.containsKey("tube")) {
                 geometry = parseTube((JSONObject) geometryObj.get("tube"));
+            } else if (geometryObj.containsKey("cube")) {
+                geometry = parseCube((JSONObject) geometryObj.get("cube"));
             } else {
                 throw new IllegalArgumentException("Unknown geometry type");
             }
@@ -210,11 +212,11 @@ public class JsonScene {
         }
         if (materialObj.containsKey("ks")) {
             if(materialObj.get("ks") instanceof Number)
-                material.setKD(((Number) materialObj.get("ks")).doubleValue());
+                material.setKS(((Number) materialObj.get("ks")).doubleValue());
             else{
                 String[] ks = ((String) materialObj.get("ks")).split(" ");
                 Double3 ksColor = new Double3(Double.parseDouble(ks[0]), Double.parseDouble(ks[1]), Double.parseDouble(ks[2]));
-                material.setKD(ksColor);
+                material.setKS(ksColor);
             }
         }
         if (materialObj.containsKey("ns")) {
@@ -350,5 +352,19 @@ public class JsonScene {
             points[i] = parsePoint((String) vertices.get(i));
         }
         return points;
+    }
+
+    /**
+     * Parses a JSON object representing a cube and returns a Cube object.
+     * @param cubeObj the JSON object representing the cube
+     * @return a Cube object constructed from the JSON data
+     */
+    private static Geometry parseCube(JSONObject cubeObj) {
+        Double size = cubeObj.get("size") != null ? ((Number) cubeObj.get("size")).doubleValue() : null;
+        double height = size != null ? size : ((Number) cubeObj.get("height")).doubleValue();
+        double width = size != null ? size : ((Number) cubeObj.get("width")).doubleValue();
+        double depth = size != null ? size : ((Number) cubeObj.get("depth")).doubleValue();
+        Point center = parsePoint((String) cubeObj.get("center"));
+        return new Cube(height, width, depth, center);
     }
 }

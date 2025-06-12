@@ -2,133 +2,131 @@ package geometries;
 
 import org.junit.jupiter.api.Test;
 import primitives.Point;
+import primitives.Ray;
+import primitives.Vector;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 //import primitives.Ray;
 //import primitives.Vector;
 //import static org.junit.jupiter.api.Assertions.*;
 
 class CylinderTests {
+    // Vectors for the cylinder's top and bottom surfaces
+    private final Vector v1 = new Vector(0, 0, -1);
+    private final Vector v2 = new Vector(0, 0, 1);
+    // Cylinder with radius 1, centered at the origin, extending along the Y-axis
+    private final Cylinder cylinder = new Cylinder(1, new Ray(Point.ZERO, v2),1);
+
     /**
-     * Test method for {@link geometries.Cylinder#getNormal(Point)}.
+     * Test method for {@link geometries.Cylinder#getNormal(primitives.Point)}.
      */
     @Test
     void testGetNormal() {
-        // Create a cylinder with:
-        // - radius: 1
-        // - height: 7
-//        // - axis ray starting at (1,1,1) with direction (2,3,6)
-//        Vector axisDirection = new Vector(2, 3, 6);
-//        Point p0 = new Point(1, 1, 1);
-//        Ray axisRay = new Ray(p0, axisDirection);
-//        Cylinder cylinder = new Cylinder(1, axisRay, 7);
-//
-//        // Get the normalized axis direction
-//        Vector dir = axisDirection.normalize();
-//
-//        // ============ Equivalence Partitions Tests ==================
-//        // TC01: Lateral surface point
-//        // Choose t = 3.5 (this is within the height of the cylinder)
-//        double t = 3.5;
-//
-//        // Calculate point on axis
-//        Point axisPoint = p0.add(dir.scale(t));
-//
-//        // Create a vector perpendicular to the axis
-//        // We'll use cross product to ensure it's perpendicular and non-zero
-//        Vector perpBase = new Vector(1, 2, 1); // Any vector not parallel to dir
-//        Vector perpVector = dir.crossProduct(perpBase).normalize();
-//
-//        // Create point on the lateral surface
-//        Point p1 = axisPoint.add(perpVector);
-//
-//        // The normal is the vector from axis point to surface point (normalized)
-//        Vector expectedNormal1 = perpVector;
-//
-//        assertEquals(expectedNormal1, cylinder.getNormal(p1), "TC01: Failed - Lateral surface point");
-//
-//        // TC02: Point on the bottom base
-//        // The bottom base normal is -dir
-//        Vector expectedNormal2 = dir.scale(-1);
-//
-//        // Create a point definitely on the bottom base (t < 0)
-//        // We'll move in the negative direction of the axis to ensure t < 0
-//        Vector negAxisDir = dir.scale(-0.5); // Move in negative axis direction
-//        Point p2 = p0.add(negAxisDir).add(new Vector(0.3, 0.2, 0.1)); // Add offset to avoid zero vector
-//
-//        assertEquals(expectedNormal2, cylinder.getNormal(p2), "TC02: Failed - Bottom base point");
-//
-//        // TC03: Point on the top base
-//        // Top center is at p0 + height * dir
-//        Point topCenter = p0.add(dir.scale(7));
-//
-//        // The top base normal is dir
-//        Vector expectedNormal3 = dir;
-//
-//        // Create a point definitely on the top base (t > height)
-//        Vector beyondTop = dir.scale(7.5); // Move beyond the top
-//        Point p3 = p0.add(beyondTop).add(new Vector(0.4, 0.3, 0.2)); // Add offset to avoid zero vector
-//
-//        assertEquals(expectedNormal3, cylinder.getNormal(p3), "TC03: Failed - Top base point");
-//
-//        // =============== Boundary Value Analysis ==================
-//        // TC04: Point on bottom base - EXPLICITLY ensure t <= 0
-//        // This is critical: we must ensure the projection onto the axis gives t <= 0
-//
-//        // Calculate a point that's definitely on the bottom base
-//        // The key is to ensure the dot product with dir is <= 0
-//        Vector toBottomBase = dir.scale(-1); // Move in the opposite direction of the axis
-//        Point p4 = p0.add(toBottomBase);
-//
-//        // Double-check that p4 is on the bottom base (t <= 0)
-//        Vector v4 = p4.subtract(p0);
-//        double t4 = v4.dotProduct(dir);
-//
-//        // If somehow t4 > 0, try a more extreme negative direction
-//        if (t4 > 0) {
-//            toBottomBase = dir.scale(-2);
-//            p4 = p0.add(toBottomBase);
-//        }
-//
-//        assertEquals(expectedNormal2, cylinder.getNormal(p4), "TC04: Failed - Point on bottom base");
-//
-//        // TC05: Point on top base - EXPLICITLY ensure t >= height
-//        // Calculate a point that's definitely on the top base
-//        Vector toTopBase = dir.scale(7.1); // Slightly beyond height
-//        Point p5 = p0.add(toTopBase);
-//
-//        // Double-check that p5 is on the top base (t >= height)
-//        Vector v5 = p5.subtract(p0);
-//        double t5 = v5.dotProduct(dir);
-//
-//        // If somehow t5 < height, try a more extreme position
-//        if (t5 < 7) {
-//            toTopBase = dir.scale(8);
-//            p5 = p0.add(toTopBase);
-//        }
-//
-//        assertEquals(expectedNormal3, cylinder.getNormal(p5), "TC05: Failed - Point on top base");
-//
-//        // TC06: Bottom base edge (ensuring non-zero vectors)
-//        // Create a non-zero radius vector perpendicular to axis
-//        Vector radiusDir = dir.crossProduct(new Vector(0, 0, 1)).normalize();
-//        if (radiusDir.length() < 0.1) {
-//            // If we get too close to zero vector, use a different cross product
-//            radiusDir = dir.crossProduct(new Vector(0, 1, 0)).normalize();
-//        }
-//
-//        // Ensure we're on the bottom base
-//        Point p6 = p0.add(dir.scale(-0.1)).add(radiusDir);
-//        assertEquals(expectedNormal2, cylinder.getNormal(p6), "TC06: Failed - Bottom base edge");
-//
-//        // TC07: Top base edge (ensuring non-zero vectors)
-//        // Place point on top base at radius distance
-//        Point p7 = p0.add(dir.scale(7.1)).add(radiusDir);
-//        assertEquals(expectedNormal3, cylinder.getNormal(p7), "TC07: Failed - Top base edge");
+        // ============ Equivalence Partitions Tests ==============
+        // TC01: the point is on the top outer surface of the cylinder
+        assertEquals(new Vector(0, 1, 0),
+                cylinder.getNormal(new Point(0, 1, 0.5)),
+                "Bad normal to cylinder");
+
+        // TC02: the point is on the bottom outer surface of the cylinder
+        assertEquals(v1, cylinder.getNormal(new Point(0, 0.5, 0)),
+                "Bad normal to cylinder");
+
+        // TC03: the point is on the side outer surface of the cylinder
+        assertEquals(v2, cylinder.getNormal(new Point(0, 0.5, 1)),
+                "Bad normal to cylinder");
+
+        // =============== Boundary Values Tests ==================
+        // TC04: the point is on the top edge of the cylinder;
+        assertEquals(v2, cylinder.getNormal(new Point(0, 1, 1)),
+                "Bad normal to cylinder");
+
+        // TC05: the point is on the bottom edge of the cylinder
+        assertEquals(v1, cylinder.getNormal(new Point(0, 1, 0)),
+                "Bad normal to cylinder");
+
+        // TC06: the point is in the middle bottom outer surface of the cylinder
+        assertEquals(v1, cylinder.getNormal(Point.ZERO),
+                "Bad normal to cylinder");
+
+        // TC07: the point is in the middle top edge of the cylinder
+        assertEquals(v2, cylinder.getNormal(new Point(0, 0, 1)),
+                "Bad normal to cylinder");
+
     }
+
+    /**
+     * Test method for {@link geometries.Cylinder#findIntersections(primitives.Ray)}.
+     */
     @Test
     void testFindIntersections() {
-        // ============ Equivalence Partitions Tests ==================
+        Cylinder cylinder2 = new Cylinder( 2,new Ray(new Point(0, 0, 0), new Vector(0, 0, 1)), 2);
 
-        //========== Boundary Value Tests  ==================
+        // ============ Equivalence Partitions Tests ==============
+        // TC01: Ray's line is outside the cylinder (0 points)
+        assertNull(cylinder.findIntersections(new Ray(new Point(0, 0, 2), new Vector(0, 0, 1))),
+                "Ray's line out of cylinder");
 
+        // TC02: Ray starts before and crosses the cylinder (2 points)
+        List<Point> result = cylinder2.findIntersections(new Ray(new Point(0, 0, -1), new Vector(0, 0, 1)));
+        assertEquals(2, result.size(), "Wrong number of points");
+
+        // TC03: Ray starts inside the cylinder (1 point)
+        result = cylinder2.findIntersections(new Ray(new Point(0, 0, 1), new Vector(0, 0, 1)));
+        assertEquals(1, result.size(), "Wrong number of points");
+
+        // TC04: Ray starts after the cylinder (0 points)
+        assertNull(cylinder2.findIntersections(new Ray(new Point(0, 0, 3), new Vector(0, 0, 1))),
+                "Ray's line out of cylinder");
+
+        // TC05: Ray starts at the cylinder and goes outside (0 points)
+        assertNull(cylinder2.findIntersections(new Ray(new Point(0, 0, 0), new Vector(0, 0, -1))),
+                "Ray's line out of cylinder");
+
+        // TC06: Ray starts at the cylinder and goes inside (1 point)
+        result = cylinder2.findIntersections(new Ray(new Point(0, 0, 0), new Vector(0, 0, 1)));
+        assertEquals(1, result.size(), "Wrong number of points");
+
+        // TC07: Ray intersects the cylinder's top surface (1 point)
+        result = cylinder2.findIntersections(new Ray(new Point(0, 0, 3), new Vector(0, 0, -1)));
+        assertEquals(2, result.size(), "Wrong number of points");
+
+        // TC10: Ray starts at the cylinder's top surface and goes inside (1 point)
+        result = cylinder2.findIntersections(new Ray(new Point(0, 0, 2), new Vector(0, 0, 1)));
+        assertNull(result, "Wrong number of points");
+
+        // TC11: Ray intersects the tube but not the cylinder (0 points)
+        assertNull(cylinder2.findIntersections(new Ray(new Point(0, 0, 3), new Vector(0, 1, 0))),
+                "Ray's line out of cylinder");
+
+        // TC12: Ray tangent to the cylinder's top surface (0 points)
+        assertNull(cylinder2.findIntersections(new Ray(new Point(0, 0, 2), new Vector(0, 1, 0))),
+                "Ray's line out of cylinder");
+
+        // TC13: Ray tangent to the cylinder's bottom surface (0 points)
+        assertNull(cylinder2.findIntersections(new Ray(new Point(0, 0, 0), new Vector(0, 1, 0))),
+                "Ray's line out of cylinder");
+
+        // TC14: Ray tangent to the cylinder's side surface (0 points)
+        assertNull(cylinder2.findIntersections(new Ray(new Point(0, 2, -1), new Vector(0, 0, 1))),
+                "Ray's line out of cylinder");
+    }
+
+    /**
+     * Test method for {@link geometries.Cylinder#calculateIntersectionsHelper(Ray, double)}.
+     */
+    @Test
+    void testIntersectionWithDistance() {
+        // ============ Equivalence Partitions Tests ==============
+        // TC01: The distance between the ray intersection point and the ray's start point is more than the distance(0 points)
+        assertNull(cylinder.calculateIntersections(new Ray(new Point(3, 0, 0.5), new Vector(-1, 0, 0)), 1),
+                "Ray's intersection point is out of the distance");
+
+        // TC02: The distance between the ray intersection point and the ray's start point is less than the distance(2 points)
+        assertEquals(2, cylinder.calculateIntersections(new Ray(new Point(3, 0, 0.5), new Vector(-1, 0, 0)), 10).size(),
+                "Ray's intersection points is in the distance");
     }
 }
