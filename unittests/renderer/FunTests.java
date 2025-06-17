@@ -20,6 +20,7 @@ public class FunTests {
      * Camera builder of the tests
      */
     private final Camera.Builder camera = Camera.getBuilder();
+
     @Test
     public void DiamondBox() {
         assertDoesNotThrow(() -> {
@@ -34,6 +35,9 @@ public class FunTests {
                     .setVpSize(150, 150)
                     .setMultithreading(-1)
                     .build()
+                    .moveRight(20)
+                    .moveUp(20)
+                    .moveForward(90)
                     .renderImage()
                     .writeToImage("multi diamond");
 
@@ -398,10 +402,10 @@ for (int i = 0; i < 20; i++) {
                 .setFocusPointDistance(110)
                 .setDirection(new Vector(0.02, -0.1, 0))
                 .setVpDistance(100)
-                .setResolution(1000, 500)
+                .setResolution(1000, 1000)
                 .setRayTracer(scene, RayTracerType.VOXEL)
                 .setAperture(0.2)
-                .setVpSize(150, 300);
+                .setVpSize(150, 150);
 
         camera.build()
                 .renderImage()

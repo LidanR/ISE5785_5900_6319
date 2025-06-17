@@ -94,6 +94,24 @@ public class Camera implements Cloneable {
         return new Builder();
     }
 
+    public Camera move(Vector direction, double distance) {
+        Vector movement = direction.normalize().scale(distance);
+        p0 = p0.add(movement);
+        return this;
+    }
+
+    public Camera moveForward(double distance) {
+        return move(Vto, distance);
+    }
+
+    public Camera moveRight(double distance) {
+        return move(Vright, distance);
+    }
+
+    public Camera moveUp(double distance) {
+        return move(Vup, distance);
+    }
+
 
     /**
      * Builder class for creating a Camera instance using the Builder pattern.
@@ -127,6 +145,7 @@ public class Camera implements Cloneable {
             }
             cam.Vto = vTo.normalize();
             cam.Vup = vUp.normalize();
+            cam.Vright = cam.Vto.crossProduct(cam.Vup).normalize();
             return this;
         }
 
@@ -143,9 +162,8 @@ public class Camera implements Cloneable {
                 throw new IllegalArgumentException("Target point cannot be the same as the camera location");
             }
             cam.Vto = target.subtract(cam.p0).normalize();
-            Vector vright = cam.Vto.crossProduct(vUp).normalize();
-            // we need to calculate the Vup vector again to ensure orthogonality
-            cam.Vup = vright.crossProduct(cam.Vto).normalize();
+            cam.Vright = cam.Vto.crossProduct(vUp).normalize();
+            cam.Vup = cam.Vright.crossProduct(cam.Vto).normalize();
             return this;
         }
 
@@ -346,6 +364,52 @@ public class Camera implements Cloneable {
             }
 
         }
+
+        /**
+         * Moves the camera in the specified direction by a given distance.
+         *
+         * @param direction the direction to move in
+         * @param distance  the distance to move
+         * @return the camera instance for method chaining
+         */
+        public Builder move(Vector direction, double distance) {
+            if (direction == null)
+                throw new IllegalArgumentException("Direction vector cannot be null");
+
+            Vector movement = direction.normalize().scale(distance);
+            cam.p0 = cam.p0.add(movement);
+            return this;
+        }
+
+        /**
+         * Moves the camera in the forward direction (Vto) by a specified distance.
+         *
+         * @param distance the distance to move forward
+         * @return the camera instance for method chaining
+         */
+        public Builder moveForward(double distance) {
+            return move(cam.Vto, distance);
+        }
+
+        /**
+         * Moves the camera in the backward direction (opposite to Vto) by a specified distance.
+         *
+         * @param distance the distance to move backward
+         * @return the camera instance for method chaining
+         */
+        public Builder moveRight(double distance) {
+            return move(cam.Vright, distance);
+        }
+
+        /**
+         * Moves the camera in the left direction (opposite to Vright) by a specified distance.
+         *
+         * @param distance the distance to move left
+         * @return the camera instance for method chaining
+         */
+        public Builder moveUp(double distance) {
+            return move(cam.Vup, distance);
+        }
     }
 
     /**
@@ -524,5 +588,4 @@ public class Camera implements Cloneable {
         }
         return this;
     }
-
 }
