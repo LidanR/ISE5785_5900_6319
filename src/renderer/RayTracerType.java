@@ -6,6 +6,6 @@ package renderer;
 public enum RayTracerType {
    /** Simple (basic) ray tracer */
    SIMPLE,
-   /** Ray tracer using regular grid */
-   GRID
+   /** Ray tracer using Voxels grid */
+   VOXEL
 }

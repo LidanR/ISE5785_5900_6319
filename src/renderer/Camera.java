@@ -100,7 +100,8 @@ public class Camera implements Cloneable {
      */
     public static class Builder {
         private final Camera cam = new Camera();
-
+        private Scene scene;
+        private RayTracerType rayTracerType = RayTracerType.SIMPLE;
         /**
          * Sets the camera's location.
          *
@@ -230,13 +231,8 @@ public class Camera implements Cloneable {
          * @return the builder instance
          */
         public Builder setRayTracer(Scene scene, RayTracerType rayTracerType) {
-            switch (rayTracerType) {
-                case SIMPLE:
-                    cam.rayTracerBase = new SimpleRayTracer(scene);
-                    break;
-                default:
-                    cam.rayTracerBase = null;
-            }
+           this.scene = scene;
+           this.rayTracerType = rayTracerType;
             return this;
         }
 
@@ -318,8 +314,8 @@ public class Camera implements Cloneable {
             if (cam.width <= 0 || cam.height <= 0) {
                 throw new IllegalArgumentException("Width and height must be positive");
             }
-            if (cam.rayTracerBase == null) {
-                throw new MissingResourceException(MISSING_DATA_ERROR, CAMERA_CLASS_NAME, "rayTracerBase");
+            if (rayTracerType == null) {
+                throw new MissingResourceException(MISSING_DATA_ERROR, CAMERA_CLASS_NAME, "rayTracerType");
             }
             if (cam.imageWriter == null) {
                 throw new MissingResourceException("ImageWriter is not set", "Camera", "imageWriter");
@@ -330,9 +326,16 @@ public class Camera implements Cloneable {
             if (cam.focusPointDistance <= 0) {
                 throw new IllegalArgumentException("Focus point distance must be non-negative");
             }
-
-            // Ensure improvementSetting are settled
-            cam.rayTracerBase = new SimpleRayTracer(cam.rayTracerBase.scene, cam.improvementSettings);
+            switch (rayTracerType) {
+                case SIMPLE:
+                    cam.rayTracerBase = new SimpleRayTracer(scene,cam.improvementSettings);
+                    break;
+                case VOXEL:
+                    cam.rayTracerBase = new VoxelRayTracer(scene, cam.improvementSettings);
+                    break;
+                default:
+                    cam.rayTracerBase = null;
+            }
             // Ensure Vright is calculated
             cam.Vright = cam.Vto.crossProduct(cam.Vup).normalize();
 
@@ -444,13 +447,13 @@ public class Camera implements Cloneable {
 
             if (improvementSettings.useDepthOfField()) {
                 Point basePoint = antiAliasingRay.getPoint(distance);
-                Point focusPoint = antiAliasingRay.getPoint(distance + focusPointDistance);
+                Point focusPoint = antiAliasingRay.getPoint( focusPointDistance);
                 dofRays = improvementSettings.constructRays(
                         new Ray(
                                 focusPoint,
                                 basePoint.subtract(focusPoint).normalize()
                         ),
-                        distance, aperture
+                       focusPointDistance- distance, aperture
                 );
 
                 // reverse the rays' direction

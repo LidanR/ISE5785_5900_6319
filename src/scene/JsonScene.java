@@ -44,7 +44,7 @@ public class JsonScene {
         }
         if(sceneObj.containsKey("geometries")){
             JSONArray materials = (JSONArray) sceneObj.get("materials");
-            scene.geometries.add(parseGeometries((JSONArray) sceneObj.get("geometries"), materials));
+            scene.geometries=parseGeometries((JSONArray) sceneObj.get("geometries"), materials);
         }
 
         if(sceneObj.containsKey("lights"))

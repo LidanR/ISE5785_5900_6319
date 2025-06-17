@@ -5,13 +5,9 @@ import lighting.AmbientLight;
 import lighting.DirectionalLight;
 import lighting.PointLight;
 import lighting.SpotLight;
-import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.Test;
 import primitives.*;
-import scene.JsonScene;
 import scene.Scene;
-
-import java.io.IOException;
 
 import static java.awt.Color.*;
 
@@ -67,7 +63,6 @@ class SuperSamplingTests {
       );
 
       Blackboard blackboard = new Blackboard.Builder()
-              .setAmountOfRays(10)
               .setSoftShadows(false)
               .setDepthOfField(false)
               .setBlurryAndGlossy(true)
@@ -76,7 +71,7 @@ class SuperSamplingTests {
               .build();
       cameraBuilder
               .setBlackboard(blackboard)
-              .setRayTracer(scene, RayTracerType.SIMPLE)
+              .setRayTracer(scene, RayTracerType.VOXEL)
               .setMultithreading(threadNum)
               .setLocation(new Point(0, 20, -100))          // In front of sphere
               .setDirection(new Vector(0, -0.1, 1))         // Looking at origin
@@ -142,7 +137,6 @@ class SuperSamplingTests {
       );
 
       Blackboard blackboard = new Blackboard.Builder()
-              .setAmountOfRays(10)
               .setSoftShadows(false)
               .setDepthOfField(false)
               .setBlurryAndGlossy(true)
@@ -151,7 +145,7 @@ class SuperSamplingTests {
               .build();
       cameraBuilder
               .setBlackboard(blackboard)
-              .setRayTracer(scene, RayTracerType.SIMPLE)
+              .setRayTracer(scene, RayTracerType.VOXEL)
               .setMultithreading(threadNum)
               .setLocation(new Point(0, 20, -100))          // In front of sphere
               .setDirection(new Vector(0, -0.1, 1))         // Looking at origin
@@ -219,12 +213,13 @@ class SuperSamplingTests {
               .setResolution(1000, 1000)
               .setBlackboard(blackboard)
               .setMultithreading(threadNum)
-              .setRayTracer(scene, RayTracerType.SIMPLE)
+              .setRayTracer(scene, RayTracerType.VOXEL)
               .setVpDistance(100)
               .setVpSize(40, 40)
               .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
               .setLocation(new Point(0, 0, 200))          // Looking along -Z
-              .setFocusPointDistance(100)                // Focused near center
+              .setFocusPointDistance(100)
+              .setDebugPrint(1)// Focused near center
               .setAperture(2)
               .build()
               .renderImage()
@@ -260,7 +255,7 @@ class SuperSamplingTests {
               .setVpSize(200, 200)
               .setMultithreading(threadNum)
               .setBlackboard(blackboard)
-              .setRayTracer(scene, RayTracerType.SIMPLE) //
+              .setRayTracer(scene, RayTracerType.VOXEL) //
               .setResolution(600, 600) //
               .build() //
               .renderImage() //
@@ -288,7 +283,7 @@ class SuperSamplingTests {
               .setDirection(Point.ZERO, Vector.AXIS_Y) //
               .setVpDistance(100) //
               .setVpSize(500, 500) //
-              .setRayTracer(scene, RayTracerType.SIMPLE) //
+              .setRayTracer(scene, RayTracerType.VOXEL) //
               .setResolution(600, 600) //
               .build() //
               .renderImage() //
@@ -344,7 +339,7 @@ class SuperSamplingTests {
 //                 new PointLight(new Color(255,255,255) ,new Point(0,60,0),10)
 //         );
 //         cameraBuilder.
-//                 setRayTracer(scene1, RayTracerType.SIMPLE)
+//                 setRayTracer(scene1, RayTracerType.GRID)
 //                 .build()
 //                 .renderImage()
 //                 .writeToImage("superSampling/video/Glossy_Surface_"+i);
@@ -414,7 +409,7 @@ class SuperSamplingTests {
 //                 new PointLight(new Color(255, 255, 255), new Point(0, 60, 0))
 //         );
 //         cameraBuilder.
-//                 setRayTracer(scene1, RayTracerType.SIMPLE)
+//                 setRayTracer(scene1, RayTracerType.GRID)
 //                 .build()
 //                 .renderImage()
 //                 .writeToImage("superSampling/video2/dof_" + i);

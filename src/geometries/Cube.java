@@ -1,5 +1,6 @@
 package geometries;
 
+import acceleration.AABB;
 import primitives.*;
 
 import java.util.ArrayList;
@@ -246,5 +247,21 @@ public class Cube extends Geometry {
             polygon.setMaterial(material);
         }
         return this;
+    }
+
+    @Override
+    public AABB getAABB() {
+        if(box == null) {
+            // Calculate the AABB based on the cube's dimensions and center
+            double hw = width / 2;
+            double hh = height / 2;
+            double hd = depth / 2;
+
+            Point min = center.subtract(new Vector(hw, hh, hd));
+            Point max = center.add(new Vector(hw, hh, hd));
+
+            box = new AABB(min, max);
+        }
+        return box;
     }
 }

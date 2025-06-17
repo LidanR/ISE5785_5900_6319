@@ -1,5 +1,6 @@
 package geometries;
 
+import acceleration.AABB;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Util;
@@ -135,5 +136,28 @@ public class Cylinder extends Tube {
 
         return geoPoints.isEmpty() ? null : geoPoints;
     }
+
+    @Override
+    public AABB getAABB() {
+        if (box == null) {
+            Point p0 = axis.getPoint(0);
+            Point p1 = axis.getPoint(height);
+            Vector dir = axis.getDirection().normalize();
+
+            // Compute per-axis min and max based on base centers + radius buffer
+            double minX = Math.min(p0.getX(), p1.getX()) - radius;
+            double maxX = Math.max(p0.getX(), p1.getX()) + radius;
+
+            double minY = Math.min(p0.getY(), p1.getY()) - radius;
+            double maxY = Math.max(p0.getY(), p1.getY()) + radius;
+
+            double minZ = Math.min(p0.getZ(), p1.getZ()) - radius;
+            double maxZ = Math.max(p0.getZ(), p1.getZ()) + radius;
+
+            box = new AABB(new Point(minX, minY, minZ), new Point(maxX, maxY, maxZ));
+        }
+        return box;
+    }
+
 
 }

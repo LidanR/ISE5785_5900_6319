@@ -1,5 +1,6 @@
 package geometries;
 
+import acceleration.AABB;
 import lighting.LightSource;
 import primitives.*;
 
@@ -9,6 +10,9 @@ import java.util.List;
  * Interface for geometric objects that can be intersected by rays.
  */
 public abstract class Intersectable {
+
+    protected AABB box;
+
     /**
      * Represents an intersection between a ray and a geometric object.
      */
@@ -65,6 +69,9 @@ public abstract class Intersectable {
         }
     }
 
+    public AABB getAABB() {
+        return box;
+    }
     /**
      * Finds all intersection points between a given ray and the geometric object.
      *
@@ -108,6 +115,9 @@ public abstract class Intersectable {
      * @return a list of intersection points
      */
     public final List<Intersection> calculateIntersections(Ray ray, double maxDistance) {
+        if (box != null && !box.hasIntersection(ray)) {
+            return null; // No intersections if the bounding box check fails
+        }
         return calculateIntersectionsHelper(ray, maxDistance);
     }
 

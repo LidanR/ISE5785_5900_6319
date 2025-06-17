@@ -1,5 +1,6 @@
 package geometries;
 
+import acceleration.AABB;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
@@ -97,5 +98,14 @@ public class Tube extends RadialGeometry {
             intersections.add(ray.getPoint(t2));
         }
         return intersections.isEmpty() ? null : intersections.stream().map(p -> new Intersection(this, p)).toList();
+    }
+
+    /**
+     * returns the AABB of the tube.
+     * @return null, as the tube is infinite in length and has no bounding box
+     */
+    @Override
+    public AABB getAABB() {
+        return null; // infinite plane has no bounding box
     }
 }

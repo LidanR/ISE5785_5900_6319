@@ -3,7 +3,6 @@ package renderer;
 
 import geometries.*;
 import lighting.AmbientLight;
-import lighting.DirectionalLight;
 import lighting.PointLight;
 import lighting.SpotLight;
 import org.junit.jupiter.api.Test;
@@ -11,8 +10,6 @@ import primitives.*;
 import scene.JsonScene;
 import scene.Scene;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -23,25 +20,51 @@ public class FunTests {
      * Camera builder of the tests
      */
     private final Camera.Builder camera = Camera.getBuilder();
+    @Test
+    public void DiamondBox() {
+        assertDoesNotThrow(() -> {
+            Scene scene1 = JsonScene.CreateScene("jsonScenes/multydiamonds.json");
+            camera
+                    .setResolution(1000, 1000)
+                    .setRayTracer(scene1, RayTracerType.VOXEL)
+                    .setDebugPrint(0.1)
+                    .setDirection(new Vector(0, 1, -0.1).normalize(), new Vector(0, 1, 10).normalize())
+                    .setLocation(new Point(0, -350, 45))//Point(0, 130, 30)
+                    .setVpDistance(500)
+                    .setVpSize(150, 150)
+                    .setMultithreading(-1)
+                    .build()
+                    .renderImage()
+                    .writeToImage("multi diamond");
+
+        }, "Failed to render image");
+    }
 
     @Test
     public void crown() {
-//        assertDoesNotThrow(() -> {
-//            Scene scene = JsonScene.CreateScene("jsonScenes/crown.json");
-//
-//            camera
-//
-//                    .setRayTracer(scene, RayTracerType.SIMPLE)
-//                    .setResolution(1000, 1000) //
-//                    .setDirection(new Vector(0, 1, -0.1).normalize(), new Vector(0, 1, 10).normalize())
-//                    .setLocation(new Point(0, -320, 40))
-//                    .setVpDistance(500)
-//                    .setVpSize(150, 150)
-//                    .build()
-//                    .renderImage()
-//                    .writeToImage("crown");
-//
-//        }, "Failed to render image");
+        assertDoesNotThrow(() -> {
+            Scene scene = JsonScene.CreateScene("jsonScenes/crown.json");
+            Blackboard blackboard = new Blackboard.Builder()
+                    .setSoftShadows(false)
+                    .setDepthOfField(false)
+                    .setUseCircle(true)
+                    .setAntiAliasing(false)
+                    .build();
+            camera
+                    .setBlackboard(blackboard)
+                    .setRayTracer(scene, RayTracerType.VOXEL)
+                    .setResolution(3000, 3000) //
+                     .setMultithreading(-1)
+                    .setDebugPrint(0.1)
+                    .setDirection(new Vector(0, 1, -0.1).normalize(), new Vector(0, 1, 10).normalize())
+                    .setLocation(new Point(0, -320, 40))
+                    .setVpDistance(500)
+                    .setVpSize(150, 150)
+                    .build()
+                    .renderImage()
+                    .writeToImage("crown");
+
+        }, "Failed to render image");
     }
     @Test
     public void diamondRing() {
@@ -51,7 +74,7 @@ public class FunTests {
                             .setSoftShadows(false)
                             .setDepthOfField(false)
                             .setUseCircle(true)
-                            .setAntiAliasing(true)
+                            .setAntiAliasing(false)
                             .build();
                     final Camera.Builder camera = Camera.getBuilder()
                             .setBlackboard(blackboard)
@@ -78,7 +101,6 @@ public class FunTests {
                 .setAmbientLight(new AmbientLight(new Color(5, 5, 5))); // Very low ambient light
 
         // <editor-fold desc="Stone Circle">
-        Color stoneColor = new Color(192, 192, 192);
         Material stoneMaterial = new Material().setKD(0.5).setKS(0.5).setShininess(100);
         double radius = 15;
         double cornersPivot = 0.65 * radius;
@@ -87,14 +109,14 @@ public class FunTests {
         double depth = 8;
 
         scene.geometries.add(
-                new Cube(height, width, depth, new Point(radius, 0, 0)).setMaterial(stoneMaterial).setEmission(stoneColor),
-                new Cube(height, width, depth, new Point(-radius, 0, 0)).setMaterial(stoneMaterial).setEmission(stoneColor),
-                new Cube(height, width, depth, new Point(0, 0, radius), new Double3(0,90,0)).setMaterial(stoneMaterial).setEmission(stoneColor),
-                new Cube(height, width, depth, new Point(0, 0, -radius), new Double3(0, 90, 0)).setMaterial(stoneMaterial).setEmission(stoneColor),
-                new Cube(height, width, depth, new Point(-cornersPivot, 0, cornersPivot), new Double3(0, 45, 0)).setMaterial(stoneMaterial).setEmission(stoneColor),
-                new Cube(height, width, depth, new Point(cornersPivot, 0, -cornersPivot), new Double3(0, 45, 0)).setMaterial(stoneMaterial).setEmission(stoneColor),
-                new Cube(height, width, depth, new Point(cornersPivot, 0, cornersPivot), new Double3(0, 135, 0)).setMaterial(stoneMaterial).setEmission(stoneColor),
-                new Cube(height, width, depth, new Point(-cornersPivot, 0, -cornersPivot), new Double3(0, 135, 0)).setMaterial(stoneMaterial).setEmission(stoneColor)
+                new Cube(height, width, depth, new Point(radius, 0, 0)).setMaterial(stoneMaterial).setEmission(new Color(new Double3(new Random().nextInt(50,200)))),
+                new Cube(height, width, depth, new Point(-radius, 0, 0)).setMaterial(stoneMaterial).setEmission(new Color(new Double3(new Random().nextInt(50,200)))),
+                new Cube(height, width, depth, new Point(0, 0, radius), new Double3(0,90,0)).setMaterial(stoneMaterial).setEmission(new Color(new Double3(new Random().nextInt(50,200)))),
+                new Cube(height, width, depth, new Point(0, 0, -radius), new Double3(0, 90, 0)).setMaterial(stoneMaterial).setEmission(new Color(new Double3(new Random().nextInt(50,200)))),
+                new Cube(height, width, depth, new Point(-cornersPivot, 0, cornersPivot), new Double3(0, 45, 0)).setMaterial(stoneMaterial).setEmission(new Color(new Double3(new Random().nextInt(50,200)))),
+                new Cube(height, width, depth, new Point(cornersPivot, 0, -cornersPivot), new Double3(0, 45, 0)).setMaterial(stoneMaterial).setEmission(new Color(new Double3(new Random().nextInt(50,200)))),
+                new Cube(height, width, depth, new Point(cornersPivot, 0, cornersPivot), new Double3(0, 135, 0)).setMaterial(stoneMaterial).setEmission(new Color(new Double3(new Random().nextInt(50,200)))),
+                new Cube(height, width, depth, new Point(-cornersPivot, 0, -cornersPivot), new Double3(0, 135, 0)).setMaterial(stoneMaterial).setEmission(new Color(new Double3(new Random().nextInt(50,200))))
         );
         // </editor-fold>
 
@@ -136,6 +158,11 @@ public class FunTests {
                 new Sphere(new Point(0, 5, 0), 3.5)
                         .setEmission(new Color(255, 180, 30))
                         .setMaterial(new Material().setKD(0.1).setKS(0.8).setShininess(300))
+        );
+        scene.geometries.add(
+                new Sphere(new Point(0, 0, 0), 40)
+                        .setEmission(new Color(10, 10, 10))
+                        .setMaterial(new Material().setKT(1.0))
         );
         // </editor-fold>
 
@@ -195,14 +222,10 @@ public class FunTests {
 
         // <editor-fold desc="Light from Fire Only">
         scene.lights.add(
-           new PointLight(new Color(255,140,0), new Point(0, 30, -30),12)
+           new PointLight(new Color(255,140,0), new Point(0, 30, -30),10)
         );
         // </editor-fold>
-        scene.geometries.add(
-                new Sphere(new Point(0, 0, 0), 40)
-                        .setEmission(new Color(10, 10, 10))
-                        .setMaterial(new Material().setKT(1.0))
-        );
+
         // <editor-fold desc="Trees">
 
         // Place trees in a circular arc behind the campfire
@@ -264,6 +287,7 @@ public class FunTests {
         // </editor-fold>
 
 
+        // <editor-fold desc="Tent">
 
         for (int i = 5; i < 100; i += 10) {
             // Generate realistic brown RGB components
@@ -277,28 +301,13 @@ public class FunTests {
                             .setMaterial(woodMaterial)
             );
         }
-
-// Add fixed cylinder (you can keep or randomize this too)
         scene.geometries.add(
                 new Cylinder(5, new Ray(new Point(15, 0, 62), new Vector(0, 1, 0)), 80)
                         .setEmission(new Color(88, 40, 39))
                         .setMaterial(woodMaterial)
         );
-
-        // <editor-fold desc="Lake">
-        Double3 lakeCenter = new Double3(-50, 0, 75);
-        double lakeRadius = 45;
-
-        scene.geometries.add(
-                new Cylinder(
-                        lakeRadius,
-                        new Ray(new Point(lakeCenter.d1(), 0, lakeCenter.d3()), Vector.AXIS_Y),
-                        0.1
-                ).setEmission(new Color(0, 0, 255)) // Blue color for water
-                        .setMaterial(new Material().setKD(0.1).setKR(0.7).setKS(0.9).setShininess(300).setKT(0.8)
-                )
-        );
         // </editor-fold>
+
 
         // <editor-fold desc="Moon">
         double moonRadius = 10;
@@ -306,18 +315,79 @@ public class FunTests {
         scene.geometries.add(
                 new Sphere(moonCenter, moonRadius)
                         .setEmission(new Color(255, 255, 224)) // Light yellow color
-                        .setMaterial(new Material().setKD(0.1).setKS(0.9).setShininess(300).setKT(0.5))
+                        .setMaterial(new Material().setKD(0.1).setKS(0.9).setShininess(300).setKR(0.5))
         );
+        //</editor-fold>
+
+        // <editor-fold desc="Shovel">
+        Material shovelMaterial = new Material().setKD(0.6).setKS(0.4).setShininess(200);
+        Color shovelColor = new Color(100, 100, 100); // Metallic gray color
+        scene.geometries.add(
+                new Cylinder(1, new Ray(new Point(-25, 5, 60), new Vector(0, 0.9, 0)), 30)
+                        .setEmission(new Color(80,40,20))
+                        .setMaterial(new Material().setKD(0.6).setKS(0.4).setShininess(200)));
+        scene.geometries.add(
+                new Cube(
+                        2, 3, 4, new Point(-25, 35, 60), new Double3(0, 110, 0))
+                        .setEmission(shovelColor)
+                        .setMaterial(shovelMaterial)
+        );
+        scene.geometries.add(
+                new Cube(
+                        20, 10, 2, new Point(-25, -5, 60), new Double3(0, 20, 0))
+                        .setEmission(shovelColor)
+                        .setMaterial(shovelMaterial)
+        );
+// Create a pile of dirt around the shovel
+Material dirtMaterial = new Material().setKD(0.8).setKR(0.1).setKS(0.2).setShininess(100);
+Color dirtColor = new Color(80, 40, 20); // Earthy brown color
+
+// Base larger spheres for the main dirt pile
+Point dirtCenter = new Point(-25, -2, 60); // Center point of the dirt pile
+for (int i = 0; i < 15; i++) {
+    double angle = rand.nextDouble() * 2 * Math.PI;
+    double distance = rand.nextDouble() * 4; // Radius of the dirt pile
+    double x = dirtCenter.getX() + Math.cos(angle) * distance;
+    double z = dirtCenter.getZ() + Math.sin(angle) * distance;
+    double y = dirtCenter.getY() + rand.nextDouble() * 1.5; // Slight height variation
+
+    scene.geometries.add(
+            new Sphere(new Point(x, y, z), 1.0 + rand.nextDouble() * 0.5)
+                    .setEmission(dirtColor)
+                    .setMaterial(dirtMaterial)
+    );
+}
+
+// Smaller particles and details for more natural appearance
+for (int i = 0; i < 20; i++) {
+    double angle = rand.nextDouble() * 2 * Math.PI;
+    double distance = rand.nextDouble() * 6; // Wider spread for smaller particles
+    double x = dirtCenter.getX() + Math.cos(angle) * distance;
+    double z = dirtCenter.getZ() + Math.sin(angle) * distance;
+    double y = dirtCenter.getY() + rand.nextDouble() * 2.0;
+
+    // Slight color variations for realism
+    scene.geometries.add(
+            new Sphere(new Point(x, y, z), 0.3 + rand.nextDouble() * 0.3)
+                    .setEmission(new Color(
+                            dirtColor.getColor().getRed() + rand.nextInt(-10, 10),
+                            dirtColor.getColor().getGreen() + rand.nextInt(-5, 5),
+                            dirtColor.getColor().getBlue() + rand.nextInt(-5, 5))
+                    )
+                    .setMaterial(dirtMaterial)
+    );
+}
+        // </editor-fold>
+
 
 
         // <editor-fold desc="Camera & Render">
         Blackboard blackboard = new Blackboard.Builder()
                 .setSoftShadows(false)
                 .setDepthOfField(false)
-                .setUseCircle(false)
+                .setUseCircle(true)
                 .setAntiAliasing(false)
                 .setBlurryAndGlossy(false)
-                .setAmountOfRays(5)
                 .build();
 
         final Camera.Builder camera = Camera.getBuilder()
@@ -325,15 +395,17 @@ public class FunTests {
                 .setMultithreading(-1)
                 .setDebugPrint(0.1)
                 .setLocation(new Point(0,30,100))
-                .setDirection(new Vector(0, -0.1, 0))
+                .setFocusPointDistance(110)
+                .setDirection(new Vector(0.02, -0.1, 0))
                 .setVpDistance(100)
-                .setResolution(1000, 1000)
-                .setRayTracer(scene, RayTracerType.SIMPLE)
-                .setVpSize(150, 150);
+                .setResolution(1000, 500)
+                .setRayTracer(scene, RayTracerType.VOXEL)
+                .setAperture(0.2)
+                .setVpSize(150, 300);
 
         camera.build()
                 .renderImage()
-                .writeToImage("Final_Minip_Test");
+                .writeToImage("Final_Minip_Test_DOF_2");
         // </editor-fold>
     }
 
@@ -377,4 +449,266 @@ public class FunTests {
         return List.of(trunk, Leave1, Leave2, Leave3,Leave4);
 
     }
+
+
+    @Test
+    public void blackHoleInSpace_video() {
+        int numFrames = 60;
+        int numRings = 3;
+        int spheresPerRing = 50;
+        double blackHoleRadius = 8;
+        double innerDiskRadius = blackHoleRadius + 2;
+        double outerDiskRadius = innerDiskRadius + 10;
+        double frameAngleShift = Math.PI * 2 / numFrames;
+
+        for (int frame = 0; frame < numFrames; frame++) {
+            Scene scene = new Scene("BlackHole_Frame_" + frame)
+                    .setBackground(new Color(5, 5, 15))
+                    .setAmbientLight(new AmbientLight(new Color(25, 25, 35)));
+
+            // Central black hole (perfect reflector to simulate light bending)
+            scene.geometries.add(
+                    new Sphere(new Point(0, 0, 0), blackHoleRadius)
+                            .setEmission(Color.BLACK)
+                            .setMaterial(new Material()
+                                    .setKD(0.0)
+                                    .setKR(1.0)
+                            )
+            );
+
+            Random rand = new Random(42);
+
+            // Accretion disk (animated glowing particles)
+            for (int ring = 0; ring < numRings; ring++) {
+                double radius = innerDiskRadius + ring * ((outerDiskRadius - innerDiskRadius) / (numRings - 1));
+                for (int i = 0; i < spheresPerRing; i++) {
+                    double angle = i * 2 * Math.PI / spheresPerRing + frame * frameAngleShift * 0.5;
+                    double x = radius * Math.cos(angle);
+                    double z = radius * Math.sin(angle);
+
+                    // Random rich glowing color
+                    Color glow = new Color(
+                            180 + rand.nextInt(60),
+                            80 + rand.nextInt(100),
+                            30 + rand.nextInt(80)
+                    );
+
+                    // Random reflective/transmissive disk particles
+                    Material mat = new Material()
+                            .setKD(0.4)
+                            .setKS(0.8)
+                            .setShininess(120)
+                            .setKR(rand.nextDouble() < 0.2 ? 0.5 : 0)
+                            .setKT(rand.nextDouble() < 0.2 ? 0.5 : 0);
+
+                    scene.geometries.add(
+                            new Sphere(new Point(x, 0, z), 0.8)
+                                    .setEmission(glow)
+                                    .setMaterial(mat)
+                    );
+                }
+            }
+
+            // Stars and cosmic depth
+            for (int i = 0; i < 150; i++) {
+                double x = -120 + rand.nextDouble() * 240;
+                double y = -100 + rand.nextDouble() * 200;
+                double z = -120 + rand.nextDouble() * 240;
+
+                Color starColor = new Color(
+                        100 + rand.nextInt(155),
+                        100 + rand.nextInt(155),
+                        200 + rand.nextInt(55)
+                );
+
+                scene.geometries.add(
+                        new Sphere(new Point(x, y, z), 0.2)
+                                .setEmission(starColor)
+                                .setMaterial(new Material().setKA(1))
+                );
+            }
+
+            // Multi-directional lighting to simulate lensing and galactic glow
+            scene.lights.addAll(List.of(
+                    new PointLight(new Color(255, 200, 255), new Point(50, 0, -50)).setKl(0.01).setKq(0.001),
+                    new PointLight(new Color(255, 150, 150), new Point(-50, 30, -50)).setKl(0.01).setKq(0.002),
+                    new PointLight(new Color(180, 220, 255), new Point(70, 40, 40)).setKl(0.01).setKq(0.0015),
+                    new PointLight(new Color(120, 120, 255), new Point(-70, -50, 70)).setKl(0.01).setKq(0.002)
+            ));
+
+            // Camera rotation
+            double cameraAngle = frame * frameAngleShift;
+            double camX = 40 * Math.cos(cameraAngle);
+            double camZ = 40 * Math.sin(cameraAngle);
+            Point camLocation = new Point(camX, 15, camZ);
+            Vector camDirection = new Point(0, 0, 0).subtract(camLocation).normalize();
+
+            Camera.getBuilder()
+                    .setRayTracer(scene, RayTracerType.VOXEL)
+                    .setMultithreading(-1)
+                    .setDebugPrint(0)
+                    .setLocation(camLocation)
+                    .setDirection(camDirection)
+                    .setVpDistance(50)
+                    .setVpSize(100, 100)
+                    .setResolution(600, 600)
+                    .build()
+                    .renderImage()
+                    .writeToImage("Video_BlackHole/BlackHole_Frame_" + frame);
+        }
+
+        try {
+            ImagesToVideo.createVideoFromImages("Video_BlackHole", "Video_BlackHole/TheVideo/blackhole", 1, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Test
+    public void solarSystem_video() {
+        int numFrames = 120;
+        double angleStep = 2 * Math.PI / numFrames;
+
+        record Planet(String name, Color color, double orbitRadius, double radius, double speedFactor) {}
+        List<Planet> planets = List.of(
+                new Planet("Mercury", new Color(169, 169, 169), 10, 0.5, 4.7),
+                new Planet("Venus", new Color(255, 215, 0), 15, 0.9, 3.5),
+                new Planet("Earth", new Color(0, 100, 255), 20, 1.0, 2.9),
+                new Planet("Mars", new Color(255, 60, 60), 25, 0.8, 2.4),
+                new Planet("Jupiter", new Color(205, 133, 63), 32, 2.2, 1.3),
+                new Planet("Saturn", new Color(218, 165, 32), 40, 2.0, 1.0),
+                new Planet("Uranus", new Color(72, 209, 204), 47, 1.7, 0.7),
+                new Planet("Neptune", new Color(70, 130, 180), 54, 1.7, 0.5)
+        );
+
+        Random rand = new Random(42);
+
+        for (int frame = 0; frame < numFrames; frame++) {
+            Scene scene = new Scene("SolarSystem_Frame_" + frame)
+                    .setBackground(new Color(3, 3, 10))
+                    .setAmbientLight(new AmbientLight(new Color(30, 30, 45)));
+
+            // Glowing sun
+            scene.geometries.add(
+                    new Sphere(new Point(0, 0, 0), 5)
+                            .setEmission(new Color(255, 255, 180))
+                            .setMaterial(new Material().setKA(0.5).setKD(0.2).setKS(1.0).setShininess(300).setKR(0.5))
+            );
+
+            // Multiple lights around the solar system
+            scene.lights.addAll(List.of(
+                    new PointLight(new Color(1000, 900, 600), new Point(0, 0, 0)).setKl(0.0004).setKq(0.0001),
+                    new PointLight(new Color(400, 200, 700), new Point(60, 50, -60)).setKl(0.001).setKq(0.002),
+                    new PointLight(new Color(200, 255, 255), new Point(-70, 30, 80)).setKl(0.001).setKq(0.002),
+                    new PointLight(new Color(255, 150, 255), new Point(100, 100, 100)).setKl(0.0015).setKq(0.003)
+            ));
+
+            // Planets
+            for (Planet p : planets) {
+                double angle = angleStep * frame * p.speedFactor;
+                double x = p.orbitRadius * Math.cos(angle);
+                double z = p.orbitRadius * Math.sin(angle);
+
+                Material mat = new Material()
+                        .setKA(0.2)
+                        .setKD(0.5)
+                        .setKS(0.7)
+                        .setKT(rand.nextDouble() < 0.25 ? 0.6 : 0)  // ~25% transparent
+                        .setKR(rand.nextDouble() < 0.25 ? 0.4 : 0)  // ~25% reflective
+                        .setShininess(70 + rand.nextInt(100));
+
+                scene.geometries.add(
+                        new Sphere(new Point(x, 0, z), p.radius)
+                                .setEmission(p.color)
+                                .setMaterial(mat)
+                );
+
+                // Earth's moon
+                if (p.name.equals("Earth")) {
+                    double moonAngle = angle * 12;
+                    double moonX = x + 1.5 * Math.cos(moonAngle);
+                    double moonZ = z + 1.5 * Math.sin(moonAngle);
+                    scene.geometries.add(
+                            new Sphere(new Point(moonX, 0, moonZ), 0.3)
+                                    .setEmission(new Color(200, 200, 200))
+                                    .setMaterial(new Material().setKA(0.2).setKD(0.5).setKS(0.5).setShininess(30))
+                    );
+                }
+
+                // Saturn’s rings
+                if (p.name.equals("Saturn")) {
+                    for (int i = 0; i < 3; i++) {
+                        double ringRadius = p.radius + 0.3 + i * 0.2;
+                        for (int j = 0; j < 36; j++) {
+                            double theta = Math.toRadians(j * 10);
+                            double rx = x + ringRadius * Math.cos(theta);
+                            double rz = z + ringRadius * Math.sin(theta);
+                            scene.geometries.add(
+                                    new Sphere(new Point(rx, 0, rz), 0.1)
+                                            .setEmission(new Color(200, 180, 140))
+                                            .setMaterial(new Material().setKA(0.1))
+                            );
+                        }
+                    }
+                }
+            }
+
+            // Asteroid belt
+            for (int i = 0; i < 300; i++) {
+                double r = 28 + rand.nextDouble() * 4;
+                double angle = rand.nextDouble() * 2 * Math.PI;
+                double x = r * Math.cos(angle);
+                double z = r * Math.sin(angle);
+                scene.geometries.add(
+                        new Sphere(new Point(x, 0, z), 0.15)
+                                .setEmission(new Color(rand.nextInt(200), rand.nextInt(200), rand.nextInt(200)))
+                                .setMaterial(new Material().setKA(0.2))
+                );
+            }
+
+            // Colorful animated stars
+            for (int i = 0; i < 100; i++) {
+                double x = -100 + rand.nextDouble() * 200;
+                double y = -100 + rand.nextDouble() * 200;
+                double z = -100 + rand.nextDouble() * 200;
+                scene.geometries.add(
+                        new Sphere(new Point(x, y, z), 0.2)
+                                .setEmission(new Color(100 + rand.nextInt(155), 100 + rand.nextInt(155), 255))
+                                .setMaterial(new Material().setKA(1))
+                );
+            }
+
+            // Orbiting camera
+            double camAngle = frame * angleStep;
+            double camX = 100 * Math.cos(camAngle);
+            double camZ = 100 * Math.sin(camAngle);
+            Point camPos = new Point(camX, 40, camZ);
+            Vector camDir = new Point(0, 0, 0).subtract(camPos).normalize();
+
+            Camera.getBuilder()
+                    .setRayTracer(scene, RayTracerType.VOXEL)
+                    .setMultithreading(-1)
+                    .setDebugPrint(0)
+                    .setLocation(camPos)
+                    .setDirection(camDir)
+                    .setVpDistance(50)
+                    .setVpSize(150, 150)
+                    .setResolution(800, 800)
+                    .build()
+                    .renderImage()
+                    .writeToImage("SolarSystem_Video/Frame_" + frame);
+        }
+
+        try {
+            ImagesToVideo.createVideoFromImages("SolarSystem_Video", "SolarSystem_Video/TheVideo/solar_system", 3, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
 }

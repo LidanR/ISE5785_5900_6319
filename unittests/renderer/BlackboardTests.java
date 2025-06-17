@@ -29,7 +29,7 @@ class BlackboardTests {
     @Test
     public void gridMethodTest()
     {
-        Blackboard blackboard = blackboardBuilder.setMethod(Blackboard.MethodsOfPoints.GRID).setAmountOfRays(16).build();
+        Blackboard blackboard = blackboardBuilder.setMethod(Blackboard.MethodsOfPoints.GRID).build();
         List<Ray> rays = blackboard.constructRays(new Ray(Point.ZERO,Vector.AXIS_Z),distance);
         makeScene(rays,"Blackboard_Grid");
     }
@@ -48,7 +48,7 @@ class BlackboardTests {
      */
     @Test
     public void JitterMethodTest() {
-        Blackboard blackboard = blackboardBuilder.setMethod(Blackboard.MethodsOfPoints.JITTERED).setAmountOfRays(8).build();
+        Blackboard blackboard = blackboardBuilder.setMethod(Blackboard.MethodsOfPoints.JITTERED).build();
         List<Ray> rays = blackboard.constructRays(new Ray(Point.ZERO,Vector.AXIS_Z),distance);
         makeScene(rays,"Blackboard_Jitter");
     }

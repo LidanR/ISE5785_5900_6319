@@ -1,5 +1,6 @@
 package geometries;
 
+import acceleration.AABB;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
@@ -83,4 +84,11 @@ public class Plane extends Geometry {
         if (t <= 0||t>maxDistance) return null;
         return List.of(new Intersection(this,ray.getPoint(t)));
     }
+
+    @Override
+    public AABB getAABB() {
+        return null; // infinite plane has no bounding box
+    }
+
+
 }

@@ -22,7 +22,7 @@ class ReflectionRefractionTests {
     ReflectionRefractionTests() { /* to satisfy JavaDoc generator */ }
 
     /** Scene for the tests */
-    private final Scene          scene         = new Scene("Test scene");
+    private final Scene scene = new Scene("Test scene");
     /** Camera builder for the tests with triangles */
     private final Camera.Builder cameraBuilder = Camera.getBuilder()     //
             .setRayTracer(scene, RayTracerType.SIMPLE);
@@ -69,14 +69,8 @@ class ReflectionRefractionTests {
         scene.setAmbientLight(new AmbientLight(new Color(26, 26, 26)));
         scene.lights.add(new SpotLight(new Color(1020, 400, 400), new Point(-750, -750, -150), new Vector(-1, -1, -4)) //
                 .setKl(0.00001).setKq(0.000005));
-        Blackboard blackboard = new Blackboard.Builder()
-                .setDepthOfField(false)
-                .setBlurryAndGlossy(false)
-                .setUseCircle(true)
-                .setAntiAliasing(true)
-                .build();
-        cameraBuilder.setBlackboard(blackboard) //
-                .setRayTracer(scene, RayTracerType.SIMPLE) //
+
+        cameraBuilder
                 .setMultithreading(-1)
                 .setLocation(new Point(0, 0, 10000)) //
                 .setDirection(Point.ZERO, Vector.AXIS_Y) //
@@ -116,6 +110,7 @@ class ReflectionRefractionTests {
                 .renderImage() //
                 .writeToImage("refractionShadow");
     }
+
     /**
      * “Floating Lantern Courtyard”:
      * Warm, meditative scene of glowing lanterns over a reflective floor.
@@ -404,7 +399,7 @@ class ReflectionRefractionTests {
 
             // Render current frame
             cameraBuilder
-                    .setRayTracer(scene, RayTracerType.SIMPLE)
+                    .setRayTracer(scene, RayTracerType.VOXEL)
                     .setMultithreading(-1)
                     .setDebugPrint(0)
                     .setLocation(new Point(0, maxRadius, -100))

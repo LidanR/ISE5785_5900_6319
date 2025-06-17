@@ -92,4 +92,38 @@ package primitives;
         public double distance(Point p) {
             return Math.sqrt(distanceSquared(p));
         }
+        /**
+         * Gets the x-coordinate of the point.
+         */
+        public double getX() {
+            return xyz.d1();
+        }
+        /**
+         * Gets the y-coordinate of the point.
+         */
+        public double getY() {
+            return xyz.d2();
+        }
+        /**
+         * Gets the z-coordinate of the point.
+         */
+        public double getZ() {
+            return xyz.d3();
+        }
+
+        /**
+         * Gets a coordinate value by index (0=X, 1=Y, 2=Z)
+         * @param axis Index of the coordinate (0, 1, or 2)
+         * @return The coordinate value
+         * @throws IllegalArgumentException if axis is not 0, 1, or 2
+         */
+        public double get(int axis) {
+            return switch (axis) {
+                case 0 -> xyz.d1(); // X coordinate
+                case 1 -> xyz.d2(); // Y coordinate
+                case 2 -> xyz.d3(); // Z coordinate
+                default -> throw new IllegalArgumentException("Invalid coordinate index: " + axis);
+            };
+        }
+
     }

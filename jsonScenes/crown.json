@@ -28,7 +28,7 @@
       {
         "sphere": {
           "radius": 1.768503,
-          "center": "0.0 0.0 0.0"
+          "center": "-9.3 -22.5 28.307543"
         },
         "material": "0",
         "emission": "183 0 0"
@@ -61,6 +61,70 @@
         "sphere": {
           "radius": 1.768503,
           "center": "-9.408846 22.36265 28.307543"
+        },
+        "material": "0",
+        "emission": "183 0 0"
+      },
+      {
+        "sphere": {
+          "radius": 1.768503,
+          "center": "0.0 24.0 28.307543"
+        },
+        "material": "0",
+        "emission": "183 0 0"
+      },
+      {
+        "sphere": {
+          "radius": 1.768503,
+          "center": "17.0 17.0 28.307543"
+        },
+        "material": "0",
+        "emission": "183 0 0"
+      },
+      {
+        "sphere": {
+          "radius": 1.768503,
+          "center": "24.0 0.0 28.307543"
+        },
+        "material": "0",
+        "emission": "183 0 0"
+      },
+      {
+        "sphere": {
+          "radius": 1.768503,
+          "center": "17.0 -17.0 28.307543"
+        },
+        "material": "0",
+        "emission": "183 0 0"
+      },
+      {
+        "sphere": {
+          "radius": 1.768503,
+          "center": "0.0 -24.0 28.307543"
+        },
+        "material": "0",
+        "emission": "183 0 0"
+      },
+      {
+        "sphere": {
+          "radius": 1.768503,
+          "center": "-17.0 -17.0 28.307543"
+        },
+        "material": "0",
+        "emission": "183 0 0"
+      },
+      {
+        "sphere": {
+          "radius": 1.768503,
+          "center": "-24.0 0.0 28.307543"
+        },
+        "material": "0",
+        "emission": "183 0 0"
+      },
+      {
+        "sphere": {
+          "radius": 1.768503,
+          "center": "-17.0 17.0 28.307543"
         },
         "material": "0",
         "emission": "183 0 0"
@@ -3815,9 +3879,10 @@
           "normal": "0.0 0.0 1.0"
         },
         "material": {
-          "kd": 0.8,
-          "ks": 0.5,
-          "ns": 200.0
+          "kd": 0.3,
+          "ks": 0.2,
+          "ns": 200.0,
+          "kr" : 1.0
         },
         "emission": "76 76 76"
       },
@@ -9027,18 +9092,20 @@
         "name": "sphere",
         "kd": 0.8,
         "ks": 0.5,
+        "kt": 0.7,
         "ns": 10
       },
       {
         "name": "red",
-        "kd": 0.198767,
-        "ks": 0.5,
-        "ns": 500.0
+        "kd": 0.15,
+        "ks": 0.95,
+        "ns": 1000.0
       },
       {
         "name": "gold",
-        "kd": 0.4,
-        "ks": 0.6,
+        "kd": 0.9,
+        "ka" : 0.2,
+        "ks": 0.9,
         "ns": 300.0
       }
     ]

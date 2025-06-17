@@ -24,60 +24,60 @@ class TeapotTest {
     * Teapot without improvements
     */
    @Test
-   @Disabled
    void testTeapot1() {
       prepareTeapot() //
+              .setDebugPrint(1)
          .build() //
          .renderImage() //
          .printGrid(50, new Color(YELLOW)) //
          .writeToImage("teapot1");
    }
 
-   /**
-    * 10 Teapot tests with CBR
-    */
-//   @Test
-//   @Disabled
-//   void testTeapot2() {
-//      for (int i = 10; i > 0; --i) {
-//         teapot2();
-//      }
-//   }
-
-   /**
-    * 100 Teapot tests with BVH
-    */
-//   @Test
-//   @Disabled
-//   void testTeapot3() {
-//      for (int i = 100; i > 0; --i) {
-//         teapot3();
-//      }
-//   }
-
 //   /**
-//    * Teapot with CBR
+//    * 10 Teapot tests with CBR
 //    */
-//   void teapot2() {
-//      prepareTeapot() //
-//         .enableCBR() //
-//         .build() //
-//         .renderImage() //
-//         .printGrid(50, new Color(YELLOW)) //
-//         .writeToImage("teapot2");
-//   }
+////   @Test
+////   @Disabled
+////   void testTeapot2() {
+////      for (int i = 10; i > 0; --i) {
+////         teapot2();
+////      }
+////   }
 //
 //   /**
-//    * Teapot with BVH
+//    * 100 Teapot tests with BVH
 //    */
-//   void teapot3() {
-//      prepareTeapot() //
-//         .enableBVH() //
-//         .build() //
-//         .renderImage() //
-//         .printGrid(50, new Color(YELLOW)) //
-//         .writeToImage("teapot3");
-//   }
+////   @Test
+////   @Disabled
+////   void testTeapot3() {
+////      for (int i = 100; i > 0; --i) {
+////         teapot3();
+////      }
+////   }
+//
+////   /**
+////    * Teapot with CBR
+////    */
+////   void teapot2() {
+////      prepareTeapot() //
+////         .enableCBR() //
+////         .build() //
+////         .renderImage() //
+////         .printGrid(50, new Color(YELLOW)) //
+////         .writeToImage("teapot2");
+////   }
+////
+////   /**
+////    * Teapot with BVH
+////    */
+////   void teapot3() {
+////      prepareTeapot() //
+////         .enableBVH() //
+////         .build() //
+////         .renderImage() //
+////         .printGrid(50, new Color(YELLOW)) //
+////         .writeToImage("teapot3");
+////   }
 
    /**
     * Prepare data for test that generates a teapot picture
@@ -99,9 +99,8 @@ class TeapotTest {
 
       return Camera.getBuilder() //
          .setResolution(1000, 1000) //
-              .setBlackboard(Blackboard.getBuilder().setAntiAliasing(true).setUseCircle(true).build())
          // .setResolution(1, 1) //
-         .setRayTracer(scene, RayTracerType.SIMPLE) //
+         .setRayTracer(scene, RayTracerType.VOXEL) //
          .setLocation(new Point(0, 0, -1000)).setDirection(Point.ZERO, Vector.AXIS_Y) //
          .setVpDistance(1000).setVpSize(200, 200) //
          // .setMultithreading(-3) // fail - paging file size

@@ -1,5 +1,6 @@
 package geometries;
 
+import acceleration.AABB;
 import primitives.Ray;
 
 import java.util.Collections;
@@ -50,13 +51,45 @@ public class Geometries extends Intersectable{
 
         // Iterate over all geometries and collect intersection points
         for (Intersectable geometry : geometries) {
-            List<Intersection> geoIntersections = geometry.calculateIntersectionsHelper(ray, maxDistance);
-            if (geoIntersections != null) {
-                   intersections.addAll(geoIntersections);
+            List<Intersection> intersectionsOfGeometry = geometry.calculateIntersectionsHelper(ray, maxDistance);
+            if (intersectionsOfGeometry != null) {
+                intersections.addAll(intersectionsOfGeometry);
             }
         }
 
         // Return null if no intersections were found
         return intersections.isEmpty() ? null : intersections;
     }
+
+    /**
+     * getter method to get the geometries list.
+     * @return the list of geometries
+     */
+    public List<Intersectable> getGeometries() {
+        return geometries;
+    }
+
+    /**
+     * Returns the number of geometries in the collection.
+     * @return the size of the geometries list
+     */
+    public int getGeomitriesSize() {
+        return geometries.size();
+    }
+
+    @Override
+    public AABB getAABB() {
+        if (geometries.isEmpty()) {
+            return null;
+        }
+        AABB box = geometries.get(0).getAABB();
+        for (Intersectable geometry : geometries) {
+            AABB geometryBox = geometry.getAABB();
+            if (geometryBox != null) {
+                box = box == null ? geometryBox : box.union(geometryBox);
+            }
+        }
+        return box;
+    }
+
 }
