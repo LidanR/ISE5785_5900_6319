@@ -94,25 +94,6 @@ public class Camera implements Cloneable {
         return new Builder();
     }
 
-    public Camera move(Vector direction, double distance) {
-        Vector movement = direction.normalize().scale(distance);
-        p0 = p0.add(movement);
-        return this;
-    }
-
-    public Camera moveForward(double distance) {
-        return move(Vto, distance);
-    }
-
-    public Camera moveRight(double distance) {
-        return move(Vright, distance);
-    }
-
-    public Camera moveUp(double distance) {
-        return move(Vup, distance);
-    }
-
-
     /**
      * Builder class for creating a Camera instance using the Builder pattern.
      */
@@ -307,6 +288,101 @@ public class Camera implements Cloneable {
         }
 
         /**
+         * Moves the camera in the specified direction by a given distance.
+         *
+         * @param direction the direction to move in
+         * @param distance  the distance to move
+         * @return the camera instance for method chaining
+         */
+        public Builder move(Vector direction, double distance) {
+            if (direction == null)
+                throw new IllegalArgumentException("Direction vector cannot be null");
+
+            Vector movement = direction.normalize().scale(distance);
+            cam.p0 = cam.p0.add(movement);
+            return this;
+        }
+
+        /**
+         * Moves the camera in the forward direction (Vto) by a specified distance.
+         *
+         * @param distance the distance to move forward
+         * @return the camera instance for method chaining
+         */
+        public Builder moveForward(double distance) {
+            return move(cam.Vto, distance);
+        }
+
+        /**
+         * Moves the camera in the backward direction (opposite to Vto) by a specified distance.
+         *
+         * @param distance the distance to move backward
+         * @return the camera instance for method chaining
+         */
+        public Builder moveRight(double distance) {
+            return move(cam.Vright, distance);
+        }
+
+        /**
+         * Moves the camera in the left direction (opposite to Vright) by a specified distance.
+         *
+         * @param distance the distance to move left
+         * @return the camera instance for method chaining
+         */
+        public Builder moveUp(double distance) {
+            return move(cam.Vup, distance);
+        }
+
+        /**
+         * Rotates the camera horizontally around a given target point and axis by a certain angle.
+         *
+         * @param angleDegrees The angle in degrees to rotate.
+         * @return The builder instance.
+         */
+        public Builder orbitAroundTargetHorizontal(double angleDegrees) {
+            Point target = cam.p0.add(cam.Vto.scale(cam.distance));
+
+            Vector axis = cam.Vup;
+
+            Vector toCamera = cam.p0.subtract(target);
+            Vector rotatedToCamera = rotateVector(toCamera, axis, angleDegrees);
+
+            cam.p0 = target.add(rotatedToCamera);
+            cam.Vto = target.subtract(cam.p0).normalize();
+            cam.Vright = cam.Vto.crossProduct(axis).normalize();
+            cam.Vup = cam.Vright.crossProduct(cam.Vto).normalize();
+
+            return this;
+        }
+
+        /**
+         * Rotates the camera vertically around a given target point and axis by a certain angle.
+         *
+         * @param angleDegrees The angle in degrees to rotate.
+         * @return The builder instance.
+         */
+        public Builder orbitAroundTargetVertical(double angleDegrees) {
+            Point target = cam.p0.add(cam.Vto.scale(cam.distance));
+            Vector axis = cam.Vright;
+            Vector toCamera = cam.p0.subtract(target);
+
+            Vector rotatedToCamera = rotateVector(toCamera, axis, angleDegrees);
+
+            cam.p0 = target.add(rotatedToCamera);
+
+            Vector up = new Vector(0, 1, 0);
+            if(Math.abs(cam.Vto.dotProduct(up)) > 0.99){
+                up = new Vector(1, 0, 0);
+            }
+
+            cam.Vto = target.subtract(cam.p0).normalize();
+            //cam.Vright = cam.Vto.crossProduct(up).normalize();
+            cam.Vup = cam.Vright.crossProduct(cam.Vto).normalize();
+
+            return this;
+        }
+
+        /**
          * Builds and returns a valid Camera object after validating all required parameters.
          *
          * @return a fully constructed Camera object
@@ -363,52 +439,6 @@ public class Camera implements Cloneable {
                 return null;
             }
 
-        }
-
-        /**
-         * Moves the camera in the specified direction by a given distance.
-         *
-         * @param direction the direction to move in
-         * @param distance  the distance to move
-         * @return the camera instance for method chaining
-         */
-        public Builder move(Vector direction, double distance) {
-            if (direction == null)
-                throw new IllegalArgumentException("Direction vector cannot be null");
-
-            Vector movement = direction.normalize().scale(distance);
-            cam.p0 = cam.p0.add(movement);
-            return this;
-        }
-
-        /**
-         * Moves the camera in the forward direction (Vto) by a specified distance.
-         *
-         * @param distance the distance to move forward
-         * @return the camera instance for method chaining
-         */
-        public Builder moveForward(double distance) {
-            return move(cam.Vto, distance);
-        }
-
-        /**
-         * Moves the camera in the backward direction (opposite to Vto) by a specified distance.
-         *
-         * @param distance the distance to move backward
-         * @return the camera instance for method chaining
-         */
-        public Builder moveRight(double distance) {
-            return move(cam.Vright, distance);
-        }
-
-        /**
-         * Moves the camera in the left direction (opposite to Vright) by a specified distance.
-         *
-         * @param distance the distance to move left
-         * @return the camera instance for method chaining
-         */
-        public Builder moveUp(double distance) {
-            return move(cam.Vup, distance);
         }
     }
 
@@ -587,5 +617,48 @@ public class Camera implements Cloneable {
         } catch (InterruptedException ignored) {
         }
         return this;
+    }
+
+    /**
+     * Rotates a vector around a given axis using Rodrigues' rotation formula.
+     *
+     * @param vec          the vector to rotate
+     * @param axis         the axis to rotate around (must be normalized)
+     * @param angleDegrees the angle in degrees
+     * @return the rotated vector
+     */
+    private static Vector rotateVector(Vector vec, Vector axis, double angleDegrees) {
+        double angleRad = Math.toRadians(angleDegrees);
+        double cos = Math.cos(angleRad);
+        double sin = Math.sin(angleRad);
+
+        Vector result = null;
+
+        try {
+            Vector term1 = vec.scale(cos);
+            result = term1;
+        } catch (IllegalArgumentException ignored) {
+            // vec is zero → term1 is zero → ignore
+        }
+
+        try {
+            Vector term2 = axis.crossProduct(vec).scale(sin);
+            result = (result == null) ? term2 : result.add(term2);
+        } catch (IllegalArgumentException ignored) {
+            // cross product or scaling failed → ignore
+        }
+
+        try {
+            double dot = axis.dotProduct(vec);
+            Vector term3 = axis.scale(dot * (1 - cos));
+            result = (result == null) ? term3 : result.add(term3);
+        } catch (IllegalArgumentException ignored) {
+            // axis or dot==0 → term3 is zero → ignore
+        }
+
+        if (result == null)
+            throw new IllegalArgumentException("Resulting rotated vector is zero");
+
+        return result;
     }
 }
