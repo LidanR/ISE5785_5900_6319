@@ -339,8 +339,8 @@ public class Camera implements Cloneable {
          * @param angleDegrees The angle in degrees to rotate.
          * @return The builder instance.
          */
-        public Builder orbitAroundTargetHorizontal(double angleDegrees) {
-            Point target = cam.p0.add(cam.Vto.scale(cam.distance));
+        public Builder orbitAroundTargetHorizontal(double angleDegrees, double distance) {
+            Point target = cam.p0.add(cam.Vto.scale(distance));
 
             Vector axis = cam.Vup;
 
@@ -361,8 +361,8 @@ public class Camera implements Cloneable {
          * @param angleDegrees The angle in degrees to rotate.
          * @return The builder instance.
          */
-        public Builder orbitAroundTargetVertical(double angleDegrees) {
-            Point target = cam.p0.add(cam.Vto.scale(cam.distance));
+        public Builder orbitAroundTargetVertical(double angleDegrees, double distance) {
+            Point target = cam.p0.add(cam.Vto.scale(distance));
             Vector axis = cam.Vright;
             Vector toCamera = cam.p0.subtract(target);
 

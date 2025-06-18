@@ -59,10 +59,9 @@ public class FunTests {
                     .setDebugPrint(0.1)
                     .setDirection(new Vector(0, 1, -0.1).normalize(), new Vector(0, 1, 10).normalize())
                     .setLocation(new Point(0, -320, 40))
-                    .setVpDistance(315)
+                    .setVpDistance(500)
                     .setVpSize(150, 150)
-                    .orbitAroundTargetHorizontal(-90)
-                    .orbitAroundTargetVertical(-90)
+                    .orbitAroundTargetVertical(-45, 315)
                     .build()
                     .renderImage()
                     .writeToImage("crown");
@@ -70,7 +69,7 @@ public class FunTests {
         }, "Failed to render image");
     }
     @Test
-    public void diamondRing() {
+    public void DiamondRing() {
         assertDoesNotThrow(() -> {
                     Scene scene = JsonScene.CreateScene("jsonScenes/diamondRing.json");
                     Blackboard blackboard = new Blackboard.Builder()
@@ -85,14 +84,14 @@ public class FunTests {
                             .setDebugPrint(1)
                             .setDirection(new Vector(0, 1, -0.1).normalize(), new Vector(0, 0.1, 1).normalize())
                             .setLocation(new Point(0, -350, 60))//Point(0, 130, 30)
-                            .setVpDistance(315)
+                            .setVpDistance(500)
                             .setResolution(1000,1000)
                             .setRayTracer(scene, RayTracerType.SIMPLE)
                             .setVpSize(150, 150);
 
                     camera
-                            .orbitAroundTargetVertical(-35)
-                            .orbitAroundTargetHorizontal(-35)
+                            //.orbitAroundTargetHorizontal(180, 350)
+                            .orbitAroundTargetVertical(-120, 315)
                             .build()
                             .renderImage()
                             .writeToImage("DiamondRing");
