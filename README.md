@@ -77,7 +77,17 @@ This system dramatically reduces the number of rays needed while **retaining hig
 ## 📽️ Animation & Video Rendering
 
 We go beyond static images. Our renderer is capable of generating **frame-by-frame sequences**, suitable for animation and cinematic effects.
+✨ **Examples:
 
+<div align="center">
+  <img src="images/spirit.gif" width="30%" style="margin:0 1%">
+  <img src="images/crown.gif" width="30%" style="margin:0 1%">
+  <img src="images/galaxy.gif" width="30%" style="margin:0 1%">
+</div>
+
+<p align="center">
+  <i>All visuals rendered by this engine. No textures, no models – just math and rays.</i>
+</p>
 ---
 
 ## 🛠️ How to Run
