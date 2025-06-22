@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import primitives.*;
 import scene.Scene;
 
+import java.io.IOException;
+
 import static java.awt.Color.*;
 
 /**
@@ -205,8 +207,10 @@ class SuperSamplingTests {
       Blackboard blackboard = new Blackboard.Builder()
               .setSoftShadows(false)
               .setDepthOfField(true)
+              .setAdaptiveSampling(true)
               .setUseCircle(false)
-              .setAntiAliasing(false)
+              .setAntiAliasing(true)
+              .setAdaptiveThereHold(0.001).setMaxAdaptiveLevel(2)
               .build();
 
       Camera.getBuilder()
@@ -218,9 +222,9 @@ class SuperSamplingTests {
               .setVpSize(40, 40)
               .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
               .setLocation(new Point(0, 0, 200))          // Looking along -Z
-              .setFocusPointDistance(100)
+              .setFocusPointDistance(150)
               .setDebugPrint(1)// Focused near center
-              .setAperture(2)
+              .setAperture(0.6)
               .build()
               .renderImage()
               .writeToImage("superSampling/Depth_Of_Field");
@@ -267,17 +271,26 @@ class SuperSamplingTests {
    @Test
    void Anti_Aliasing_Test() {
       Scene scene = new Scene("anti-aliasing test")
-              .setBackground(new Color(WHITE))
+              .setBackground(new Color(BLACK))
               .setAmbientLight(new AmbientLight(new Color(WHITE)));
-      scene.geometries //
-              .add(// center
-                      new Sphere(new Point(0, 0, -100), 150).setEmission(new Color(RED)).setMaterial(new Material().setKA(0.25)));
+         scene.geometries.add(// center
+                      new Sphere(new Point(0, 0, -100), 150).setEmission(new Color(RED)).setMaterial(new Material().setKA(0.25).setKT(0.5).setKD(0.5).setKS(0.5).setShininess(50)), //
+                      new Sphere(new Point(-200, 0, -100), 100).setEmission(new Color(GREEN)).setMaterial(new Material().setKA(0.3).setKT(0.5).setKD(0.5).setKS(0.5).setShininess(50)), //
+                      new Sphere(new Point(200, 0, -100), 100).setEmission(new Color(BLUE)).setMaterial(new Material().setKA(0.3).setKT(0.5).setKD(0.5).setKS(0.5).setShininess(50)), //
+                      new Sphere(new Point(0, 200, -100), 100).setEmission(new Color(YELLOW)).setMaterial(new Material().setKA(0.3).setKT(0.5).setKD(0.5).setKS(0.5).setShininess(50)), //
+                      new Sphere(new Point(0, -200, -100), 100).setEmission(new Color(CYAN)).setMaterial(new Material().setKA(0.3).setKT(0.5).setKD(0.5).setKS(0.5).setShininess(50)));
         scene.lights //
                 .add(new PointLight(new Color(WHITE), new Point(0, 0, -50)) //
                         .setKc(1).setKl(0.00001).setKq(0.000001));
-      Blackboard blackboard = Blackboard.getBuilder().setUseCircle(true).setAntiAliasing(true).build();
+      Blackboard blackboard = Blackboard.getBuilder()
+              .setUseCircle(false)
+              .setAntiAliasing(true)
+              .setAdaptiveSampling(true)
+              .setAdaptiveThereHold(0.01)
+              .setMaxAdaptiveLevel(5).build();
       Camera.getBuilder() //
                 .setMultithreading(threadNum) //
+                .setDebugPrint(1) //
               .setBlackboard(blackboard)
               .setLocation(new Point(0,0,100))
               .setDirection(Point.ZERO, Vector.AXIS_Y) //
@@ -293,134 +306,125 @@ class SuperSamplingTests {
     * Test for rendering a video with glossy surfaces
     * And soft shadows
     */
-//   @Test
-//   void Glossy_Surface_Video_Test() {
-//      int maxhight = 20;
-//      Blackboard blackboard = new Blackboard.Builder()
-//              .setAmountOfRays(10)
-//              .setSoftShadows(true)
-//              .setDepthOfField(false)
-//              .setBlurryAndGlossy(true)
-//              .setUseCircle(true)
-//              .setAntiAliasing(false)
-//              .build();
-//      cameraBuilder
-//              .setBlackboard(blackboard)
-//              .setMultithreading(threadNum)
-//              .setLocation(new Point(0, 20, -100))          // In front of sphere
-//              .setDirection(new Vector(0, -0.1, 1))         // Looking at origin
-//              .setVpDistance(100)
-//              .setVpSize(150, 150)
-//              .setResolution(600, 600);
-//
-//      for(int i = maxhight ;i>=5;i--)
-//      {
-//         Scene scene1 = new Scene("Glossy_Surface_Video_Test");
-//         // Set visible ambient light
-//         scene1.setBackground(new Color(0, 0, 0)).setAmbientLight(new AmbientLight(new Color(255, 255, 255)));
-//
-//         // Ground plane (Mirror)
-//         scene1.geometries.add(
-//                 new Plane(
-//                         new Point(1, 0, 1),
-//                         new Vector(0, 1, 0)
-//                 ).setMaterial(new Material().setKR(1.0).setKD(0.6).setStrength(0.8).setKA(0.1).setKS(0.3).setShininess(30))
-//                         .setEmission(new Color(0, 0, 0))
-//         );
-//
-//
-//
-//         scene1.geometries.add(
-//                 new Sphere(new Point(0, i, -30), 5)
-//                         .setEmission(new Color((i*11)%255, (i*43)%255, (i*67)%255))
-//                         .setMaterial(new Material().setKD(0.6).setKA(0.1).setKS(0.3).setShininess(50))
-//         );
-//         scene1.lights.add(
-//                 new PointLight(new Color(255,255,255) ,new Point(0,60,0),10)
-//         );
-//         cameraBuilder.
-//                 setRayTracer(scene1, RayTracerType.GRID)
-//                 .build()
-//                 .renderImage()
-//                 .writeToImage("superSampling/video/Glossy_Surface_"+i);
-//      }
-//      try {
-//         ImagesToVideo.createVideoFromImages("superSampling/video",
-//                 "superSampling/video/TheVideo/first",
-//                 20,true);
-//      } catch (IOException e) {
-//         e.printStackTrace();
-//      }
-//
-//
-//
-//
-//
-//
-//   }
-//   /**
-//    * Test for rendering a video with depth of field
-//    * This test creates a scene with multiple spheres at different heights
-//    * and applies depth of field rendering to create a realistic focus effect.
-//    */
-//   @Test
-//   void Depth_Of_Field_Video_Test() {
-//      int maxhight = 50;
-//      Blackboard blackboard = new Blackboard.Builder()
-//              .setAmountOfRays(10)
-//              .setSoftShadows(false)
-//              .setDepthOfField(true)
-//              .setBlurryAndGlossy(false)
-//              .setUseCircle(true)
-//              .setAntiAliasing(false)
-//              .build();
-//      cameraBuilder
-//              .setBlackboard(blackboard)
-//              .setMultithreading(threadNum)
-//              .setFocusPointDistance(5)
-//              .setAperture(4)
-//              .setLocation(new Point(0, 20, -100))          // In front of sphere
-//              .setDirection(new Vector(0, -0.1, 1))         // Looking at origin
-//              .setVpDistance(100)
-//              .setVpSize(150, 150)
-//              .setResolution(600, 600);
-//
-//      for (int i = 0; i <= maxhight; i += 1) {
-//         Scene scene1 = new Scene("DOF_Video_Test");
-//         // Set visible ambient light
-//         scene1.setBackground(new Color(0, 0, 0)).setAmbientLight(new AmbientLight(new Color(255, 255, 255)));
-//
-//         scene1.geometries.add(
-//                 new Sphere(new Point(-5 , 20, 0 + i), 5)
-//                         .setEmission(new Color(255, 0, 0))
-//                         .setMaterial(new Material().setKD(0.6).setKA(0.1).setKS(0.3).setShininess(50))
-//         );
-//         scene1.geometries.add(
-//                 new Sphere(new Point(0 , 20, 0 + i), 5)
-//                         .setEmission(new Color(0, 255, 0))
-//                         .setMaterial(new Material().setKD(0.6).setKA(0.1).setKS(0.3).setShininess(50))
-//         );
-//         scene1.geometries.add(
-//                 new Sphere(new Point(5 , 20, 0 + i), 5)
-//                         .setEmission(new Color(0, 0, 255))
-//                         .setMaterial(new Material().setKD(0.6).setKA(0.1).setKS(0.3).setShininess(50))
-//         );
-//         scene1.lights.add(
-//                 new PointLight(new Color(255, 255, 255), new Point(0, 60, 0))
-//         );
-//         cameraBuilder.
-//                 setRayTracer(scene1, RayTracerType.GRID)
-//                 .build()
-//                 .renderImage()
-//                 .writeToImage("superSampling/video2/dof_" + i);
-//      }
-//      try {
-//         ImagesToVideo.createVideoFromImages("superSampling/video2",
-//                 "superSampling/video2/TheVideo/second",
-//                 2, true);
-//      } catch (IOException e) {
-//         e.printStackTrace();
-//      }
-//   }
+   @Test
+   void Glossy_Surface_Video_Test() {
+      int maxhight = 20;
+      Blackboard blackboard = new Blackboard.Builder()
+              .setAmountOfRays(10)
+              .setSoftShadows(true)
+              .setDepthOfField(false)
+              .setBlurryAndGlossy(true)
+              .setUseCircle(true)
+              .setAntiAliasing(false)
+              .build();
+      cameraBuilder
+              .setBlackboard(blackboard)
+              .setMultithreading(threadNum)
+              .setLocation(new Point(0, 20, -100))          // In front of sphere
+              .setDirection(new Vector(0, -0.1, 1))         // Looking at origin
+              .setVpDistance(100)
+              .setVpSize(150, 150)
+              .setResolution(600, 600);
+
+      for(int i = maxhight ;i>=5;i--)
+      {
+         Scene scene1 = new Scene("Glossy_Surface_Video_Test");
+         // Set visible ambient light
+         scene1.setBackground(new Color(0, 0, 0)).setAmbientLight(new AmbientLight(new Color(255, 255, 255)));
+
+         // Ground plane (Mirror)
+         scene1.geometries.add(
+                 new Plane(
+                         new Point(1, 0, 1),
+                         new Vector(0, 1, 0)
+                 ).setMaterial(new Material().setKR(1.0).setKD(0.6).setStrength(0.8).setKA(0.1).setKS(0.3).setShininess(30))
+                         .setEmission(new Color(0, 0, 0))
+         );
+         scene1.geometries.add(
+                 new Sphere(new Point(0, i, -30), 5)
+                         .setEmission(new Color((i*11)%255, (i*43)%255, (i*67)%255))
+                         .setMaterial(new Material().setKD(0.6).setKA(0.1).setKS(0.3).setShininess(50))
+         );
+         scene1.lights.add(
+                 new PointLight(new Color(255,255,255) ,new Point(0,60,0),10)
+         );
+         cameraBuilder.
+                 setRayTracer(scene1, RayTracerType.VOXEL)
+                 .build()
+                 .renderImage()
+                 .writeToImage("superSampling/video/Glossy_Surface_"+i);
+      }
+      try {
+         ImagesToVideo.createVideoFromImages("superSampling/video",
+                 "superSampling/video/TheVideo/first",
+                 20,true);
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
+   }
+   /**
+    * Test for rendering a video with depth of field
+    * This test creates a scene with multiple spheres at different heights
+    * and applies depth of field rendering to create a realistic focus effect.
+    */
+   @Test
+   void Depth_Of_Field_Video_Test() {
+      int maxhight = 50;
+      Blackboard blackboard = new Blackboard.Builder()
+              .setAmountOfRays(10)
+              .setSoftShadows(false)
+              .setDepthOfField(true)
+              .setBlurryAndGlossy(false)
+              .setUseCircle(true)
+              .setAntiAliasing(false)
+              .build();
+      cameraBuilder
+              .setBlackboard(blackboard)
+              .setMultithreading(threadNum)
+              .setFocusPointDistance(5)
+              .setAperture(4)
+              .setLocation(new Point(0, 20, -100))          // In front of sphere
+              .setDirection(new Vector(0, -0.1, 1))         // Looking at origin
+              .setVpDistance(100)
+              .setVpSize(150, 150)
+              .setResolution(600, 600);
+
+      for (int i = 0; i <= maxhight; i += 1) {
+         Scene scene1 = new Scene("DOF_Video_Test");
+         // Set visible ambient light
+         scene1.setBackground(new Color(0, 0, 0)).setAmbientLight(new AmbientLight(new Color(255, 255, 255)));
+
+         scene1.geometries.add(
+                 new Sphere(new Point(-5 , 20, 0 + i), 5)
+                         .setEmission(new Color(255, 0, 0))
+                         .setMaterial(new Material().setKD(0.6).setKA(0.1).setKS(0.3).setShininess(50))
+         );
+         scene1.geometries.add(
+                 new Sphere(new Point(0 , 20, 0 + i), 5)
+                         .setEmission(new Color(0, 255, 0))
+                         .setMaterial(new Material().setKD(0.6).setKA(0.1).setKS(0.3).setShininess(50))
+         );
+         scene1.geometries.add(
+                 new Sphere(new Point(5 , 20, 0 + i), 5)
+                         .setEmission(new Color(0, 0, 255))
+                         .setMaterial(new Material().setKD(0.6).setKA(0.1).setKS(0.3).setShininess(50))
+         );
+         scene1.lights.add(
+                 new PointLight(new Color(255, 255, 255), new Point(0, 60, 0))
+         );
+         cameraBuilder.
+                 setRayTracer(scene1, RayTracerType.VOXEL)
+                 .build()
+                 .renderImage()
+                 .writeToImage("superSampling/video2/dof_" + i);
+      }
+      try {
+         ImagesToVideo.createVideoFromImages("superSampling/video2",
+                 "superSampling/video2/TheVideo/second",
+                 2, true);
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
+   }
 
 }

@@ -47,7 +47,7 @@ class ShadowTests {
       camera.setResolution(1000, 1000) //
               .build() //
               .renderImage() //
-              .writeToImage(pictName);
+              .writeToImage("Shadow/"+pictName);
    }
 
    /** Produce a picture of a sphere and triangle with point light and shade */
@@ -123,6 +123,6 @@ class ShadowTests {
               .setResolution(600, 600) //
               .build() //
               .renderImage() //
-              .writeToImage("shadowTrianglesSphere");
+              .writeToImage("Shadow/shadowTrianglesSphere");
    }
 }

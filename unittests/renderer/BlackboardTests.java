@@ -29,7 +29,7 @@ class BlackboardTests {
     @Test
     public void gridMethodTest()
     {
-        Blackboard blackboard = blackboardBuilder.setMethod(Blackboard.MethodsOfPoints.GRID).build();
+        Blackboard blackboard = blackboardBuilder.setMethod(Blackboard.MethodsOfPoints.GRID).setAmountOfRays(3).build();
         List<Ray> rays = blackboard.constructRays(new Ray(Point.ZERO,Vector.AXIS_Z),distance);
         makeScene(rays,"Blackboard_Grid");
     }

@@ -7,6 +7,7 @@ import renderer.PixelManager.Pixel;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.MissingResourceException;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 /**
@@ -78,6 +79,11 @@ public class Camera implements Cloneable {
      * Default is 0.5, meaning no depth of field effect.
      */
     private double aperture = 0.5;
+    /**
+     * The number of rays used for adaptive anti-aliasing.
+     * Default is 4, meaning the camera will use 4 rays for adaptive sampling.
+     */
+    private static final int AMOUNT_OF_RAYS = 4;
 
     /**
      * Private constructor to enforce use of builder.
@@ -230,8 +236,8 @@ public class Camera implements Cloneable {
          * @return the builder instance
          */
         public Builder setRayTracer(Scene scene, RayTracerType rayTracerType) {
-           this.scene = scene;
-           this.rayTracerType = rayTracerType;
+            this.scene = scene;
+            this.rayTracerType = rayTracerType;
             return this;
         }
 
@@ -512,7 +518,7 @@ public class Camera implements Cloneable {
      * @return the camera instance for method chaining
      * @throws MissingResourceException if the image writer is not set
      */
-    Camera writeToImage(String fileName) {
+    public Camera writeToImage(String fileName) {
         imageWriter.writeToImage(fileName);
         return this;
     }
@@ -526,49 +532,47 @@ public class Camera implements Cloneable {
      */
     private void castRay(int x, int y) {
         Ray baseRay = constructRay(nX, nY, x, y);
-
-        // First handle antiAliasing
-        List<Ray> antiAliasingRays = List.of(baseRay);
-        if (improvementSettings.useAntiAliasing()) {
-            antiAliasingRays = improvementSettings.constructRays(baseRay, distance, this.height / this.nY);
-        }
-
         Color color = Color.BLACK;
 
-        // For each antiAliasing ray, apply depth of field if needed
-        for (Ray antiAliasingRay : antiAliasingRays) {
-            List<Ray> dofRays = List.of(antiAliasingRay);
 
-            if (improvementSettings.useDepthOfField()) {
-                Point basePoint = antiAliasingRay.getPoint(distance);
-                Point focusPoint = antiAliasingRay.getPoint( focusPointDistance);
-                dofRays = improvementSettings.constructRays(
-                        new Ray(
-                                focusPoint,
-                                basePoint.subtract(focusPoint).normalize()
-                        ),
-                       focusPointDistance- distance, aperture
-                );
-
-                // reverse the rays' direction
-                dofRays = dofRays.stream()
-                        .map(r -> new Ray(r.getPoint(focusPointDistance), r.getDirection().scale(-1)))
-                        .toList();
+        List<Ray> rays = List.of(baseRay);
+        color = rayTracerBase.traceRay(baseRay);
+        if (improvementSettings.useAntiAliasing()) {
+            if(improvementSettings.useAdaptive())
+                color = calcAdaptive(baseRay);
+            else {
+                // Construct anti-aliasing rays based on the base ray and pixel size
+                rays = improvementSettings.constructRays(baseRay, distance, (this.height / this.nY)/2);
+                for(Ray aaRay : rays) {
+                    color = color.add(rayTracerBase.traceRay(aaRay));
+                }
             }
+        }
+        if(improvementSettings.useDepthOfField())
+        {
+            Point basePoint = baseRay.getPoint(distance);
+            Point focusPoint = baseRay.getPoint( focusPointDistance);
+            rays = improvementSettings.constructRays(
+                    new Ray(
+                            focusPoint,
+                            basePoint.subtract(focusPoint).normalize()
+                    ),
+                    focusPointDistance- distance, aperture
+            );
 
-            // Trace all the depth of field rays for this antiAliasing ray
-            Color rayColor = Color.BLACK;
-            for (Ray dofRay : dofRays) {
-                rayColor = rayColor.add(rayTracerBase.traceRay(dofRay));
+            // reverse the rays' direction
+            rays = rays.stream()
+                    .map(r -> new Ray(r.getPoint(focusPointDistance), r.getDirection().scale(-1)))
+                    .toList();
+
+            for (Ray dofRay : rays) {
+                color = color.add(rayTracerBase.traceRay(dofRay));
             }
-
-            // Average the color for this set of depth of field rays
-            rayColor = rayColor.reduce(dofRays.size());
-            color = color.add(rayColor);
         }
 
-        // Average the color across all anti-aliasing rays
-        color = color.reduce(antiAliasingRays.size());
+
+        if(rays.size() > 0)
+            color = color.reduce(rays.size());
 
         imageWriter.writePixel(x, y, color);
         pixelManager.pixelDone();
@@ -581,7 +585,7 @@ public class Camera implements Cloneable {
      */
     private Camera renderImageStream() {
         IntStream.range(0, nY).parallel()
-                .forEach(i -> IntStream.range(0, nX).parallel()
+                .forEach(i -> IntStream.range(0, nX)
                         .forEach(j -> castRay(j, i)));
         return this;
     }
@@ -660,5 +664,128 @@ public class Camera implements Cloneable {
             throw new IllegalArgumentException("Resulting rotated vector is zero");
 
         return result;
+    }
+    /**
+     * Calculates the color of a pixel using adaptive sampling.
+     * This method constructs rays through the pixel and averages their colors.
+     *
+     * @param baseRay the ray through the center of the pixel
+     * @return the calculated color for the pixel
+     */
+    private Color calcAdaptive(Ray baseRay) {
+        // Create blackboard
+        Blackboard.Builder builder = Blackboard.getBuilder();
+        builder.setAmountOfRays(4).setMethod(Blackboard.MethodsOfPoints.GRID);
+        Blackboard blackboard = builder.build();
+
+        // Calculate pixel region radius
+        double pixelSize = (this.height / this.nY);
+        double radius = pixelSize / 2.0;
+
+        // Construct 5 rays: center + 4 corners
+        List<Ray> rays = blackboard.constructRays(baseRay, distance, radius);
+
+        // Precompute basis vectors (camera space)
+        Vector v = baseRay.getDirection();
+        Vector w = Vector.AXIS_Y.equals(v) ? Vector.AXIS_X : Vector.AXIS_Y.crossProduct(v).normalize();
+        Vector u = v.crossProduct(w).normalize();
+        Point p0 = baseRay.getHead();
+
+        return calcAdaptive(
+                radius,
+                rays.get(0), rays.get(1), rays.get(2), rays.get(3), rays.get(4),
+                0,
+                u, w, p0,
+                rayTracerBase::traceRay
+        );
+    }
+    /**
+     * Recursive method to calculate the color of a pixel using adaptive sampling.
+     *
+     * @param radius        the radius of the pixel region
+     * @param centerRay    the ray through the center of the pixel
+     * @param upLeft       the ray through the upper left corner of the pixel
+     * @param upRight      the ray through the upper right corner of the pixel
+     * @param downLeft     the ray through the lower left corner of the pixel
+     * @param downRight    the ray through the lower right corner of the pixel
+     * @param level        current recursion level
+     * @param u            camera space basis vector u
+     * @param w            camera space basis vector w
+     * @param p0           camera position in 3D space
+     * @param colorFunc    function to get color from a ray
+     * @return calculated color for this pixel region
+     */
+    private Color calcAdaptive(
+            double radius,
+            Ray centerRay, Ray upLeft, Ray upRight, Ray downLeft, Ray downRight,
+            int level,
+            Vector u, Vector w, Point p0,
+            Function<Ray, Color> colorFunc) {
+
+        Color[] colors = new Color[AMOUNT_OF_RAYS];
+        colors[0] = colorFunc.apply(upLeft);
+        colors[1] = colorFunc.apply(upRight);
+        colors[2] = colorFunc.apply(downLeft);
+        colors[3] = colorFunc.apply(downRight);
+
+        if (level >= improvementSettings.getMaxAdaptiveLevel() ||
+                converged(colors, improvementSettings.getAdaptiveThreshold())) {
+            Color avg = Color.BLACK;
+            for (Color c : colors) avg = avg.add(c);
+            return avg.reduce(colors.length);
+        }
+
+        Point centerPoint = centerRay.getPoint(distance);
+
+        double halfRadius = radius / 2.0;
+        double nextRadius = radius / Math.pow(2.0, level + 2);
+
+        // Calculate midpoints of sub-regions
+        Point centerUpLeftPoint    = centerPoint.add(u.scale(halfRadius)).add(w.scale(-halfRadius));
+        Point centerUpRightPoint   = centerPoint.add(u.scale(halfRadius)).add(w.scale(halfRadius));
+        Point centerDownLeftPoint  = centerPoint.add(u.scale(-halfRadius)).add(w.scale(-halfRadius));
+        Point centerDownRightPoint = centerPoint.add(u.scale(-halfRadius)).add(w.scale(halfRadius));
+
+        Point upPoint    = centerPoint.add(u.scale(radius));
+        Point downPoint  = centerPoint.add(u.scale(-radius));
+        Point leftPoint  = centerPoint.add(w.scale(-radius));
+        Point rightPoint = centerPoint.add(w.scale(radius));
+
+        // Construct rays from camera to those points
+        Ray centerUpLeft    = new Ray(p0, centerUpLeftPoint.subtract(p0));
+        Ray centerUpRight   = new Ray(p0, centerUpRightPoint.subtract(p0));
+        Ray centerDownLeft  = new Ray(p0, centerDownLeftPoint.subtract(p0));
+        Ray centerDownRight = new Ray(p0, centerDownRightPoint.subtract(p0));
+        Ray up    = new Ray(p0, upPoint.subtract(p0));
+        Ray down  = new Ray(p0, downPoint.subtract(p0));
+        Ray left  = new Ray(p0, leftPoint.subtract(p0));
+        Ray right = new Ray(p0, rightPoint.subtract(p0));
+
+        // Recursive calls
+        Color c1 = calcAdaptive(nextRadius, centerUpLeft, upLeft, up, left, centerRay, level + 1, u, w, p0, colorFunc);
+        Color c2 = calcAdaptive(nextRadius, centerUpRight, up, upRight, centerRay, right, level + 1, u, w, p0, colorFunc);
+        Color c3 = calcAdaptive(nextRadius, centerDownLeft, left, centerRay, downLeft, down, level + 1, u, w, p0, colorFunc);
+        Color c4 = calcAdaptive(nextRadius, centerDownRight, centerRay, right, down, downRight, level + 1, u, w, p0, colorFunc);
+
+        return c1.add(c2).add(c3).add(c4).reduce(AMOUNT_OF_RAYS);
+    }
+    /**
+     * Checks whether all sample colors differ by no more than the threshold.
+     *
+     * @param s array of sample colors
+     * @param t color difference threshold per channel
+     * @return  true if converged
+     */
+    private boolean converged(Color[] s, double t) {
+        for (int i = 0; i < s.length; i++) {
+            for (int j = i + 1; j < s.length; j++) {
+                if (Math.abs(s[i].getColor().getRed()   - s[j].getColor().getRed())   > t ||
+                        Math.abs(s[i].getColor().getGreen() - s[j].getColor().getGreen()) > t ||
+                        Math.abs(s[i].getColor().getBlue()  - s[j].getColor().getBlue())  > t) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

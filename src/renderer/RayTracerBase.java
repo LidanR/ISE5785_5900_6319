@@ -79,16 +79,15 @@ public abstract class RayTracerBase {
             Vector l = light.getL(intersection.point);
             if (!setLightSource(intersection, light, l)) continue;
 
-            List<Ray> shadowRays = List.of(new Ray(intersection.point, l.scale(-1)));
+            List<Ray> shadowRays = List.of(new Ray(intersection.point, l.scale(-1), intersection.normal));
             if (blackboard.useSoftShadows()) {
                 double dist = light.getDistance(intersection.point);
-                shadowRays = blackboard.constructRays(new Ray(intersection.point, l.scale(-1)), dist, light.getRadius());
+                shadowRays = blackboard.constructRays(new Ray(intersection.point, l.scale(-1),intersection.normal), dist, light.getRadius());
             }
 
             for (Ray sRay : shadowRays) {
                 if (!setLightSource(intersection, light, sRay.getDirection().scale(-1)) ||
-                        intersection.lNormal * intersection.vNormal <= 0) continue;
-
+                       Util.alignZero(intersection.lNormal * intersection.vNormal) <= 0) continue;
                 Double3 ktr = transparency(intersection).reduce(shadowRays.size());
                 if (!ktr.product(k).lowerThan(MIN_CALC_COLOR_K)) {
                     Color iL = light.getIntensity(intersection.point).scale(ktr);
@@ -134,4 +133,5 @@ public abstract class RayTracerBase {
             return color;
         return color.reduce(rays.size()).scale(kx);
     }
+
 }

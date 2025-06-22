@@ -31,7 +31,6 @@ public class VoxelGrid {
         this.nx = nx;
         this.ny = ny;
         this.nz = nz;
-
         voxelSizeX = (bounds.getMax().getX() - bounds.getMin().getX()) / nx;
         voxelSizeY = (bounds.getMax().getY() - bounds.getMin().getY()) / ny;
         voxelSizeZ = (bounds.getMax().getZ() - bounds.getMin().getZ()) / nz;

@@ -47,7 +47,7 @@ class ImageWriterTests {
             }
 
             // Write the constructed image to a file named "FirstImage"
-            imageWriter.writeToImage("FirstImage");
+            imageWriter.writeToImage("imagwWriter/FirstImage");
         }, "Failed to create and write the image without exceptions.");
     }
 }

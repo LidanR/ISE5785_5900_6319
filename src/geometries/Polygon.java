@@ -10,148 +10,163 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import static primitives.Util.*;
+import static primitives.Util.isZero;
 
 /**
- * Polygon class represents two-dimensional polygon in 3D Cartesian coordinate
- * system
- * @author Dan
+ * Polygon class represents a two-dimensional convex polygon in 3D space,
+ * with optional per-vertex normals for smooth (Phong) shading.
  */
 public class Polygon extends Geometry {
-   /** List of polygon's vertices */
+   /** The ordered list of polygon vertices */
    protected final List<Point> vertices;
-   /** Associated plane in which the polygon lays */
-   protected final Plane       plane;
-   /** The size of the polygon - the amount of the vertices in the polygon */
-   private final int           size;
+   /** Optional per-vertex normals (same order as vertices) */
+   private final List<Vector> vertexNormals;
+   /** The underlying plane in which the polygon lies */
+   protected final Plane plane;
+   /** Number of vertices */
+   private final int size;
+   /** Axis-aligned bounding box, built lazily */
+   private AABB box;
 
    /**
-    * Polygon constructor based on vertices list. The list must be ordered by edge
-    * path. The polygon must be convex.
-    * @param  vertices                 list of vertices according to their order by
-    *                                  edge path
-    * @throws IllegalArgumentException in any case of illegal combination of
-    *                                  vertices:
-    *                                  <ul>
-    *                                  <li>Less than 3 vertices</li>
-    *                                  <li>Consequent vertices are in the same
-    *                                  point
-    *                                  <li>The vertices are not in the same
-    *                                  plane</li>
-    *                                  <li>The order of vertices is not according
-    *                                  to edge path</li>
-    *                                  <li>Three consequent vertices lay in the
-    *                                  same line (180&#176; angle between two
-    *                                  consequent edges)
-    *                                  <li>The polygon is concave (not convex)</li>
-    *                                  </ul>
+    * Flat-shaded polygon: no per-vertex normals, uses a single plane normal.
+    * @param vertices list of vertices in edge order (must be convex)
     */
    public Polygon(Point... vertices) {
+      this(null, vertices);
+   }
+
+   /**
+    * Smooth-shaded polygon: supply one normal per vertex.
+    * @param normals   per-vertex normals (will be normalized)
+    * @param vertices  list of vertices in edge order (must be convex)
+    * @throws IllegalArgumentException if normals list is null/wrong size or vertices invalid
+    */
+   public Polygon(List<Vector> normals, Point... vertices) {
+      // validate normals argument
+      if (normals != null && normals.size() != vertices.length) {
+         throw new IllegalArgumentException("Must supply exactly one normal per vertex");
+      }
+      this.vertexNormals = (normals == null ? null
+              : normals.stream().map(Vector::normalize).toList());
+      // copy vertices
       if (vertices.length < 3)
-         throw new IllegalArgumentException("A polygon can't have less than 3 vertices");
+         throw new IllegalArgumentException("A polygon must have at least 3 vertices");
       this.vertices = List.of(vertices);
-      size          = vertices.length;
+      this.size     = vertices.length;
 
-      // Generate the plane according to the first three vertices and associate the
-      // polygon with this plane.
-      // The plane holds the invariant normal (orthogonal unit) vector to the polygon
-      plane         = new Plane(vertices[0], vertices[1], vertices[2]);
-      if (size == 3) return; // no need for more tests for a Triangle
+      // construct the plane
+      this.plane = new Plane(vertices[0], vertices[1], vertices[2]);
 
-      Vector  n        = plane.getNormal(vertices[0]);
-      // Subtracting any subsequent points will throw an IllegalArgumentException
-      // because of Zero Vector if they are in the same point
-      Vector  edge1    = vertices[size - 1].subtract(vertices[size - 2]);
-      Vector  edge2    = vertices[0].subtract(vertices[size - 1]);
-
-      // Cross Product of any subsequent edges will throw an IllegalArgumentException
-      // because of Zero Vector if they connect three vertices that lay in the same
-      // line.
-      // Generate the direction of the polygon according to the angle between last and
-      // first edge being less than 180deg. It is hold by the sign of its dot product
-      // with the normal. If all the rest consequent edges will generate the same sign
-      // - the polygon is convex ("kamur" in Hebrew).
-      boolean positive = edge1.crossProduct(edge2).dotProduct(n) > 0;
-      for (var i = 1; i < size; ++i) {
-         // Test that the point is in the same plane as calculated originally
-         if (!isZero(vertices[i].subtract(vertices[0]).dotProduct(n)))
-            throw new IllegalArgumentException("All vertices of a polygon must lay in the same plane");
-         // Test the consequent edges have
-         edge1 = edge2;
-         edge2 = vertices[i].subtract(vertices[i - 1]);
-         if (positive != (edge1.crossProduct(edge2).dotProduct(n) > 0))
-            throw new IllegalArgumentException("All vertices must be ordered and the polygon must be convex");
+      // if more than triangle, verify coplanarity and convexity
+      if (size > 3) {
+         Vector n     = plane.getNormal(vertices[0]);
+         Vector edge1 = vertices[size - 1].subtract(vertices[size - 2]);
+         Vector edge2 = vertices[0].subtract(vertices[size - 1]);
+         boolean positive = edge1.crossProduct(edge2).dotProduct(n) > 0;
+         for (int i = 1; i < size; ++i) {
+            // coplanarity
+            if (!isZero(vertices[i].subtract(vertices[0]).dotProduct(n)))
+               throw new IllegalArgumentException("All vertices must lie in the same plane");
+            // convexity
+            edge1 = edge2;
+            edge2 = vertices[i].subtract(vertices[i - 1]);
+            if (positive != (edge1.crossProduct(edge2).dotProduct(n) > 0))
+               throw new IllegalArgumentException("Polygon must be convex and vertices ordered");
+         }
       }
    }
 
    /**
-    * calculates the normal vector of the polygon at a given point.
-    * @param point the point on the geometry
-    * @return the normal vector of the polygon at the given point
+    * Returns the normal at point p:
+    * – flat shading: constant plane normal
+    * – smooth shading: barycentric-interpolated per-vertex normal
     */
    @Override
-   public Vector getNormal(Point point) { return plane.getNormal(point); }
-
+   public Vector getNormal(Point p) {
+      if (vertexNormals == null) {
+         // flat
+         return plane.getNormal(p);
+      }
+      // smooth: find triangle (v0, vi, vi+1) that contains p and compute barycentric coords
+      Point A = vertices.get(0);
+      for (int i = 1; i < size - 1; i++) {
+         Point B = vertices.get(i);
+         Point C = vertices.get(i + 1);
+         // vectors for barycentric
+         Vector v0 = B.subtract(A);
+         Vector v1 = C.subtract(A);
+         Vector v2 = p.subtract(A);
+         double d00 = v0.dotProduct(v0);
+         double d01 = v0.dotProduct(v1);
+         double d11 = v1.dotProduct(v1);
+         double d20 = v2.dotProduct(v0);
+         double d21 = v2.dotProduct(v1);
+         double denom = d00 * d11 - d01 * d01;
+         if (isZero(denom)) continue; // degenerate
+         double v = (d11 * d20 - d01 * d21) / denom;
+         double w = (d00 * d21 - d01 * d20) / denom;
+         double u = 1 - v - w;
+         if (u >= 0 && v >= 0 && w >= 0) {
+            Vector nA = vertexNormals.get(0).scale(u);
+            Vector nB = vertexNormals.get(i).scale(v);
+            Vector nC = vertexNormals.get(i + 1).scale(w);
+            return nA.add(nB).add(nC).normalize();
+         }
+      }
+      // fallback
+      return plane.getNormal(p);
+   }
 
    /**
-    * Finds the intersection points between the polygon and a given ray.
-    * @param ray the ray to intersect with the polygon
-    * @return a list of intersection points between the ray and the polygon,
+    * Ray–polygon intersection helper: first checks winding to see if the ray
+    * goes through the polygon, then intersects with the underlying plane.
     */
    @Override
    protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
-// Create a list to store the normals formed by the polygon's sides
+      // 1) build edge-based normals relative to ray origin
       List<Vector> edgeNormals = new LinkedList<>();
+      Point  rayOrigin    = ray.getHead();
+      Vector rayDirection = ray.getDirection();
 
-      // Extract the origin and direction vector of the given ray
-      final Point rayOrigin = ray.getHead();
-      final Vector rayDirection = ray.getDirection();
-
-      // Compute a normal vector for each side of the polygon
-      Vector previousVector = vertices.getFirst().subtract(rayOrigin);
-      for (Point vertex : vertices.subList(1, size)) {
-         Vector currentVector = vertex.subtract(rayOrigin);
-         edgeNormals.add(previousVector.crossProduct(currentVector).normalize());
-         previousVector = currentVector;
+      // first edge: v0 → v1
+      Vector prev = vertices.get(0).subtract(rayOrigin);
+      for (int i = 1; i < size; i++) {
+         Vector curr = vertices.get(i).subtract(rayOrigin);
+         edgeNormals.add(prev.crossProduct(curr).normalize());
+         prev = curr;
       }
-      // Handle the last side connecting the last and first vertices
-      edgeNormals.add(vertices.getLast().subtract(rayOrigin).crossProduct(vertices.getFirst().subtract(rayOrigin)).normalize());
+      // last edge: last → first
+      Vector first = vertices.get(0).subtract(rayOrigin);
+      edgeNormals.add(prev.crossProduct(first).normalize());
 
-      // Check if the ray points to the same side for all edges
-      boolean isInitiallyPositive = rayDirection.dotProduct(edgeNormals.getFirst()) > 0;
-      for (Vector normal : edgeNormals) {
-         double dot = rayDirection.dotProduct(normal);
-         // If dot product is zero or the sign is inconsistent, no intersection
-         if (Util.isZero(dot) || (dot > 0 != isInitiallyPositive)) {
-            return null;
+      // 2) ensure rayDirection is consistently on the same side of all edges
+      boolean initialPositive = rayDirection.dotProduct(edgeNormals.get(0)) > 0;
+      for (Vector n : edgeNormals) {
+         double d = rayDirection.dotProduct(n);
+         if (isZero(d) || (d > 0) != initialPositive) {
+            return null; // misses polygon
          }
       }
 
-      // Build a plane using the first three vertices of the polygon
-      Plane basePlane = new Plane(vertices.getFirst(), vertices.get(1), vertices.get(2));
+      // 3) intersect underlying plane
+      List<Point> pts = plane.findIntersections(ray, maxDistance);
+      if (pts == null) return null;
 
-      List<Point> intersectionPoints = basePlane.findIntersections(ray,maxDistance);
-        if (intersectionPoints == null) {
-             return null; // No intersection with the plane
-        }
-
-      // Find intersection points between the ray and the constructed plane
-      return Objects.requireNonNull(intersectionPoints).stream()
-              .map(point -> new Intersection(this, point))
+      // 4) wrap in Intersection objects
+      return pts.stream()
+              .map(p -> new Intersection(this, p))
               .toList();
    }
+
+   /**
+    * Lazily builds and returns the axis-aligned bounding box of this polygon.
+    */
    @Override
    public AABB getAABB() {
-      if(box == null) {
-      // Initialize minimum and maximum values for each coordinate
-         double minX = Double.POSITIVE_INFINITY;
-         double minY = Double.POSITIVE_INFINITY;
-         double minZ = Double.POSITIVE_INFINITY;
-         double maxX = Double.NEGATIVE_INFINITY;
-         double maxY = Double.NEGATIVE_INFINITY;
-         double maxZ = Double.NEGATIVE_INFINITY;
-
-         // Iterate through each vertex to find the minimum and maximum coordinates
+      if (box == null) {
+         double minX = Double.POSITIVE_INFINITY, minY = minX, minZ = minX;
+         double maxX = Double.NEGATIVE_INFINITY, maxY = maxX, maxZ = maxX;
          for (Point p : vertices) {
             minX = Math.min(minX, p.getX());
             minY = Math.min(minY, p.getY());
@@ -160,13 +175,11 @@ public class Polygon extends Geometry {
             maxY = Math.max(maxY, p.getY());
             maxZ = Math.max(maxZ, p.getZ());
          }
-
-         // Create a BoundingBox object using the calculated minimum and maximum points
          box = new AABB(
                  new Point(minX, minY, minZ),
                  new Point(maxX, maxY, maxZ)
          );
       }
-        return box;
+      return box;
    }
 }

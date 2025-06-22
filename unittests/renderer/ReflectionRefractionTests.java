@@ -46,7 +46,7 @@ class ReflectionRefractionTests {
                 .setResolution(500, 500) //
                 .build() //
                 .renderImage() //
-                .writeToImage("refractionTwoSpheres");
+                .writeToImage("Reflections/refractionTwoSpheres");
     }
 
     /** Produce a picture of a sphere lighted by a spot light */
@@ -78,7 +78,7 @@ class ReflectionRefractionTests {
                 .setResolution(500, 500) //
                 .build() //
                 .renderImage() //
-                .writeToImage("reflectionTwoSpheresMirrored");
+                .writeToImage("Reflections/reflectionTwoSpheresMirrored");
     }
 
     /**
@@ -108,7 +108,7 @@ class ReflectionRefractionTests {
                 .setResolution(600, 600) //
                 .build() //
                 .renderImage() //
-                .writeToImage("refractionShadow");
+                .writeToImage("Reflections/refractionShadow");
     }
 
     /**
@@ -213,7 +213,7 @@ class ReflectionRefractionTests {
                 .setResolution(600, 600)
                 .build()
                 .renderImage()
-                .writeToImage("floatingLanternCourtyard");
+                .writeToImage("Reflections/floatingLanternCourtyard");
     }
     @Test
     void artisticPyramidScene() {
@@ -280,7 +280,7 @@ class ReflectionRefractionTests {
                 .setResolution(600, 600)
                 .build()
                 .renderImage()
-                .writeToImage("AvisibleScene");
+                .writeToImage("Reflections/AvisibleScene");
     }
 
 
@@ -419,166 +419,4 @@ class ReflectionRefractionTests {
             e.printStackTrace();
         }
     }
-
-    @Test
-    void Sunset_Scene_Video() {
-        int numFrames = 120;
-        double sunStartY = 80;
-        double sunEndY = -10;
-
-        for (int frame = 0; frame < numFrames; frame++) {
-            double sunY = sunStartY + (sunEndY - sunStartY) * frame / (numFrames - 1);
-
-            Scene scene = new Scene("Sunset_Frame_" + frame)
-                    .setBackground(new Color(100, 80, 100))
-                    .setAmbientLight(new AmbientLight(new Color(100, 80, 80)));
-
-            // Sea - reflective surface
-            scene.geometries.add(
-                    new Polygon(
-                            new Point(-200, 0, 200), new Point(200, 0, 200),
-                            new Point(200, 0, -200), new Point(-200, 0, -200)
-                    )
-                            .setEmission(new Color(10, 20, 80))
-                            .setMaterial(new Material()
-                                    .setKR(0.5)
-                                    .setKS(0.6)
-                                    .setKD(0.1)
-                                    .setShininess(80))
-            );
-
-            // Sun - larger and brighter
-            scene.geometries.add(
-                    new Sphere(new Point(0, sunY, 100), 20) // increased radius
-                            .setEmission(new Color(255, 180, 40)) // brighter color
-                            .setMaterial(new Material()
-                                    .setKA(0.4)
-                                    .setKD(0.4)
-                                    .setKS(0.9)
-                                    .setShininess(100))
-            );
-
-            // Sky - warm gradient background
-            scene.geometries.add(
-                    new Sphere(new Point(0, 0, 100), 500)
-                            .setEmission(new Color(100 + frame, 50 + frame / 2, 120 - frame / 2))
-                            .setMaterial(new Material().setKA(1))
-            );
-
-            // Light from the sun - stronger now
-            scene.lights.add(new PointLight(new Color(255, 180, 80), new Point(0, sunY, 100))
-                    .setKl(0.0003) // less attenuation
-                    .setKq(0.00005));
-
-            // Camera
-            cameraBuilder
-                    .setRayTracer(scene, RayTracerType.SIMPLE)
-                    .setMultithreading(-1)
-                    .setDebugPrint(1)
-                    .setLocation(new Point(0, 30, -200))
-                    .setDirection(new Vector(0, -0.1, 1))
-                    .setVpDistance(100)
-                    .setVpSize(200, 150)
-                    .setResolution(800, 600)
-                    .build()
-                    .renderImage()
-                    .writeToImage("SunsetVideo/Sunset_Frame_" + String.format("%03d", frame));
-        }
-
-        try {
-            ImagesToVideo.createVideoFromImages("SunsetVideo", "SunsetVideo/Sunset", 1, true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    @Test
-    void Stage7_SunsetWithLife() {
-        int numFrames = 120;
-        double sunStartY = 50;
-        double sunEndY = -10;
-        double seaLevel = 0;
-        double sunRadius = 12;
-
-        for (int frame = 0; frame < numFrames; frame++) {
-            Scene scene = new Scene("Sunset_Frame_" + frame);
-            scene.setBackground(new Color(30, 20, 60))
-                    .setAmbientLight(new AmbientLight(new Color(100, 80, 60)));
-
-            double sunY = sunStartY + (sunEndY - sunStartY) * frame / (double) numFrames;
-
-            // Ocean surface - reflective
-            scene.geometries.add(
-                    new Polygon(
-                            new Point(-1000, seaLevel, 1000),
-                            new Point(1000, seaLevel, 1000),
-                            new Point(1000, seaLevel, -1000),
-                            new Point(-1000, seaLevel, -1000))
-                            .setEmission(new Color(30, 30, 80))
-                            .setMaterial(new Material().setKR(0.7).setKA(0.2).setKD(0.1).setKS(0.4).setShininess(60))
-            );
-
-            // Sun - bright and descending
-            scene.geometries.add(
-                    new Sphere(new Point(0, sunY, 200), sunRadius)
-                            .setEmission(new Color(255, 120, 0))
-                            .setMaterial(new Material().setKA(0.5).setKD(0.3).setKS(0.8).setShininess(100))
-            );
-
-            scene.lights.add(new PointLight(new Color(1000, 400, 100), new Point(0, sunY, 200))
-                    .setKq(0.00005).setKl(0.0005));
-
-            // Boats - small black boxes
-            for (int i = -2; i <= 2; i++) {
-                double boatZ = 150 - i * 40;
-                double boatX = Math.sin(frame * 0.05 + i) * 30;
-                scene.geometries.add(
-                        new Polygon(
-                                new Point(boatX - 10, seaLevel + 1, boatZ),
-                                new Point(boatX + 10, seaLevel + 1, boatZ),
-                                new Point(boatX + 10, seaLevel + 1, boatZ + 20),
-                                new Point(boatX - 10, seaLevel + 1, boatZ + 20))
-                                .setEmission(new Color(10, 10, 10))
-                                .setMaterial(new Material().setKA(0.2).setKD(0.5).setKS(0.1).setShininess(10))
-                );
-            }
-
-            // Birds - simple arcs (small black spheres in formation)
-            for (int b = 0; b < 5; b++) {
-                double birdX = -60 + b * 30 + Math.sin(frame * 0.05 + b) * 5;
-                double birdY = 60 + Math.cos(frame * 0.05 + b) * 5;
-                double birdZ = 180 + b * 5;
-                scene.geometries.add(
-                        new Sphere(new Point(birdX, birdY, birdZ), 2)
-                                .setEmission(new Color(10, 10, 10))
-                                .setMaterial(new Material().setKA(0.3).setKD(0.4).setKS(0.2).setShininess(10))
-                );
-            }
-
-            // Camera settings
-            cameraBuilder
-                    .setRayTracer(scene, RayTracerType.SIMPLE)
-                    .setMultithreading(-1)
-                    .setDebugPrint(0)
-                    .setLocation(new Point(0, 30, -300))
-                    .setDirection(new Vector(0, -0.05, 1))
-                    .setVpDistance(300)
-                    .setVpSize(200, 200)
-                    .setResolution(800, 800)
-                    .build()
-                    .renderImage()
-                    .writeToImage("SunsetVideo/Frame_" + String.format("%03d", frame));
-        }
-
-        // Create video
-        try {
-            ImagesToVideo.createVideoFromImages("SunsetVideo", "SunsetVideo/FinalSunset", 1, true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-
-
 }

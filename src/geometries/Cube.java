@@ -184,11 +184,12 @@ public class Cube extends Geometry {
                 intersections.addAll(hits);
             }
         }
-        return intersections.isEmpty() ? null :
-                intersections.stream()
-                        .min((a, b) -> Double.compare(a.point.distance(ray.getHead()), b.point.distance(ray.getHead())))
-                        .map(List::of)
-                        .orElse(null);
+        // If no intersections found, return null
+        if (intersections.isEmpty()) {
+            return null;
+        }
+        Intersection closest = ray.findClosestIntersection(intersections);
+        return List.of(new Intersection(this,closest.point));
     }
     /**
      * Calculates the normal vector at a given point on the cube.
@@ -202,10 +203,9 @@ public class Cube extends Geometry {
         // Vector from cube center to the point
         Vector fromCenter = point.subtract(center);
 
-        // Project onto axes using dot product
-        double dx = fromCenter.dotProduct(new Vector(1, 0, 0));
-        double dy = fromCenter.dotProduct(new Vector(0, 1, 0));
-        double dz = fromCenter.dotProduct(new Vector(0, 0, 1));
+        double dx = fromCenter.getX();
+        double dy = fromCenter.getY();
+        double dz = fromCenter.getZ();
 
         double halfWidth = width / 2;
         double halfHeight = height / 2;
@@ -219,35 +219,24 @@ public class Cube extends Geometry {
         if (Math.abs(dz - halfDepth) < epsilon) return new Vector(0, 0, 1);    // Front
         if (Math.abs(dz + halfDepth) < epsilon) return new Vector(0, 0, -1);   // Back
 
-        return null; // Point not on any face
+        // Fallback: find the dominant axis direction (most aligned component)
+        double absX = Math.abs(dx - halfWidth);
+        double absNX = Math.abs(dx + halfWidth);
+        double absY = Math.abs(dy - halfHeight);
+        double absNY = Math.abs(dy + halfHeight);
+        double absZ = Math.abs(dz - halfDepth);
+        double absNZ = Math.abs(dz + halfDepth);
+
+        double min = Math.min(Math.min(Math.min(Math.min(Math.min(absX, absNX), absY), absNY), absZ), absNZ);
+
+        if (min == absX) return new Vector(1, 0, 0);
+        if (min == absNX) return new Vector(-1, 0, 0);
+        if (min == absY) return new Vector(0, 1, 0);
+        if (min == absNY) return new Vector(0, -1, 0);
+        if (min == absZ) return new Vector(0, 0, 1);
+        return new Vector(0, 0, -1);
     }
-    /**
-     * Sets the emission color for the cube and its polygons.
-     * @param emission the emission color to set
-     * @return this cube instance
-     */
-    @Override
-    public Geometry setEmission(Color emission) {
-        super.setEmission(emission);
-        for (Polygon polygon : polygons) {
-            polygon.setEmission(emission);
-        }
-        return this;
-    }
-    /**
-     * Sets the material for the cube and its polygons.
-     *
-     * @param material the material to set
-     * @return this cube instance
-     */
-    @Override
-    public Geometry setMaterial(Material material) {
-        super.setMaterial(material);
-        for (Polygon polygon : polygons) {
-            polygon.setMaterial(material);
-        }
-        return this;
-    }
+
 
     @Override
     public AABB getAABB() {

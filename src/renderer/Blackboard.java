@@ -4,6 +4,7 @@ import primitives.*;
 import primitives.Vector;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +48,12 @@ public class Blackboard implements Cloneable {
      */
     private boolean blurryAndGlossy = false;
     /**
+     * Indicates whether to use adaptive sampling.
+     * If true, the number of rays generated will adapt based on the scene complexity.
+     * Default is false.
+     */
+    private boolean adaptiveSampling = false;
+    /**
      * Enum representing the methods of generating points.
      * GRID: Generates points in a grid pattern.
      * RANDOM: Generates points randomly within a unit square.
@@ -79,6 +86,19 @@ public class Blackboard implements Cloneable {
      * Default is 0.5, which corresponds to a unit circle or square of size 1x1.
      */
     private static final double DEFAULT_RADIUS = 0.5;
+    /**
+     * The threshold for adaptive sampling.
+     * This value determines the sensitivity of the adaptive sampling algorithm.
+     * Default is 0.001, which means that if the difference in color intensity is less than this value,
+     * the algorithm will adaptively reduce the number of rays.
+     */
+    private double adaptiveThereHold = 0.01;
+    /**
+     * The maximum adaptive level for adaptive sampling.
+     * This value determines the maximum number of rays that can be generated in adaptive sampling.
+     * Default is 5, which means that the algorithm can generate up to 5 times the base number of rays.
+     */
+    private int maxAdaptiveLevel = 5;
 
     /**
      * Private constructor to prevent direct instantiation.
@@ -208,6 +228,43 @@ public class Blackboard implements Cloneable {
          */
         public Builder setBlurryAndGlossy(boolean blurryAndGlossy) {
             blackboard.blurryAndGlossy = blurryAndGlossy;
+            return this;
+        }
+        /**
+         * Sets whether to use adaptive sampling.
+         * If true, the number of rays generated will adapt based on the scene complexity.
+         * Default is false.
+         *
+         * @param adaptiveSampling true to enable adaptive sampling, false to disable
+         * @return this Builder instance for method chaining
+         */
+        public Builder setAdaptiveSampling(boolean adaptiveSampling) {
+            blackboard.adaptiveSampling = adaptiveSampling;
+            return this;
+        }
+        /**
+         * Sets the maximum adaptive level for adaptive sampling.
+         * This value determines the maximum number of rays that can be generated in adaptive sampling.
+         * Default is 5, which means that the algorithm can generate up to 5 times the base number of rays.
+         *
+         * @param maxAdaptiveLevel the maximum adaptive level to be set
+         * @return this Builder instance for method chaining
+         */
+        public Builder setMaxAdaptiveLevel(int maxAdaptiveLevel) {
+            blackboard.maxAdaptiveLevel = maxAdaptiveLevel;
+            return this;
+        }
+        /**
+         * Sets the adaptive threshold for adaptive sampling.
+         * This value determines the sensitivity of the adaptive sampling algorithm.
+         * Default is 0.01, which means that if the difference in color intensity is less than this value,
+         * the algorithm will adaptively reduce the number of rays.
+         *
+         * @param adaptiveThereHold the adaptive threshold to be set
+         * @return this Builder instance for method chaining
+         */
+        public Builder setAdaptiveThereHold(double adaptiveThereHold) {
+            blackboard.adaptiveThereHold = adaptiveThereHold;
             return this;
         }
 
@@ -448,6 +505,28 @@ public class Blackboard implements Cloneable {
     public Boolean useBlurryAndGlossy() {
         return blurryAndGlossy;
     }
+    /**
+     * Returns whether adaptive sampling is enabled.
+     * @return true if adaptive sampling is enabled, false otherwise
+     */
+    public Boolean useAdaptive() {
+        return adaptiveSampling;
+    }
+
+    /**
+     * Returns the method used for generating points.
+     * @return the method of generating points, such as GRID, RANDOM, or JITTERED
+     */
+    public int getMaxAdaptiveLevel()
+    {
+        return maxAdaptiveLevel;
+    }
+    public double getAdaptiveThreshold()
+    {
+        return adaptiveThereHold;
+    }
+
+
 
     /**
      * Creates a clone of this Blackboard instance.
